@@ -6,11 +6,16 @@
 
 package appeng.tile.networking;
 
-import java.util.HashMap;
+import static appeng.helpers.WireLessToolHelper.getAndCheckTile;
+
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import appeng.api.networking.IGridConnection;
+import appeng.api.util.DimensionalCoord;
 
 public class TileWirelessConnector extends TileWirelessBase {
 
@@ -23,6 +28,8 @@ public class TileWirelessConnector extends TileWirelessBase {
 
     @Override
     protected void setDataConnections(TileWirelessBase other, IGridConnection connection) {
+        if (this.connection != null) breakAllConnections();
+
         this.connection = connection;
         this.target = other;
     }
@@ -36,22 +43,18 @@ public class TileWirelessConnector extends TileWirelessBase {
     }
 
     @Override
-    public Set<TileWirelessBase> getConnectedTiles() {
-        return Set.of(target);
+    public List<TileWirelessBase> getConnectedTiles() {
+        return target == null ? ImmutableList.of() : ImmutableList.of(target);
     }
 
     @Override
-    public Set<IGridConnection> getAllConnections() {
-        return Set.of(connection);
+    public List<IGridConnection> getAllConnections() {
+        return connection == null ? ImmutableList.of() : ImmutableList.of(connection);
     }
 
     @Override
     public Map<TileWirelessBase, IGridConnection> getConnectionMap() {
-        Map<TileWirelessBase, IGridConnection> map = new HashMap<>();
-        if (target != null && connection != null) {
-            map.put(target, connection);
-        }
-        return map;
+        return target != null && connection != null ? ImmutableMap.of(target, connection) : ImmutableMap.of();
     }
 
     @Override
@@ -65,8 +68,10 @@ public class TileWirelessConnector extends TileWirelessBase {
     @Override
     public boolean doLink(TileWirelessBase other) {
         if (!other.canAddLink()) return false;
+
         doUnlink();
-        // this.customName = other.customName;
+        if (other.hasCustomName()) setCustomName(other.getCustomName());
+        else setCustomName(null);
         return setupConnection(other);
     }
 
@@ -85,5 +90,14 @@ public class TileWirelessConnector extends TileWirelessBase {
     @Override
     public void doUnlink() {
         breakAllConnections();
+    }
+
+    @Override
+    protected void tryRestoreConnection(List<DimensionalCoord> locList) {
+        if (connection == null) {
+            TileWirelessBase tile = getAndCheckTile(locList.get(0), worldObj, null);
+            if (tile == null) return;
+            doLink(tile);
+        }
     }
 }

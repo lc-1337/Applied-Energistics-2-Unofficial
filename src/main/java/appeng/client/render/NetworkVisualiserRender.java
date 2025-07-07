@@ -27,7 +27,6 @@ import appeng.items.tools.ToolNetworkVisualiser.VNode;
 import appeng.items.tools.ToolNetworkVisualiser.VNodeFlags;
 import appeng.items.tools.ToolNetworkVisualiser.VisualisationModes;
 import appeng.tile.networking.TileWirelessBase;
-import appeng.tile.networking.TileWirelessHub;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class NetworkVisualiserRender {
@@ -43,8 +42,7 @@ public class NetworkVisualiserRender {
     private static VisualisationModes mode = VisualisationModes.FULL;
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static boolean renderWireless = false;
-    private static DimensionalCoord otherDc;
-    private static final List<DimensionalCoord> hubConnections = new ArrayList<>();
+    private static final List<DimensionalCoord> wirelessConnections = new ArrayList<>();
     private static DimensionalCoord prevPos;
 
     List<VisualisationModes> renderNodesModes = Arrays
@@ -72,15 +70,9 @@ public class NetworkVisualiserRender {
         needListRefresh = true;
     }
 
-    public static void doWirelessRender(DimensionalCoord dc) {
-        otherDc = dc;
-        renderWireless = true;
-        expTime = System.currentTimeMillis() + 100;
-    }
-
-    public static void doWirelessHubRender(List<DimensionalCoord> dcl) {
-        hubConnections.clear();
-        hubConnections.addAll(dcl);
+    public static void doWirelessRender(List<DimensionalCoord> dcl) {
+        wirelessConnections.clear();
+        wirelessConnections.addAll(dcl);
         renderWireless = true;
         expTime = System.currentTimeMillis() + 100;
     }
@@ -93,15 +85,13 @@ public class NetworkVisualiserRender {
         double viewY = p.lastTickPosY + (p.posY - p.lastTickPosY) * ev.partialTicks;
         double viewZ = p.lastTickPosZ + (p.posZ - p.lastTickPosZ) * ev.partialTicks;
 
-        GL11.glPushMatrix();
-        GL11.glTranslated(-viewX, -viewY, -viewZ);
-        doRenderWirelessPath();
-        GL11.glPopMatrix();
+        doRenderWirelessPath(viewX, viewY, viewZ);
 
         ItemStack is = mc.thePlayer.inventory.getCurrentItem();
-        if (!(is != null && is.getItem() instanceof ToolNetworkVisualiser && is.hasTagCompound())
-                || !is.getTagCompound().hasKey("dim"))
+        if (is == null || !(is.getItem() instanceof ToolNetworkVisualiser && is.hasTagCompound()
+                && is.getTagCompound().hasKey("dim")))
             return;
+
         // Do not render if in a different dimension from the bound network
         VisualisationModes newMode = (VisualisationModes) ToolNetworkVisualiser.getConfigManager(is)
                 .getSetting(Settings.NETWORK_VISUALISER);
@@ -120,64 +110,53 @@ public class NetworkVisualiserRender {
         GL11.glPopMatrix();
     }
 
-    public void doRenderWirelessPath() {
-        if (renderWireless) {
-            if (expTime < System.currentTimeMillis()) {
-                otherDc = null;
-                hubConnections.clear();
-                renderWireless = false;
-            }
+    public void doRenderWirelessPath(double viewX, double viewY, double viewZ) {
+        if (!renderWireless) return;
 
-            MovingObjectPosition mop = mc.objectMouseOver;
-            if (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                DimensionalCoord pos = new DimensionalCoord(mop.blockX, mop.blockY, mop.blockZ, 0);
-                TileEntity te = mc.theWorld.getTileEntity(pos.x, pos.y, pos.z);
-                if (prevPos == null || !pos.isEqual(prevPos)) {
-                    prevPos = pos;
-                    expTime = 0;
-                    return;
-                }
-                if (te instanceof TileWirelessHub && !hubConnections.isEmpty()) {
-                    GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
-
-                    GL11.glDisable(GL11.GL_LIGHTING);
-                    GL11.glDisable(GL11.GL_TEXTURE_2D);
-                    GL11.glDisable(GL11.GL_DEPTH_TEST);
-                    GL11.glEnable(GL11.GL_LINE_SMOOTH);
-                    GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
-                    GL11.glLineWidth(4.0f);
-
-                    Tessellator tess = Tessellator.instance;
-                    tess.startDrawing(GL11.GL_LINES);
-                    tess.setColorRGBA_F(0, 0, 1, 1);
-                    for (DimensionalCoord dc : hubConnections) {
-                        tess.addVertex(pos.x + 0.5d, pos.y + 0.5d, pos.z + 0.5d);
-                        tess.addVertex(dc.x + 0.5d, dc.y + 0.5d, dc.z + 0.5d);
-                    }
-                    tess.draw();
-
-                    GL11.glPopAttrib();
-                } else if (te instanceof TileWirelessBase && otherDc != null) {
-                    GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
-
-                    GL11.glDisable(GL11.GL_LIGHTING);
-                    GL11.glDisable(GL11.GL_TEXTURE_2D);
-                    GL11.glDisable(GL11.GL_DEPTH_TEST);
-                    GL11.glEnable(GL11.GL_LINE_SMOOTH);
-                    GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
-                    GL11.glLineWidth(4.0f);
-
-                    Tessellator tess = Tessellator.instance;
-                    tess.startDrawing(GL11.GL_LINES);
-                    tess.setColorRGBA_F(0, 0, 1, 1);
-                    tess.addVertex(pos.x + 0.5d, pos.y + 0.5d, pos.z + 0.5d);
-                    tess.addVertex(otherDc.x + 0.5d, otherDc.y + 0.5d, otherDc.z + 0.5d);
-                    tess.draw();
-
-                    GL11.glPopAttrib();
-                }
-            }
+        if (expTime < System.currentTimeMillis()) {
+            wirelessConnections.clear();
+            renderWireless = false;
+            return;
         }
+
+        MovingObjectPosition mop = mc.objectMouseOver;
+        if (mop == null || mop.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) return;
+
+        DimensionalCoord pos = new DimensionalCoord(mop.blockX, mop.blockY, mop.blockZ, 0);
+        if (prevPos == null || !pos.isEqual(prevPos)) {
+            prevPos = pos;
+            expTime = 0;
+            return;
+        }
+
+        TileEntity te = mc.theWorld.getTileEntity(pos.x, pos.y, pos.z);
+
+        if (!(te instanceof TileWirelessBase) || wirelessConnections.isEmpty()) return;
+
+        GL11.glPushMatrix();
+        GL11.glTranslated(-viewX, -viewY, -viewZ);
+
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
+
+        GL11.glDisable(GL11.GL_LIGHTING);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
+        GL11.glLineWidth(4.0f);
+
+        Tessellator tess = Tessellator.instance;
+        tess.startDrawing(GL11.GL_LINES);
+        tess.setColorRGBA_F(0, 0, 1, 1);
+        for (DimensionalCoord dc : wirelessConnections) {
+            tess.addVertex(pos.x + 0.5d, pos.y + 0.5d, pos.z + 0.5d);
+            tess.addVertex(dc.x + 0.5d, dc.y + 0.5d, dc.z + 0.5d);
+        }
+        tess.draw();
+
+        GL11.glPopAttrib();
+        GL11.glPopMatrix();
+
     }
 
     public void doRender(Float partialTicks, double viewX, double viewY, double viewZ) {

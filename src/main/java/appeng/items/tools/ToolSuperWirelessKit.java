@@ -13,27 +13,22 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import appeng.api.config.AdvancedWirelessToolMode;
-import appeng.api.config.SecurityPermissions;
 import appeng.api.config.Settings;
 import appeng.api.config.SuperWirelessToolGroupBy;
 import appeng.api.config.WirelessToolType;
 import appeng.api.config.YesNo;
 import appeng.api.implementations.guiobjects.IGuiItem;
 import appeng.api.implementations.guiobjects.IGuiItemObject;
-import appeng.api.networking.IGridHost;
-import appeng.api.networking.security.ISecurityGrid;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
 import appeng.core.features.AEFeature;
-import appeng.core.localization.WirelessToolMessages;
 import appeng.core.sync.GuiBridge;
+import appeng.helpers.WireLessToolHelper;
 import appeng.items.AEBaseItem;
 import appeng.items.contents.SuperWirelessKitObject;
 import appeng.tile.networking.TileWirelessBase;
@@ -73,241 +68,54 @@ public class ToolSuperWirelessKit extends AEBaseItem implements IGuiItem {
             return is;
         }
 
+        IConfigManager cm = getConfigManager(is);
         if (Platform.keyBindTab.isKeyDown(p)) {
-            IConfigManager cm = getConfigManager(is);
-            final WirelessToolType newState = (WirelessToolType) Platform.rotateEnum(
-                    cm.getSetting(Settings.WIRELESS_TOOL_TYPE),
-                    false,
-                    Settings.WIRELESS_TOOL_TYPE.getPossibleValues());
-            cm.putSetting(Settings.WIRELESS_TOOL_TYPE, newState);
-
-            p.addChatMessage(WirelessToolMessages.set.toChat(EnumChatFormatting.YELLOW + newState.getLocal()));
-
-        } else {
-            WirelessToolType mode = (WirelessToolType) getConfigManager(is).getSetting(Settings.WIRELESS_TOOL_TYPE);
-            if (p.isSneaking() && Platform.keyBindLCtrl.isKeyDown(p)) {
-                switch (mode) {
-                    case Simple -> is.getTagCompound().setTag("simple", new NBTTagCompound());
-                    case Advanced -> is.getTagCompound().setTag("advanced", new NBTTagCompound());
-                    case Super -> {
-                        NBTTagCompound newTag = new NBTTagCompound();
-                        newTag.setTag("pins", new NBTTagList());
-                        newTag.setTag("names", new NBTTagList());
-                        newTag.setTag("pos", new NBTTagCompound());
-                        is.getTagCompound().setTag("super", newTag);
-                    }
-                }
-
-                p.addChatMessage(WirelessToolMessages.empty.toChat(EnumChatFormatting.YELLOW + mode.getLocal()));
-
-            } else if (p.isSneaking() && mode == WirelessToolType.Advanced) {
-                IConfigManager cm = getConfigManager(is);
-                final AdvancedWirelessToolMode newState = (AdvancedWirelessToolMode) Platform.rotateEnum(
-                        cm.getSetting(Settings.ADVANCED_WIRELESS_TOOL_MODE),
-                        false,
-                        Settings.ADVANCED_WIRELESS_TOOL_MODE.getPossibleValues());
-                cm.putSetting(Settings.ADVANCED_WIRELESS_TOOL_MODE, newState);
-
-                p.addChatMessage(new ChatComponentTranslation(newState.getLocal()));
-            } else if (mode == WirelessToolType.Super) {
-                Platform.openGUI(p, null, ForgeDirection.UNKNOWN, GuiBridge.GUI_SUPER_WIRELESS_KIT);
-            }
-
+            WireLessToolHelper.nextMode(p, cm);
+            return is;
         }
+
+        WirelessToolType mode = (WirelessToolType) cm.getSetting(Settings.WIRELESS_TOOL_TYPE);
+        if (p.isSneaking() && Platform.keyBindLCtrl.isKeyDown(p)) {
+            WireLessToolHelper.clearNBT(is, mode, p);
+            return is;
+        }
+
+        if (p.isSneaking() && mode == WirelessToolType.Advanced) {
+            WireLessToolHelper.nextConnectMode(cm, p);
+            return is;
+        }
+
+        if (mode == WirelessToolType.Super) {
+            Platform.openGUI(p, null, ForgeDirection.UNKNOWN, GuiBridge.GUI_SUPER_WIRELESS_KIT);
+            return is;
+        }
+
         return is;
-    }
-
-    public boolean performConnection(TileWirelessBase wc, DimensionalCoord dc, EntityPlayer p) {
-        if (wc.getLocation().getDimension() == dc.getDimension()) {
-            if (wc.isHub() && wc.getFreeSlots() == 0) {
-                p.addChatMessage(WirelessToolMessages.mode_simple_bound_targethubfull.toChat());
-                return false;
-            }
-            if (wc.doUnlink(dc)) {
-                p.addChatMessage(
-                        WirelessToolMessages.connected.toChat(dc.x, dc.y, dc.z)
-                                .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GREEN)));
-                return true;
-            } else {
-                p.addChatMessage(
-                        WirelessToolMessages.failed.toChat()
-                                .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
-            }
-
-        } else {
-            p.addChatMessage(WirelessToolMessages.dimension.toChat());
-        }
-        return false;
     }
 
     @Override
     public boolean onItemUse(ItemStack is, EntityPlayer p, World w, int x, int y, int z, int side, float xOff,
             float yOff, float zOff) {
-        if (Platform.isServer()) {
-            WirelessToolType mode = (WirelessToolType) getConfigManager(is).getSetting(Settings.WIRELESS_TOOL_TYPE);
-            TileEntity te = w.getTileEntity(x, y, z);
+        if (Platform.isClient()) return true;
 
-            if (!(te instanceof IGridHost gh)) {
-                return false;
-            } else if (!((ISecurityGrid) gh.getGridNode(ForgeDirection.UNKNOWN).getGrid().getCache(ISecurityGrid.class))
-                    .hasPermission(p, SecurityPermissions.BUILD)) {
-                        p.addChatMessage(
-                                new ChatComponentTranslation(
-                                        "item.appliedenergistics2.ToolSuperWirelessKit.security.player"));
-                        return false;
-                    }
+        WirelessToolType mode = (WirelessToolType) getConfigManager(is).getSetting(Settings.WIRELESS_TOOL_TYPE);
+        TileEntity te = w.getTileEntity(x, y, z);
 
-            switch (mode) {
-                case Simple -> {
-                    if (te instanceof TileWirelessBase wc) {
-                        NBTTagCompound tag = is.getTagCompound().getCompoundTag("simple");
-                        if (tag.hasNoTags()) {
-                            DimensionalCoord dc = wc.getLocation();
-                            dc.writeToNBT(tag);
-                            is.getTagCompound().setTag("simple", tag);
-                            p.addChatMessage(
-                                    new ChatComponentTranslation(
-                                            "item.appliedenergistics2.ToolSuperWirelessKit.bound",
-                                            dc.x,
-                                            dc.y,
-                                            dc.z).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GREEN)));
-                        } else {
-                            DimensionalCoord dc = DimensionalCoord.readFromNBT(tag);
-                            if (performConnection(wc, dc, p)) {
-                                is.getTagCompound().setTag("simple", new NBTTagCompound());
-                                return true;
-                            }
-                        }
-                    }
-                }
-                case Advanced -> {
-                    if (te instanceof TileWirelessBase wc) {
-                        DimensionalCoord sdc = wc.getLocation();
-                        List<DimensionalCoord> dcl = DimensionalCoord
-                                .readAsListFromNBT(is.getTagCompound().getCompoundTag("advanced"));
-                        AdvancedWirelessToolMode mod = (AdvancedWirelessToolMode) getConfigManager(is)
-                                .getSetting(Settings.ADVANCED_WIRELESS_TOOL_MODE);
-                        if (mod == Queueing) {
-                            int j = 0;
-                            for (DimensionalCoord sdcl : dcl) {
-                                if (sdc.isEqual(sdcl)) {
-                                    if (wc.isHub()) {
-                                        if (j > wc.getFreeSlots()) {
-                                            p.addChatMessage(
-                                                    new ChatComponentTranslation(
-                                                            "item.appliedenergistics2.ToolSuperWirelessKit.bound.advanced.filled")
-                                                                    .setChatStyle(
-                                                                            new ChatStyle()
-                                                                                    .setColor(EnumChatFormatting.RED)));
-                                            return false;
-                                        }
-                                    } else {
-                                        p.addChatMessage(
-                                                new ChatComponentTranslation(
-                                                        "item.appliedenergistics2.ToolSuperWirelessKit.bound.advanced.filled")
-                                                                .setChatStyle(
-                                                                        new ChatStyle()
-                                                                                .setColor(EnumChatFormatting.RED)));
-                                        return false;
-                                    }
-                                }
-                            }
-                            if (Platform.keyBindLCtrl.isKeyDown(p) && wc.isHub()) {
-                                int i = 0;
-                                while (i < wc.getFreeSlots()) {
-                                    dcl.add(new DimensionalCoord(te));
-                                    i++;
-                                }
-                                p.addChatMessage(
-                                        new ChatComponentTranslation(
-                                                "item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.queueing.hub",
-                                                i));
-                            } else {
-                                dcl.add(new DimensionalCoord(te));
-                                p.addChatMessage(
-                                        new ChatComponentTranslation(
-                                                "item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.queued",
-                                                x,
-                                                y,
-                                                z));
-                            }
-                            DimensionalCoord.writeListToNBT(is.getTagCompound().getCompoundTag("advanced"), dcl);
-                            return true;
-                        } else {
-                            if (dcl.isEmpty()) {
-                                p.addChatMessage(
-                                        new ChatComponentTranslation(
-                                                "item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.noconnectors"));
-                                return false;
-                            }
-                            DimensionalCoord dc = dcl.get(0);
-                            if (wc.getLocation().getDimension() != dc.getDimension()) {
-                                p.addChatMessage(
-                                        new ChatComponentTranslation(
-                                                "item.appliedenergistics2.ToolSuperWirelessKit.dimension"));
-                                return false;
-                            }
-                            if (Platform.keyBindLCtrl.isKeyDown(p) && wc.isHub()) {
-                                int i = 0;
-                                while (wc.getFreeSlots() != 0 && !dcl.isEmpty()) {
-                                    if (performConnection(wc, dcl.get(0), p)) {
-                                        dcl.remove(0);
-                                        i++;
-                                    } else {
-                                        break;
-                                    }
-                                }
-                                p.addChatMessage(
-                                        new ChatComponentTranslation(
-                                                "item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.binding.hub",
-                                                i));
-                            } else if (performConnection(wc, dc, p)) {
-                                dcl.remove(0);
-                            }
-                            NBTTagCompound tag = new NBTTagCompound();
-                            DimensionalCoord.writeListToNBT(tag, dcl);
-                            is.getTagCompound().setTag("advanced", tag);
-                        }
-                    }
-                }
-                case Super -> {
-                    IGridHost igh = (IGridHost) te;
-                    if (!is.getTagCompound().hasKey("super")) {
-                        NBTTagCompound newTag = new NBTTagCompound();
-                        newTag.setTag("pins", new NBTTagList());
-                        newTag.setTag("names", new NBTTagList());
-                        newTag.setTag("pos", new NBTTagCompound());
-                        is.getTagCompound().setTag("super", newTag);
-                    }
-                    NBTTagCompound tag = is.getTagCompound().getCompoundTag("super").getCompoundTag("pos");
-                    List<DimensionalCoord> dcl = DimensionalCoord.readAsListFromNBT(tag);
-                    for (int i = 0; i < dcl.size(); i++) {
-                        DimensionalCoord dc = dcl.get(i);
-                        TileEntity TempTe = w.getTileEntity(dc.x, dc.y, dc.z);
-                        if (TempTe instanceof IGridHost igh1) {
-                            if (igh.getGridNode(ForgeDirection.UNKNOWN).getGrid()
-                                    == igh1.getGridNode(ForgeDirection.UNKNOWN).getGrid()) {
-                                p.addChatMessage(
-                                        new ChatComponentTranslation(
-                                                "item.appliedenergistics2.ToolSuperWirelessKit.bound.super.failed",
-                                                i).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
-                                return false;
-                            }
-                        }
-                    }
-                    p.addChatMessage(
-                            new ChatComponentTranslation(
-                                    "item.appliedenergistics2.ToolSuperWirelessKit.bound.super",
-                                    x,
-                                    y,
-                                    z,
-                                    dcl.size()).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GREEN)));
-                    dcl.add(new DimensionalCoord(te));
-                    DimensionalCoord.writeListToNBT(tag, dcl);
-                }
-            }
+        if (!(te instanceof TileWirelessBase target)) {
+            return false;
         }
-        return true;
+
+        if (!WireLessToolHelper.hasBuildPermissions(target, p)) {
+            p.addChatMessage(
+                    new ChatComponentTranslation("item.appliedenergistics2.ToolSuperWirelessKit.security.player"));
+            return false;
+        }
+
+        return switch (mode) {
+            case Simple -> WireLessToolHelper.bindSimple(target, is, w, p);
+            case Advanced -> WireLessToolHelper.bindAdvanced(target, is, w, p);
+            case Super -> WireLessToolHelper.bindSuper(target, is, w, p);
+        };
     }
 
     public static IConfigManager getConfigManager(final ItemStack target) {

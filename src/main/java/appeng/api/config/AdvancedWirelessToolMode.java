@@ -5,7 +5,9 @@ import appeng.core.localization.WirelessToolMessages;
 public enum AdvancedWirelessToolMode {
 
     Binding,
-    Queueing;
+    BindingLine,
+    Queueing,
+    QueueingLine;
 
     public String getLocal() {
         switch (this) {
@@ -15,7 +17,21 @@ public enum AdvancedWirelessToolMode {
             case Queueing -> {
                 return WirelessToolMessages.mode_advanced_queueing_activated.getLocal();
             }
+            case BindingLine -> {
+                return WirelessToolMessages.mode_advanced_bindingLine_activated.getLocal();
+            }
+            case QueueingLine -> {
+                return WirelessToolMessages.mode_advanced_queueingLine_activated.getLocal();
+            }
         }
         return "";
+    }
+
+    public boolean isQueueing() {
+        return this == Queueing || this == QueueingLine;
+    }
+
+    public boolean isBinding() {
+        return this == Binding || this == BindingLine;
     }
 }

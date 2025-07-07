@@ -23,7 +23,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
-import appeng.tile.networking.TileWirelessConnector;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
@@ -44,6 +43,7 @@ import appeng.block.AEBaseTileBlock;
 import appeng.core.features.AEFeature;
 import appeng.helpers.NullRotation;
 import appeng.tile.networking.TileWirelessBase;
+import appeng.tile.networking.TileWirelessConnector;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -121,7 +121,7 @@ public class BlockWirelessConnector extends AEBaseTileBlock {
 
     @Override
     public void breakBlock(World w, int x, int y, int z, Block a, int b) {
-        ((TileWirelessConnector) w.getTileEntity(x, y, z)).doUnlink();
+        ((TileWirelessBase) w.getTileEntity(x, y, z)).doUnlink();
         super.breakBlock(w, x, y, z, a, b);
     }
 

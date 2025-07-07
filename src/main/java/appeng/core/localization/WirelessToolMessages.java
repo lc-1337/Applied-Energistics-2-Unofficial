@@ -8,13 +8,15 @@ public enum WirelessToolMessages {
 
     name,
     security_player,
-    dimension,
+    dimensionMismatch,
     clear,
     bound,
     bound_advanced_filled,
     bound_super,
     bound_super_failed,
     connected,
+    disconnected,
+    invalidTarget,
     failed,
     empty,
     set,
@@ -22,14 +24,17 @@ public enum WirelessToolMessages {
     mode_simple,
     mode_simple_empty,
     mode_simple_bound,
-    mode_simple_bound_targethubfull,
+    targethubfull,
+    otherhubfull,
     mode_advanced,
     mode_advanced_next,
     mode_advanced_extra,
     mode_advanced_queueing,
     mode_advanced_binding,
     mode_advanced_queueing_activated,
+    mode_advanced_queueingLine_activated,
     mode_advanced_binding_activated,
+    mode_advanced_bindingLine_activated,
     mode_advanced_queueing_empty,
     mode_advanced_binding_empty,
     mode_advanced_queueing_notempty,
@@ -53,22 +58,22 @@ public enum WirelessToolMessages {
     }
 
     public IChatComponent toChat() {
-        return new ChatComponentTranslation(this.getUnlocalizedName());
+        return new ChatComponentTranslation(this.getUnlocalized());
     }
 
     public IChatComponent toChat(Object... args) {
-        return new ChatComponentTranslation(this.getUnlocalizedName(), args);
+        return new ChatComponentTranslation(this.getUnlocalized(), args);
     }
 
     public String getLocal() {
-        return StatCollector.translateToLocal(this.getUnlocalizedName());
+        return StatCollector.translateToLocal(this.getUnlocalized());
     }
 
     public String getLocal(Object... args) {
-        return StatCollector.translateToLocalFormatted(this.getUnlocalizedName(), args);
+        return StatCollector.translateToLocalFormatted(this.getUnlocalized(), args);
     }
 
-    public String getUnlocalizedName() {
+    public String getUnlocalized() {
         return "item.appliedenergistics2.ToolSuperWirelessKit." + this.formatedName;
     }
 }
