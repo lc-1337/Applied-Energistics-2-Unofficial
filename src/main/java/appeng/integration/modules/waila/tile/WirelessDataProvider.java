@@ -37,8 +37,9 @@ public class WirelessDataProvider extends BaseWailaDataProvider {
             NetworkVisualiserRender.doWirelessRender(locList);
 
             switch (locList.size()) {
-                case 0: currentToolTip.add(WailaText.wireless_notconnected.getLocal());
-                break;
+                case 0:
+                    currentToolTip.add(WailaText.wireless_notconnected.getLocal());
+                    break;
                 case 1: {
                     DimensionalCoord dc = locList.get(0);
                     currentToolTip.add(WailaText.wireless_connected.getLocal(dc.x, dc.y, dc.z));

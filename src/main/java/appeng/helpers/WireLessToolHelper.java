@@ -179,10 +179,10 @@ public class WireLessToolHelper {
         }
 
         if (!target.canAddLink()) {
-                p.addChatMessage(
-                        WirelessToolMessages.targethubfull.toChat()
-                                .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
-                return false;
+            p.addChatMessage(
+                    WirelessToolMessages.targethubfull.toChat()
+                            .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+            return false;
         } else if (!isHub) { // if not a hub, check if not already in the queue
             for (DimensionalCoord loc : locList) {
                 if (targetLoc.isEqual(loc)) {
