@@ -56,9 +56,6 @@ public class TileWirelessHub extends TileWirelessBase {
     @Override
     public boolean doLink(TileWirelessBase other) {
         if (isConnectedTo(other) || !other.canAddLink() || !canAddLink()) return false;
-
-        if (other.hasCustomName()) setCustomName(other.getCustomName());
-        else setCustomName(null);
         return setupConnection(other);
     }
 

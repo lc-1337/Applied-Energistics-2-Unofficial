@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -121,6 +122,7 @@ public abstract class TileWirelessBase extends AENetworkTile implements IColorab
                 other.setDataConnections(this, connection);
                 updateActive();
                 other.updateActive();
+                shareCustomName(other);
                 return true;
             }
         } catch (FailedConnection ignored) {}
@@ -260,6 +262,19 @@ public abstract class TileWirelessBase extends AENetworkTile implements IColorab
         this.markDirty();
         this.markForUpdate();
         return true;
+    }
+
+    protected void shareCustomName(TileWirelessBase other) {
+        if (other.hasCustomName()) setCustomName(other.getCustomName());
+        else if (hasCustomName()) other.setCustomName(getCustomName());
+    }
+
+    public void setCustomName(final String name) {
+        super.setCustomName(name);
+        for (TileWirelessBase tile : getConnectedTiles()) {
+            if ( name.isEmpty() && !tile.hasCustomName() || Objects.equals(tile.getCustomName(), name)) continue;
+            tile.setCustomName(name);
+        }
     }
 
     public void madChameleonRecolor() {

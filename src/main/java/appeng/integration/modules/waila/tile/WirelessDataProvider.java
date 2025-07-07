@@ -64,10 +64,6 @@ public class WirelessDataProvider extends BaseWailaDataProvider {
             currentToolTip.add(WailaText.wireless_notconnected.getLocal());
         }
 
-        if (tag.hasKey("name")) {
-            currentToolTip.add(WailaText.wireless_name.getLocal(tag.getString("name")));
-        }
-
         AEColor color = AEColor.values()[tag.getInteger("color")];
         if (color != AEColor.Transparent) {
             currentToolTip.add(StatCollector.translateToLocal("gui.appliedenergistics2." + color.name()));
@@ -92,9 +88,7 @@ public class WirelessDataProvider extends BaseWailaDataProvider {
             }
             tag.setBoolean("isSneaking", player.isSneaking());
         }
-        if (wc.hasCustomName()) {
-            tag.setString("name", wc.getCustomName());
-        }
+
         tag.setInteger("color", wc.getColor().ordinal());
 
         return tag;

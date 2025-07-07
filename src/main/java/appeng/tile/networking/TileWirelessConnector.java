@@ -70,8 +70,6 @@ public class TileWirelessConnector extends TileWirelessBase {
         if (!other.canAddLink()) return false;
 
         doUnlink();
-        if (other.hasCustomName()) setCustomName(other.getCustomName());
-        else setCustomName(null);
         return setupConnection(other);
     }
 
