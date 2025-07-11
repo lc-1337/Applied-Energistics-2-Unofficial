@@ -1,30 +1,23 @@
 package appeng.api.config;
 
-import appeng.core.localization.WirelessToolMessages;
+import appeng.core.localization.Localization;
+import appeng.core.localization.WirelessMessages;
 
-public enum AdvancedWirelessToolMode {
+public enum AdvancedWirelessToolMode implements Localization {
 
     Binding,
     BindingLine,
     Queueing,
     QueueingLine;
 
-    public String getLocal() {
-        switch (this) {
-            case Binding -> {
-                return WirelessToolMessages.mode_advanced_binding_activated.getLocal();
-            }
-            case Queueing -> {
-                return WirelessToolMessages.mode_advanced_queueing_activated.getLocal();
-            }
-            case BindingLine -> {
-                return WirelessToolMessages.mode_advanced_bindingLine_activated.getLocal();
-            }
-            case QueueingLine -> {
-                return WirelessToolMessages.mode_advanced_queueingLine_activated.getLocal();
-            }
-        }
-        return "";
+    @Override
+    public String getUnlocalized() {
+        return switch (this) {
+            case Binding -> WirelessMessages.mode_advanced_binding_activated.getUnlocalized();
+            case Queueing -> WirelessMessages.mode_advanced_queueing_activated.getUnlocalized();
+            case BindingLine -> WirelessMessages.mode_advanced_bindingLine_activated.getUnlocalized();
+            case QueueingLine -> WirelessMessages.mode_advanced_queueingLine_activated.getUnlocalized();
+        };
     }
 
     public boolean isQueueing() {
@@ -33,5 +26,13 @@ public enum AdvancedWirelessToolMode {
 
     public boolean isBinding() {
         return this == Binding || this == BindingLine;
+    }
+
+    /** @return "binding" or "queueing" */
+    public String getMode() {
+        return switch (this) {
+            case Binding, BindingLine -> "binding";
+            case Queueing, QueueingLine -> "queueing";
+        };
     }
 }

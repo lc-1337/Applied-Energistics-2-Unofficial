@@ -51,14 +51,10 @@ public class BlockWirelessConnector extends AEBaseTileBlock {
 
     public BlockWirelessConnector() {
         super(Material.iron);
+        this.hasSubtypes = true;
         this.setTileEntity(TileWirelessConnector.class);
         this.setFeature(EnumSet.of(AEFeature.Channels));
         setHardness(1);
-    }
-
-    @Override
-    public void setHasSubtypes(boolean b) {
-        super.setHasSubtypes(true);
     }
 
     @Override

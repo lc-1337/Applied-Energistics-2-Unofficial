@@ -74,7 +74,6 @@ public abstract class AEBaseBlock extends Block implements IAEFeature {
         this.setLightLevel(0);
         this.setHardness(2.2F);
         this.setHarvestLevel("pickaxe", 0);
-        this.setHasSubtypes(false);
     }
 
     protected AEBaseBlock(final Material mat, final Optional<String> subName) {
@@ -529,10 +528,6 @@ public abstract class AEBaseBlock extends Block implements IAEFeature {
 
     public Class<? extends AEBaseItemBlock> getItemBlockClass() {
         return AEBaseItemBlock.class;
-    }
-
-    public void setHasSubtypes(boolean b) {
-        hasSubtypes = b;
     }
 
     public boolean hasSubtypes() {
