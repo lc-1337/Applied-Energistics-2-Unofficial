@@ -902,21 +902,25 @@ item.appliedenergistics2.ToolSuperWirelessKit.invalidTarget=Invalid target - mus
 item.appliedenergistics2.ToolSuperWirelessKit.failed=Connection failed
 item.appliedenergistics2.ToolSuperWirelessKit.empty=List of %s mode cleared
 item.appliedenergistics2.ToolSuperWirelessKit.set=Mode changed to %s
+item.appliedenergistics2.ToolSuperWirelessKit.targethubfull=Target Hub is Full
+item.appliedenergistics2.ToolSuperWirelessKit.otherhubfull=Hub at %s,%s,%s is Full
 item.appliedenergistics2.ToolSuperWirelessKit.mode=Mode:
+
 item.appliedenergistics2.ToolSuperWirelessKit.mode.simple=Simple
 item.appliedenergistics2.ToolSuperWirelessKit.mode.simple.empty=Click Wireless Connector to bind
 item.appliedenergistics2.ToolSuperWirelessKit.mode.simple.bound=Click other Wireless Connector to connect
-item.appliedenergistics2.ToolSuperWirelessKit.targethubfull=Target Hub is Full
-item.appliedenergistics2.ToolSuperWirelessKit.otherhubfull=Hub at %s,%s,%s is Full
+
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced=Advanced
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.next=Next connector in queue: %s,%s,%s
-item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.extra=§oSneak right click to change mode between queuing and binding mode
-item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.queueing=§aQueuing Mode
-item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.binding=§aBinding Mode
+item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.howToggle=Sneak right click to change mode between queuing and binding mode
+
+item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.queueing=Queuing Mode
+item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.binding=Binding Mode
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.queueing.activated=§aQueuing§r mode activated
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.queueingLine.activated=§aQueuing Line§r mode activated
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.binding.activated=§aBinding§r mode activated
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.bindingLine.activated=§aBinding Line§r mode activated
+
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.queueing.empty=Click Wireless Connectors to add to binding queue
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.binding.empty=Switch to Queuing Mode to add connectors to queue
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.queueing.notempty=Current wireless connectors in queue:
@@ -928,6 +932,7 @@ item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.queueing.hubqols=Ctr
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.queueing.hub=%s hub slots added to queue
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.binding.hub=%s hub slots added to queue
 item.appliedenergistics2.ToolSuperWirelessKit.mode.advanced.queueing.targethubfull=All free slots of target hub already queued
+
 item.appliedenergistics2.ToolSuperWirelessKit.mode.super=Super
 item.appliedenergistics2.ToolSuperWirelessKit.mode.super.networklist=Network list:
 item.appliedenergistics2.ToolSuperWirelessKit.mode.super.network=Network "%s" at %s, %s, %s

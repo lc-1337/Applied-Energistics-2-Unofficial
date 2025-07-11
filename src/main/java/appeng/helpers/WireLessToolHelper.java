@@ -24,20 +24,20 @@ import appeng.api.config.WirelessToolType;
 import appeng.api.networking.security.ISecurityGrid;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
-import appeng.core.localization.WirelessToolMessages;
+import appeng.core.localization.WirelessMessages;
 import appeng.tile.networking.TileWirelessBase;
 import appeng.util.Platform;
 
 public class WireLessToolHelper {
 
-    public static void nextMode(EntityPlayer p, IConfigManager cm) {
+    public static void nextToolMode(EntityPlayer p, IConfigManager cm) {
         final WirelessToolType newState = (WirelessToolType) Platform.rotateEnum(
                 cm.getSetting(Settings.WIRELESS_TOOL_TYPE),
                 false,
                 Settings.WIRELESS_TOOL_TYPE.getPossibleValues());
         cm.putSetting(Settings.WIRELESS_TOOL_TYPE, newState);
 
-        p.addChatMessage(WirelessToolMessages.set.toChat(EnumChatFormatting.YELLOW + newState.getLocal()));
+        p.addChatMessage(WirelessMessages.set.toChat(newState.getLocal(EnumChatFormatting.YELLOW)));
     }
 
     public static void nextConnectMode(IConfigManager cm, EntityPlayer p) {
@@ -48,6 +48,11 @@ public class WireLessToolHelper {
         cm.putSetting(Settings.ADVANCED_WIRELESS_TOOL_MODE, newState);
 
         p.addChatMessage(new ChatComponentTranslation(newState.getLocal()));
+    }
+
+    public static String getConnectMode(ItemStack stack) {
+        IConfigManager cm = getConfigManager(stack);
+        return ((AdvancedWirelessToolMode) cm.getSetting(Settings.ADVANCED_WIRELESS_TOOL_MODE)).getMode();
     }
 
     public static void clearNBT(ItemStack is, WirelessToolType mode, @Nullable EntityPlayer p) {
@@ -62,7 +67,7 @@ public class WireLessToolHelper {
                 is.getTagCompound().setTag("super", newTag);
             }
         }
-        if (p != null) p.addChatMessage(WirelessToolMessages.empty.toChat(EnumChatFormatting.YELLOW + mode.getLocal()));
+        if (p != null) p.addChatMessage(WirelessMessages.empty.toChat(EnumChatFormatting.YELLOW + mode.getLocal()));
     }
 
     public static boolean hasBuildPermissions(TileWirelessBase gh, EntityPlayer p) {
@@ -81,39 +86,37 @@ public class WireLessToolHelper {
             return (TileWirelessBase) te;
         }
         if (p != null) p.addChatMessage(
-                WirelessToolMessages.invalidTarget.toChat()
-                        .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+                WirelessMessages.invalidTarget.toChat().setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
 
         return null;
     }
 
     public static boolean performConnection(TileWirelessBase target, TileWirelessBase otherTile, EntityPlayer p) {
         if (target.getLocation().getDimension() != otherTile.getLocation().getDimension()) {
-            p.addChatMessage(WirelessToolMessages.dimensionMismatch.toChat());
+            p.addChatMessage(WirelessMessages.dimensionMismatch.toChat());
             return false;
         }
 
         if (target.isHub() && !target.canAddLink()) {
-            p.addChatMessage(WirelessToolMessages.targethubfull.toChat());
+            p.addChatMessage(WirelessMessages.targethubfull.toChat());
             return false;
         }
 
         if (otherTile.isHub() && !otherTile.canAddLink()) {
             DimensionalCoord loc = otherTile.getLocation();
-            p.addChatMessage(WirelessToolMessages.otherhubfull.toChat(loc.x, loc.y, loc.z));
+            p.addChatMessage(WirelessMessages.otherhubfull.toChat(loc.x, loc.y, loc.z));
             return false;
         }
 
         if (target.doLink(otherTile)) {
             DimensionalCoord dc = otherTile.getLocation();
             p.addChatMessage(
-                    WirelessToolMessages.connected.toChat(dc.x, dc.y, dc.z)
+                    WirelessMessages.connected.toChat(dc.x, dc.y, dc.z)
                             .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GREEN)));
             return true;
         } else {
             p.addChatMessage(
-                    WirelessToolMessages.failed.toChat()
-                            .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+                    WirelessMessages.failed.toChat().setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
         }
 
         return false;
@@ -121,7 +124,7 @@ public class WireLessToolHelper {
 
     public static void breakConnection(TileWirelessBase target, TileWirelessBase otherTile, EntityPlayer p) {
         target.doUnlink(otherTile);
-        p.addChatMessage(WirelessToolMessages.disconnected.toChat());
+        p.addChatMessage(WirelessMessages.disconnected.toChat());
     }
 
     public static boolean bindSimple(TileWirelessBase target, ItemStack tool, World w, EntityPlayer p) {
@@ -132,7 +135,7 @@ public class WireLessToolHelper {
             dc.writeToNBT(tag);
             tool.getTagCompound().setTag("simple", tag);
             p.addChatMessage(
-                    WirelessToolMessages.bound.toChat(dc.x, dc.y, dc.z)
+                    WirelessMessages.bound.toChat(dc.x, dc.y, dc.z)
                             .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GREEN)));
             return true;
         }
@@ -162,32 +165,16 @@ public class WireLessToolHelper {
         DimensionalCoord targetLoc = target.getLocation();
         boolean isHub = target.isHub();
 
-        if (!isHub) {
-            for (DimensionalCoord loc : locList) {
-                if (targetLoc.isEqual(loc)) {
-                    p.addChatMessage(
-                            WirelessToolMessages.bound_advanced_filled.toChat()
-                                    .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
-                    return false;
-                }
-            }
-        } else if (!target.canAddLink()) {
-            p.addChatMessage(
-                    WirelessToolMessages.targethubfull.toChat()
-                            .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
-            return false;
-        }
-
         if (!target.canAddLink()) {
             p.addChatMessage(
-                    WirelessToolMessages.targethubfull.toChat()
+                    WirelessMessages.targethubfull.toChat()
                             .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
             return false;
         } else if (!isHub) { // if not a hub, check if not already in the queue
             for (DimensionalCoord loc : locList) {
                 if (targetLoc.isEqual(loc)) {
                     p.addChatMessage(
-                            WirelessToolMessages.bound_advanced_filled.toChat()
+                            WirelessMessages.bound_advanced_filled.toChat()
                                     .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
                     return false;
                 }
@@ -200,10 +187,14 @@ public class WireLessToolHelper {
                 locList.add(new DimensionalCoord(target));
                 i++;
             }
-            p.addChatMessage(WirelessToolMessages.mode_advanced_queueing_hub.toChat(i));
+            p.addChatMessage(
+                    WirelessMessages.mode_advanced_queueing_hub.toChat(i)
+                            .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GREEN)));
         } else {
             locList.add(new DimensionalCoord(target));
-            p.addChatMessage(WirelessToolMessages.mode_advanced_queueing.toChat(targetLoc.x, targetLoc.y, targetLoc.z));
+            p.addChatMessage(
+                    WirelessMessages.mode_advanced_queued.toChat(targetLoc.x, targetLoc.y, targetLoc.z)
+                            .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GREEN)));
         }
 
         DimensionalCoord.writeListToNBT(tool.getTagCompound().getCompoundTag("advanced"), locList);
@@ -214,7 +205,7 @@ public class WireLessToolHelper {
         List<DimensionalCoord> locList = DimensionalCoord
                 .readAsListFromNBT(tool.getTagCompound().getCompoundTag("advanced"));
         if (locList.isEmpty()) {
-            p.addChatMessage(WirelessToolMessages.mode_advanced_noconnectors.toChat());
+            p.addChatMessage(WirelessMessages.mode_advanced_noconnectors.toChat());
             return false;
         }
 
@@ -235,7 +226,7 @@ public class WireLessToolHelper {
                     success = true;
                 } else break;
             }
-            p.addChatMessage(WirelessToolMessages.mode_advanced_binding_hub.toChat(i));
+            p.addChatMessage(WirelessMessages.mode_advanced_binding_hub.toChat(i));
         } else if (performConnection(target, tile, p)) {
             locList.remove(0);
             success = true;
@@ -270,7 +261,7 @@ public class WireLessToolHelper {
                 if (target.getGridNode(ForgeDirection.UNKNOWN).getGrid()
                         == tile.getGridNode(ForgeDirection.UNKNOWN).getGrid()) {
                     p.addChatMessage(
-                            WirelessToolMessages.bound_super_failed.toChat()
+                            WirelessMessages.bound_super_failed.toChat()
                                     .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
                     return false;
                 }
@@ -278,7 +269,7 @@ public class WireLessToolHelper {
         }
         DimensionalCoord targetLoc = target.getLocation();
         p.addChatMessage(
-                WirelessToolMessages.bound_super.toChat(targetLoc.x, targetLoc.y, targetLoc.z, locList.size())
+                WirelessMessages.bound_super.toChat(targetLoc.x, targetLoc.y, targetLoc.z, locList.size())
                         .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GREEN)));
         locList.add(targetLoc);
         DimensionalCoord.writeListToNBT(tag, locList);

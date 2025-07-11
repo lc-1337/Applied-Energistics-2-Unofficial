@@ -1,25 +1,20 @@
 package appeng.api.config;
 
-import appeng.core.localization.WirelessToolMessages;
+import appeng.core.localization.Localization;
+import appeng.core.localization.WirelessMessages;
 
-public enum WirelessToolType {
+public enum WirelessToolType implements Localization {
 
     Simple,
     Advanced,
     Super;
 
-    public String getLocal() {
-        switch (this) {
-            case Simple -> {
-                return WirelessToolMessages.mode_simple.getLocal();
-            }
-            case Advanced -> {
-                return WirelessToolMessages.mode_advanced.getLocal();
-            }
-            case Super -> {
-                return WirelessToolMessages.mode_super.getLocal();
-            }
-        }
-        return "";
+    @Override
+    public String getUnlocalized() {
+        return switch (this) {
+            case Simple -> WirelessMessages.mode_simple.getUnlocalized();
+            case Advanced -> WirelessMessages.mode_advanced.getUnlocalized();
+            case Super -> WirelessMessages.mode_super.getUnlocalized();
+        };
     }
 }

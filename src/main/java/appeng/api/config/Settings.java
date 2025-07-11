@@ -14,6 +14,8 @@
 package appeng.api.config;
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -104,12 +106,31 @@ public enum Settings {
 
     private final EnumSet<? extends Enum<?>> values;
 
+    static final Map<Class<? extends Enum<?>>, Settings> enumMap = new HashMap<>();
+
     Settings(@Nonnull final EnumSet<? extends Enum<?>> possibleOptions) {
         if (possibleOptions.isEmpty()) {
             throw new IllegalArgumentException("Tried to instantiate an empty setting.");
         }
 
         this.values = possibleOptions;
+    }
+
+    public static Settings getFromClass(Class<? extends Enum<?>> clazz) {
+        Settings s = enumMap.get(clazz);
+        if (s == null) {
+            for (Settings setting : Settings.values()) {
+                for (Enum<?> value : setting.values) {
+                    if (value.getClass() == clazz) {
+                        enumMap.put(clazz, setting);
+                        return setting;
+                    }
+                    break;
+                }
+            }
+            throw new IllegalArgumentException("No Setting for " + clazz);
+        }
+        return s;
     }
 
     public EnumSet<? extends Enum<?>> getPossibleValues() {

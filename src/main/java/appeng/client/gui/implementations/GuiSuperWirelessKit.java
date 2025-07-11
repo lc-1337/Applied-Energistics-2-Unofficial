@@ -881,8 +881,8 @@ public class GuiSuperWirelessKit extends AEBaseGui implements IConfigManagerHost
                     BlockPosHighlighter.highlightBlocks(
                             mc.thePlayer,
                             cordList,
-                            PlayerMessages.InterfaceHighlighted.getName(),
-                            PlayerMessages.InterfaceInOtherDim.getName());
+                            PlayerMessages.InterfaceHighlighted.getUnlocalized(),
+                            PlayerMessages.InterfaceInOtherDim.getUnlocalized());
                     mc.thePlayer.closeScreen();
                 } else {
                     if (includeConnectorsButtons[totalPos].mousePressed(null, xPos, yPos)) {
@@ -1009,8 +1009,8 @@ public class GuiSuperWirelessKit extends AEBaseGui implements IConfigManagerHost
                             mc.thePlayer,
                             data.targetCord == null ? Collections.singletonList(data.cord)
                                     : new ArrayList<>(Arrays.asList(data.cord, data.targetCord)),
-                            PlayerMessages.InterfaceHighlighted.getName(),
-                            PlayerMessages.InterfaceInOtherDim.getName());
+                            PlayerMessages.InterfaceHighlighted.getUnlocalized(),
+                            PlayerMessages.InterfaceInOtherDim.getUnlocalized());
                     mc.thePlayer.closeScreen();
                     return;
                 }

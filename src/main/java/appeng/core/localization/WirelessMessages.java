@@ -1,10 +1,6 @@
 package appeng.core.localization;
 
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.IChatComponent;
-import net.minecraft.util.StatCollector;
-
-public enum WirelessToolMessages {
+public enum WirelessMessages implements Localization {
 
     name,
     security_player,
@@ -28,7 +24,7 @@ public enum WirelessToolMessages {
     otherhubfull,
     mode_advanced,
     mode_advanced_next,
-    mode_advanced_extra,
+    mode_advanced_howToggle,
     mode_advanced_queueing,
     mode_advanced_binding,
     mode_advanced_queueing_activated,
@@ -53,24 +49,12 @@ public enum WirelessToolMessages {
 
     private final String formatedName;
 
-    WirelessToolMessages() {
+    WirelessMessages() {
         this.formatedName = this.name().replace("_", ".");
     }
 
-    public IChatComponent toChat() {
-        return new ChatComponentTranslation(this.getUnlocalized());
-    }
-
-    public IChatComponent toChat(Object... args) {
-        return new ChatComponentTranslation(this.getUnlocalized(), args);
-    }
-
-    public String getLocal() {
-        return StatCollector.translateToLocal(this.getUnlocalized());
-    }
-
-    public String getLocal(Object... args) {
-        return StatCollector.translateToLocalFormatted(this.getUnlocalized(), args);
+    WirelessMessages(final String name) {
+        formatedName = name;
     }
 
     public String getUnlocalized() {

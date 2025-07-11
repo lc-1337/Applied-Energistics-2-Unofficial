@@ -1,5 +1,7 @@
 package appeng.integration.modules.waila.tile;
 
+import static appeng.helpers.WireLessToolHelper.getConnectMode;
+
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -13,7 +15,9 @@ import appeng.api.util.AEColor;
 import appeng.api.util.DimensionalCoord;
 import appeng.client.render.NetworkVisualiserRender;
 import appeng.core.localization.WailaText;
+import appeng.core.localization.WirelessMessages;
 import appeng.integration.modules.waila.BaseWailaDataProvider;
+import appeng.items.tools.ToolSuperWirelessKit;
 import appeng.tile.networking.TileWirelessBase;
 import appeng.util.Platform;
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -26,7 +30,7 @@ public class WirelessDataProvider extends BaseWailaDataProvider {
             final IWailaDataAccessor accessor, final IWailaConfigHandler config) {
 
         final TileEntity te = accessor.getTileEntity();
-        if (!(te instanceof TileWirelessBase)) {
+        if (!(te instanceof TileWirelessBase wl)) {
             return currentToolTip;
         }
 
@@ -70,6 +74,9 @@ public class WirelessDataProvider extends BaseWailaDataProvider {
             currentToolTip.add(StatCollector.translateToLocal("gui.appliedenergistics2." + color.name()));
         }
 
+        if (wl.isHub() && tag.getBoolean("holdWand")) currentToolTip.add(
+                WirelessMessages.valueOf("mode_advanced_" + tag.getString("wandConnectMode") + "_hubqols").getLocal());
+
         return currentToolTip;
     }
 
@@ -88,6 +95,13 @@ public class WirelessDataProvider extends BaseWailaDataProvider {
                 tag.setTag("LocList", locList);
             }
             tag.setBoolean("isSneaking", player.isSneaking());
+        }
+
+        ItemStack hand = player.getCurrentEquippedItem();
+        if (hand != null && hand.getItem() instanceof ToolSuperWirelessKit) {
+            String connectionMode = getConnectMode(hand);
+            tag.setBoolean("holdWand", true);
+            tag.setString("wandConnectMode", connectionMode);
         }
 
         tag.setInteger("color", wc.getColor().ordinal());
