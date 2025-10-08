@@ -15,6 +15,7 @@ package appeng.api.storage.data;
 
 import java.io.IOException;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 
 import appeng.api.config.FuzzyMode;
@@ -243,4 +244,9 @@ public interface IAEStack<StackType extends IAEStack> {
     void setTagCompound(NBTTagCompound tag);
 
     boolean hasTagCompound();
+
+    void drawInGui(Minecraft mc, int x, int y);
+
+    void drawOverlayInGui(Minecraft mc, int x, int y, boolean showAmount, boolean showCraftableText,
+            boolean showCraftableIcon);
 }

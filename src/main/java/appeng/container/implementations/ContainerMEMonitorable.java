@@ -74,13 +74,16 @@ import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketMEInventoryUpdate;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.helpers.IPinsHandler;
+import appeng.helpers.MonitorableAction;
 import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.items.contents.PinsHandler;
 import appeng.items.storage.ItemViewCell;
 import appeng.me.helpers.ChannelPowerSrc;
 import appeng.util.ConfigManager;
 import appeng.util.IConfigManagerHost;
+import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
+import appeng.util.inv.AdaptorPlayerHand;
 import appeng.util.item.AEItemStack;
 
 public class ContainerMEMonitorable extends AEBaseContainer
@@ -586,5 +589,194 @@ public class ContainerMEMonitorable extends AEBaseContainer
 
     public PinsHandler getPinsHandler() {
         return pinsHandler;
+    }
+
+    public void doMonitorableAction(MonitorableAction action, int slotIndex, final EntityPlayer player) {
+        final IAEItemStack slotItem = this.getTargetStack();
+
+        switch (action) {
+            case AUTO_CRAFT -> {}
+            case SET_PIN -> {
+                ItemStack hand = player.inventory.getItemStack();
+                if (hand == null) return;
+                if (this.getPin(slotIndex) != null && hand.isItemEqual(this.getPin(slotIndex))) {
+                    // put item in the terminal
+                    doMonitorableAction(MonitorableAction.PICKUP_OR_SET_DOWN, this.inventorySlots.size(), player);
+                } else {
+                    this.setPin(hand, slotIndex);
+                }
+            }
+            case UNSET_PIN -> {
+                this.setPin(null, slotIndex);
+            }
+            case SHIFT_CLICK -> {
+                if (this.getPowerSource() == null || this.getCellInventory() == null || slotItem == null) {
+                    return;
+                }
+
+                IAEItemStack ais = slotItem.copy();
+                ItemStack myItem = ais.getItemStack();
+                ais.setStackSize(myItem.getMaxStackSize());
+                myItem.stackSize = (int) ais.getStackSize();
+
+                final InventoryAdaptor adaptor = InventoryAdaptor.getAdaptor(player, ForgeDirection.UNKNOWN);
+                myItem = adaptor.simulateAdd(myItem);
+
+                if (myItem != null) {
+                    ais.setStackSize(ais.getStackSize() - myItem.stackSize);
+                }
+
+                ais = Platform
+                        .poweredExtraction(this.getPowerSource(), this.getCellInventory(), ais, this.getActionSource());
+                if (ais != null) {
+                    adaptor.addItems(ais.getItemStack());
+                }
+            }
+            case PICKUP_SINGLE -> {
+                if (this.getPowerSource() == null || this.getCellInventory() == null || slotItem == null) {
+                    return;
+                }
+
+                final ItemStack item = player.inventory.getItemStack();
+
+                if (item != null) {
+                    if (item.stackSize >= item.getMaxStackSize()) {
+                        return;
+                    }
+                    if (!Platform.isSameItemPrecise(slotItem.getItemStack(), item)) {
+                        return;
+                    }
+                }
+
+                IAEItemStack ais = slotItem.copy();
+                ais.setStackSize(1);
+                ais = Platform
+                        .poweredExtraction(this.getPowerSource(), this.getCellInventory(), ais, this.getActionSource());
+                if (ais != null) {
+                    final InventoryAdaptor ia = new AdaptorPlayerHand(player);
+
+                    final ItemStack fail = ia.addItems(ais.getItemStack());
+                    if (fail != null) {
+                        this.getCellInventory().injectItems(ais, Actionable.MODULATE, this.getActionSource());
+                    }
+
+                    this.updateHeld((EntityPlayerMP) player);
+                }
+            }
+            case PICKUP_OR_SET_DOWN -> {
+                if (this.getPowerSource() == null || this.getCellInventory() == null) {
+                    return;
+                }
+
+                ItemStack hand = player.inventory.getItemStack();
+                if (hand == null) {
+                    if (slotItem == null) return;
+
+                    IAEItemStack ais = slotItem.copy();
+                    ais.setStackSize(ais.getItemStack().getMaxStackSize());
+                    ais = Platform.poweredExtraction(
+                            this.getPowerSource(),
+                            this.getCellInventory(),
+                            ais,
+                            this.getActionSource());
+                    if (ais != null) {
+                        player.inventory.setItemStack(ais.getItemStack());
+                    } else {
+                        player.inventory.setItemStack(null);
+                    }
+                    this.updateHeld((EntityPlayerMP) player);
+                } else {
+                    IAEItemStack ais = AEApi.instance().storage().createItemStack(hand);
+                    ais = Platform
+                            .poweredInsert(this.getPowerSource(), this.getCellInventory(), ais, this.getActionSource());
+                    if (ais != null) {
+                        player.inventory.setItemStack(ais.getItemStack());
+                    } else {
+                        player.inventory.setItemStack(null);
+                    }
+                    this.updateHeld((EntityPlayerMP) player);
+                }
+            }
+            case SPLIT_OR_PLACE_SINGLE -> {
+                if (this.getPowerSource() == null || this.getCellInventory() == null) {
+                    return;
+                }
+
+                ItemStack hand = player.inventory.getItemStack();
+                if (hand == null) {
+                    if (slotItem == null) return;
+
+                    IAEItemStack ais = slotItem.copy();
+                    final long maxSize = ais.getItemStack().getMaxStackSize();
+                    ais.setStackSize(maxSize);
+                    ais = this.getCellInventory().extractItems(ais, Actionable.SIMULATE, this.getActionSource());
+
+                    if (ais != null) {
+                        final long stackSize = Math.min(maxSize, ais.getStackSize());
+                        ais.setStackSize((stackSize + 1) >> 1);
+                        ais = Platform.poweredExtraction(
+                                this.getPowerSource(),
+                                this.getCellInventory(),
+                                ais,
+                                this.getActionSource());
+                    }
+
+                    if (ais != null) {
+                        player.inventory.setItemStack(ais.getItemStack());
+                    } else {
+                        player.inventory.setItemStack(null);
+                    }
+                    this.updateHeld((EntityPlayerMP) player);
+                } else {
+                    IAEItemStack ais = AEApi.instance().storage().createItemStack(player.inventory.getItemStack());
+                    ais.setStackSize(1);
+                    ais = Platform
+                            .poweredInsert(this.getPowerSource(), this.getCellInventory(), ais, this.getActionSource());
+                    if (ais == null) {
+                        final ItemStack is = player.inventory.getItemStack();
+                        is.stackSize--;
+                        if (is.stackSize <= 0) {
+                            player.inventory.setItemStack(null);
+                        }
+                        this.updateHeld((EntityPlayerMP) player);
+                    }
+                }
+            }
+            case MOVE_REGION -> {
+                final long maxSize = slotItem.getItemStack().getMaxStackSize();
+                final InventoryAdaptor adaptor = InventoryAdaptor.getAdaptor(player, ForgeDirection.UNKNOWN);
+                while (true) {
+                    IAEItemStack ais = slotItem.copy();
+                    ais.setStackSize(maxSize);
+                    ais = this.getCellInventory().extractItems(ais, Actionable.SIMULATE, this.getActionSource());
+
+                    if (ais == null || ais.getStackSize() <= 0) break;
+
+                    ItemStack myItem = ais.getItemStack();
+                    myItem = adaptor.simulateAdd(myItem);
+
+                    if (myItem != null) {
+                        if (ais.getStackSize() == myItem.stackSize) break;
+                        ais.setStackSize(ais.getStackSize() - myItem.stackSize);
+                    }
+
+                    ais = Platform.poweredExtraction(
+                            this.getPowerSource(),
+                            this.getCellInventory(),
+                            ais,
+                            this.getActionSource());
+                    if (ais == null || ais.getStackSize() <= 0) break;
+                    adaptor.addItems(ais.getItemStack());
+                }
+            }
+            case CREATIVE_DUPLICATE -> {
+                if (player.capabilities.isCreativeMode && slotItem != null) {
+                    final ItemStack is = slotItem.getItemStack();
+                    is.stackSize = is.getMaxStackSize();
+                    player.inventory.setItemStack(is);
+                    this.updateHeld((EntityPlayerMP) player);
+                }
+            }
+        }
     }
 }
