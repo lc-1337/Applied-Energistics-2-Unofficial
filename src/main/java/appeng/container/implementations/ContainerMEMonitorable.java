@@ -59,7 +59,9 @@ import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.IMEMonitorHandlerReceiver;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.ITerminalPins;
+import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.api.util.IConfigManager;
 import appeng.api.util.IConfigurableObject;
@@ -82,11 +84,13 @@ import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 
 public class ContainerMEMonitorable extends AEBaseContainer
-        implements IConfigManagerHost, IConfigurableObject, IMEMonitorHandlerReceiver<IAEItemStack>, IPinsHandler {
+        implements IConfigManagerHost, IConfigurableObject, IMEMonitorHandlerReceiver, IPinsHandler {
 
     private final SlotRestrictedInput[] cellView = new SlotRestrictedInput[5];
-    private final IMEMonitor<IAEItemStack> monitor;
+    private final IMEMonitor monitorItems;
+    private final IMEMonitor monitorFluids;
     private final IItemList<IAEItemStack> items = AEApi.instance().storage().createItemList();
+    private final IItemList<IAEFluidStack> fluids = AEApi.instance().storage().createFluidList();
     private final IConfigManager clientCM;
     private final ITerminalHost host;
 
@@ -131,12 +135,19 @@ public class ContainerMEMonitorable extends AEBaseContainer
 
             this.serverCM = monitorable.getConfigManager();
 
-            this.monitor = monitorable.getItemInventory();
-            if (this.monitor != null) {
-                this.monitor.addListener(this, null);
+            this.monitorItems = monitorable.getItemInventory();
+            if (monitorItems != null) {
+                this.monitorItems.addListener(this, null);
+                this.setCellInventory(this.monitorItems);
+            }
 
-                this.setCellInventory(this.monitor);
+            this.monitorFluids = monitorable.getFluidInventory();
+            if (monitorFluids != null) {
+                this.monitorFluids.addListener(this, null);
+                this.setCellFluidInventory(this.monitorFluids);
+            }
 
+            if (this.monitorItems != null) {
                 if (monitorable instanceof IPortableCell) {
                     this.setPowerSource((IEnergySource) monitorable);
                 } else if (monitorable instanceof IMEChest) {
@@ -155,7 +166,8 @@ public class ContainerMEMonitorable extends AEBaseContainer
                 this.setValidContainer(false);
             }
         } else {
-            this.monitor = null;
+            this.monitorItems = null;
+            this.monitorFluids = null;
         }
 
         this.canAccessViewCells = false;
@@ -195,7 +207,8 @@ public class ContainerMEMonitorable extends AEBaseContainer
     @Override
     public void detectAndSendChanges() {
         if (Platform.isServer()) {
-            if (this.monitor != this.host.getItemInventory()) {
+            if (this.monitorItems != this.host.getItemInventory()
+                    || this.monitorFluids != this.host.getFluidInventory()) {
                 this.setValidContainer(false);
             }
 
@@ -228,12 +241,23 @@ public class ContainerMEMonitorable extends AEBaseContainer
 
             if (!this.items.isEmpty()) {
                 try {
-                    final IItemList<IAEItemStack> monitorCache = this.monitor.getStorageList();
+                    final IItemList<IAEItemStack> monitorItemCache = this.monitorItems.getStorageList();
+                    final IItemList<IAEFluidStack> monitorFluidCache = this.monitorFluids.getStorageList();
 
                     final PacketMEInventoryUpdate piu = new PacketMEInventoryUpdate();
 
                     for (final IAEItemStack is : this.items) {
-                        final IAEItemStack send = monitorCache.findPrecise(is);
+                        final IAEItemStack send = monitorItemCache.findPrecise(is);
+                        if (send == null) {
+                            is.setStackSize(0);
+                            piu.appendItem(is);
+                        } else {
+                            piu.appendItem(send);
+                        }
+                    }
+
+                    for (final IAEFluidStack is : this.fluids) {
+                        final IAEFluidStack send = monitorFluidCache.findPrecise(is);
                         if (send == null) {
                             is.setStackSize(0);
                             piu.appendItem(is);
@@ -308,12 +332,26 @@ public class ContainerMEMonitorable extends AEBaseContainer
     }
 
     private void queueInventory(final ICrafting c) {
-        if (Platform.isServer() && c instanceof EntityPlayer && this.monitor != null) {
+        if (Platform.isServer() && c instanceof EntityPlayer
+                && this.monitorItems != null
+                && this.monitorFluids != null) {
             try {
                 PacketMEInventoryUpdate piu = new PacketMEInventoryUpdate();
-                final IItemList<IAEItemStack> monitorCache = this.monitor.getStorageList();
+                final IItemList<IAEItemStack> monitorItemCache = this.monitorItems.getStorageList();
+                final IItemList<IAEFluidStack> monitorFluidCache = this.monitorFluids.getStorageList();
 
-                for (final IAEItemStack send : monitorCache) {
+                for (final IAEItemStack send : monitorItemCache) {
+                    try {
+                        piu.appendItem(send);
+                    } catch (final BufferOverflowException boe) {
+                        NetworkHandler.instance.sendTo(piu, (EntityPlayerMP) c);
+
+                        piu = new PacketMEInventoryUpdate();
+                        piu.appendItem(send);
+                    }
+                }
+
+                for (final IAEFluidStack send : monitorFluidCache) {
                     try {
                         piu.appendItem(send);
                     } catch (final BufferOverflowException boe) {
@@ -335,16 +373,22 @@ public class ContainerMEMonitorable extends AEBaseContainer
     public void removeCraftingFromCrafters(final ICrafting c) {
         super.removeCraftingFromCrafters(c);
 
-        if (this.crafters.isEmpty() && this.monitor != null) {
-            this.monitor.removeListener(this);
+        if (this.crafters.isEmpty() && this.monitorItems != null) {
+            this.monitorItems.removeListener(this);
+        }
+        if (this.crafters.isEmpty() && this.monitorFluids != null) {
+            this.monitorFluids.removeListener(this);
         }
     }
 
     @Override
     public void onContainerClosed(final EntityPlayer player) {
         super.onContainerClosed(player);
-        if (this.monitor != null) {
-            this.monitor.removeListener(this);
+        if (this.monitorItems != null) {
+            this.monitorItems.removeListener(this);
+        }
+        if (this.monitorFluids != null) {
+            this.monitorFluids.removeListener(this);
         }
     }
 
@@ -354,10 +398,13 @@ public class ContainerMEMonitorable extends AEBaseContainer
     }
 
     @Override
-    public void postChange(final IBaseMonitor<IAEItemStack> monitor, final Iterable<IAEItemStack> change,
-            final BaseActionSource source) {
-        for (final IAEItemStack is : change) {
-            this.items.add(is);
+    public void postChange(IBaseMonitor monitor, Iterable<IAEStack<?>> change, BaseActionSource actionSource) {
+        for (final IAEStack<?> aes : change) {
+            if (aes instanceof IAEItemStack ais) {
+                this.items.add(ais);
+            } else if (aes instanceof IAEFluidStack afs) {
+                this.fluids.add(afs);
+            }
         }
     }
 
@@ -435,7 +482,11 @@ public class ContainerMEMonitorable extends AEBaseContainer
     }
 
     public IMEMonitor<IAEItemStack> getMonitor() {
-        return monitor;
+        return monitorItems;
+    }
+
+    public IMEMonitor<IAEFluidStack> getFluidMonitor() {
+        return monitorFluids;
     }
 
     // to avoid duplicating this method in 2 pattern terminals

@@ -121,14 +121,14 @@ public class WirelessTerminalGuiObject
     }
 
     @Override
-    public void addListener(final IMEMonitorHandlerReceiver<IAEItemStack> l, final Object verificationToken) {
+    public void addListener(final IMEMonitorHandlerReceiver l, final Object verificationToken) {
         if (this.itemStorage != null) {
             this.itemStorage.addListener(l, verificationToken);
         }
     }
 
     @Override
-    public void removeListener(final IMEMonitorHandlerReceiver<IAEItemStack> l) {
+    public void removeListener(final IMEMonitorHandlerReceiver l) {
         if (this.itemStorage != null) {
             this.itemStorage.removeListener(l);
         }

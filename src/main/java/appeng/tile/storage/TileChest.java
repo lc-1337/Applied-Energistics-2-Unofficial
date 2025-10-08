@@ -247,7 +247,7 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, IFluidHan
         return null;
     }
 
-    private <StackType extends IAEStack> MEMonitorHandler<StackType> wrap(final IMEInventoryHandler h) {
+    private <StackType extends IAEStack<?>> MEMonitorHandler<StackType> wrap(final IMEInventoryHandler h) {
         if (h == null) {
             return null;
         }
@@ -784,7 +784,7 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, IFluidHan
         private static final long serialVersionUID = 7995805326136526631L;
     }
 
-    private class ChestNetNotifier<T extends IAEStack<T>> implements IMEMonitorHandlerReceiver<T> {
+    private class ChestNetNotifier<T extends IAEStack<T>> implements IMEMonitorHandlerReceiver {
 
         private final StorageChannel chan;
 
@@ -804,7 +804,8 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, IFluidHan
         }
 
         @Override
-        public void postChange(final IBaseMonitor<T> monitor, final Iterable<T> change, final BaseActionSource source) {
+        public void postChange(final IBaseMonitor monitor, final Iterable<IAEStack<?>> change,
+                final BaseActionSource source) {
             try {
                 if (TileChest.this.getProxy().isActive()) {
                     TileChest.this.getProxy().getStorage()
@@ -823,7 +824,7 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, IFluidHan
         }
     }
 
-    private class ChestMonitorHandler<T extends IAEStack> extends MEMonitorHandler<T> {
+    private class ChestMonitorHandler<T extends IAEStack<?>> extends MEMonitorHandler<T> {
 
         public ChestMonitorHandler(final IMEInventoryHandler<T> t) {
             super(t);
