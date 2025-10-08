@@ -241,6 +241,8 @@ public interface IAEStack<StackType extends IAEStack> {
 
     String getDisplayName();
 
+    String getModId();
+
     void setTagCompound(NBTTagCompound tag);
 
     boolean hasTagCompound();

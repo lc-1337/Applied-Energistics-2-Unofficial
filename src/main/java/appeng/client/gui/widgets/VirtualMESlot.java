@@ -38,7 +38,7 @@ public class VirtualMESlot {
 
     @Nullable
     public IAEStack<?> getAEStack() {
-        return this.repo.getReferenceItem(this.slotIndex);
+        return this.repo.getReferenceStack(this.slotIndex);
     }
 
     public void drawHoveredOverlay() {

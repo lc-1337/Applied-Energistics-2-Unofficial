@@ -790,7 +790,7 @@ public class Platform {
             return "** Null";
         }
 
-        final String n = ((AEItemStack) is).getModID();
+        final String n = ((AEItemStack) is).getModId();
         return n == null ? "** Null" : n;
     }
 

@@ -526,19 +526,20 @@ public class ContainerMEMonitorable extends AEBaseContainer
             final ICraftingGrid cc = itp.getGrid().getCache(ICraftingGrid.class);
             final ImmutableList<ICraftingCPU> cpuList = cc.getCpus().asList();
 
-            List<IAEItemStack> craftedItems = new ArrayList<>();
+            List<IAEStack<?>> craftedItems = new ArrayList<>();
 
             // fetch the first available crafting output
             for (int i = 0; i < cpuList.size(); i++) {
                 ICraftingCPU cpu = cpuList.get(i);
-                if (cpu.getCraftingAllowMode() != CraftingAllow.ONLY_NONPLAYER && cpu.getFinalOutput() != null
+                IAEStack<?> output = cpu.getFinalMultiOutput();
+                if (cpu.getCraftingAllowMode() != CraftingAllow.ONLY_NONPLAYER && output != null
                         && cpu.getCurrentJobSource() instanceof PlayerSource src
                         && src.player == pinsHandler.getPlayer()) {
-                    if (craftedItems.contains(cpu.getFinalOutput())) {
+                    if (craftedItems.contains(output)) {
                         continue; // skip if already added
                     }
-                    if (cpu.isBusy()) craftedItems.add(0, cpu.getFinalOutput().copy());
-                    else craftedItems.add(cpu.getFinalOutput().copy());
+                    if (cpu.isBusy()) craftedItems.add(0, output.copy());
+                    else craftedItems.add(output.copy());
                 }
             }
 
@@ -549,15 +550,16 @@ public class ContainerMEMonitorable extends AEBaseContainer
     }
 
     @Override
-    public void setPin(ItemStack is, int idx) {
+    public void setPin(IAEStack<?> is, int idx) {
         if (pinsHandler == null || !(host instanceof ITerminalPins itp)) return;
 
         if (is == null) {
             final ICraftingGrid cc = itp.getGrid().getCache(ICraftingGrid.class);
             final ImmutableSet<ICraftingCPU> cpuSet = cc.getCpus();
             for (ICraftingCPU cpu : cpuSet) {
-                if (cpu.getCraftingAllowMode() != CraftingAllow.ONLY_NONPLAYER && cpu.getFinalOutput() != null
-                        && cpu.getFinalOutput().isSameType(getPin(idx))) {
+                IAEStack<?> output = cpu.getFinalMultiOutput();
+                if (cpu.getCraftingAllowMode() != CraftingAllow.ONLY_NONPLAYER && output != null
+                        && output.isSameType(getPin(idx))) {
                     if (!cpu.isBusy()) {
                         cpu.resetFinalOutput();
                     } else {
@@ -571,7 +573,7 @@ public class ContainerMEMonitorable extends AEBaseContainer
     }
 
     @Override
-    public ItemStack getPin(int idx) {
+    public IAEStack<?> getPin(int idx) {
         if (pinsHandler == null) return null;
         return pinsHandler.getPin(idx);
     }
@@ -599,11 +601,12 @@ public class ContainerMEMonitorable extends AEBaseContainer
             case SET_PIN -> {
                 ItemStack hand = player.inventory.getItemStack();
                 if (hand == null) return;
-                if (this.getPin(slotIndex) != null && hand.isItemEqual(this.getPin(slotIndex))) {
+                if (this.getPin(slotIndex) != null && this.getPin(slotIndex) instanceof IAEItemStack pinStack
+                        && hand.isItemEqual(pinStack.getItemStack())) {
                     // put item in the terminal
                     doMonitorableAction(MonitorableAction.PICKUP_OR_SET_DOWN, this.inventorySlots.size(), player);
                 } else {
-                    this.setPin(hand, slotIndex);
+                    this.setPin(AEItemStack.create(hand), slotIndex);
                 }
             }
             case UNSET_PIN -> {

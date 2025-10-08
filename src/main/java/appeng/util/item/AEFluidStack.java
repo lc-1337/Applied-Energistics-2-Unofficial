@@ -27,6 +27,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 import org.lwjgl.opengl.GL11;
@@ -387,6 +388,16 @@ public final class AEFluidStack extends AEStack<IAEFluidStack> implements IAEFlu
     @Override
     public String getUnlocalizedName() {
         return fluid.getUnlocalizedName();
+    }
+
+    @Override
+    public String getModId() {
+        String name = FluidRegistry.getDefaultFluidName(this.fluid);
+        try {
+            return name.split(":")[0];
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     @Override

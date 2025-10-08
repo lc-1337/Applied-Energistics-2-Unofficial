@@ -10,6 +10,8 @@
 
 package appeng.client.gui.implementations;
 
+import static appeng.util.Platform.stackConvert;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +48,6 @@ import appeng.api.storage.ITerminalPins;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IDisplayRepo;
-import appeng.api.storage.data.IItemList;
 import appeng.api.util.IConfigManager;
 import appeng.api.util.IConfigurableObject;
 import appeng.client.ActionKey;
@@ -192,8 +193,8 @@ public class GuiMEMonitorable extends AEBaseMEGui
         NEI.searchField.putFormatter(this.searchField);
     }
 
-    public void postUpdate(final List<IAEItemStack> list) {
-        for (final IAEItemStack is : list) {
+    public void postUpdate(final List<IAEStack<?>> list) {
+        for (final IAEStack<?> is : list) {
             this.repo.postUpdate(is);
         }
 
@@ -632,8 +633,10 @@ public class GuiMEMonitorable extends AEBaseMEGui
                     return true;
                 }
 
-                if (slotStack != null && slotStack.getStackSize() == 0 && player.inventory.getItemStack() == null) {
-                    this.sendAction(MonitorableAction.AUTO_CRAFT, slotStack, this.meSlots.size());
+                if (slot.getAEStack() != null && slot.getAEStack().getStackSize() == 0
+                        && player.inventory.getItemStack() == null) {
+                    // TODO: native
+                    this.sendAction(MonitorableAction.AUTO_CRAFT, stackConvert(slot.getAEStack()), this.meSlots.size());
                     return true;
                 }
                 this.sendAction(MonitorableAction.PICKUP_OR_SET_DOWN, slotStack, this.meSlots.size());
@@ -658,8 +661,9 @@ public class GuiMEMonitorable extends AEBaseMEGui
                 return true;
             }
             case 2 -> { // middle click
-                if (slotStack != null && slotStack.isCraftable()) {
-                    this.sendAction(MonitorableAction.AUTO_CRAFT, slotStack, this.meSlots.size());
+                if (slot.getAEStack() != null && slot.getAEStack().isCraftable()) {
+                    // TODO: native
+                    this.sendAction(MonitorableAction.AUTO_CRAFT, stackConvert(slot.getAEStack()), this.meSlots.size());
                     return true;
                 } else if (player.capabilities.isCreativeMode) {
                     this.sendAction(MonitorableAction.CREATIVE_DUPLICATE, slotStack, this.meSlots.size());
@@ -983,19 +987,13 @@ public class GuiMEMonitorable extends AEBaseMEGui
     }
 
     @Override
-    public void setAEPins(IAEItemStack[] pins) {
+    public void setAEPins(IAEStack<?>[] pins) {
         repo.setAEPins(pins);
     }
 
     @Override
     public void setPinsState(PinsState state) {
         configSrc.putSetting(Settings.PINS_STATE, state);
-    }
-
-    /// returns all items visible from the terminal
-    /// @return the returned list is **read-only**
-    public IItemList<IAEItemStack> getAvaibleItems() {
-        return repo.getAvailableItems();
     }
 
     // Moving items via hotbar keys in terminals isn't working anyway.

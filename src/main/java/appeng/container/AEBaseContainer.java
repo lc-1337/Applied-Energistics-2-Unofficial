@@ -736,11 +736,12 @@ public abstract class AEBaseContainer extends Container {
                 }
                 ItemStack hand = player.inventory.getItemStack();
                 if (hand == null) return;
-                if (iph.getPin(slot) != null && hand.isItemEqual(iph.getPin(slot))) {
+                if (iph.getPin(slot) != null && iph.getPin(slot) instanceof IAEItemStack slotStack
+                        && hand.isItemEqual(slotStack.getItemStack())) {
                     // put item in the terminal
                     doAction(player, InventoryAction.PICKUP_OR_SET_DOWN, this.inventorySlots.size(), id);
                 } else {
-                    iph.setPin(player.inventory.getItemStack(), slot);
+                    iph.setPin(AEItemStack.create(hand), slot);
                 }
             }
 
