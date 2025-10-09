@@ -1003,12 +1003,9 @@ public class ContainerMEMonitorable extends AEBaseContainer
     private void extractFromSingleFilledFluidContainer(EntityPlayerMP player, ItemStack hand) {
         if (hand.getItem() instanceof IFluidContainerItem container) {
             FluidStack fluid = container.getFluid(hand);
-            IAEFluidStack leftover = this.getCellFluidInventory().injectItems(
-                    AEFluidStack.create(fluid),
-                    Actionable.MODULATE,
-                    this.getActionSource());
-            int injected = leftover == null ? fluid.amount
-                    : (int) (fluid.amount - leftover.getStackSize());
+            IAEFluidStack leftover = this.getCellFluidInventory()
+                    .injectItems(AEFluidStack.create(fluid), Actionable.MODULATE, this.getActionSource());
+            int injected = leftover == null ? fluid.amount : (int) (fluid.amount - leftover.getStackSize());
             if (injected == 0) return;
             container.drain(hand, injected, true);
         } else if (FluidContainerRegistry.isContainer(hand)) {
@@ -1017,8 +1014,7 @@ public class ContainerMEMonitorable extends AEBaseContainer
             IAEFluidStack leftover = this.getCellFluidInventory()
                     .injectItems(toInject, Actionable.SIMULATE, this.getActionSource());
             if (leftover != null) return;
-            this.getCellFluidInventory()
-                    .injectItems(toInject, Actionable.MODULATE, this.getActionSource());
+            this.getCellFluidInventory().injectItems(toInject, Actionable.MODULATE, this.getActionSource());
             player.inventory.setItemStack(FluidContainerRegistry.drainFluidContainer(hand));
         }
         this.updateHeld(player);
