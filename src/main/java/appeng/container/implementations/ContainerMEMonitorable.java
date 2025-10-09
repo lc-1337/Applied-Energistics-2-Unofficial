@@ -90,8 +90,8 @@ public class ContainerMEMonitorable extends AEBaseContainer
         implements IConfigManagerHost, IConfigurableObject, IMEMonitorHandlerReceiver, IPinsHandler {
 
     private final SlotRestrictedInput[] cellView = new SlotRestrictedInput[5];
-    private final IMEMonitor monitorItems;
-    private final IMEMonitor monitorFluids;
+    private final IMEMonitor<IAEItemStack> monitorItems;
+    private final IMEMonitor<IAEFluidStack> monitorFluids;
     private final IItemList<IAEItemStack> items = AEApi.instance().storage().createItemList();
     private final IItemList<IAEFluidStack> fluids = AEApi.instance().storage().createFluidList();
     private final IConfigManager clientCM;

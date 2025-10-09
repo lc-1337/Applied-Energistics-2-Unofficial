@@ -74,6 +74,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.AEColor;
 import appeng.api.util.IConfigManager;
+import appeng.core.localization.GuiText;
 import appeng.helpers.IPriorityHost;
 import appeng.items.storage.ItemBasicStorageCell;
 import appeng.me.GridAccessException;
@@ -879,5 +880,10 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, IFluidHan
             }
             return super.extractItems(request, mode, src);
         }
+    }
+
+    @Override
+    public GuiText getName() {
+        return GuiText.Chest;
     }
 }

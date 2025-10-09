@@ -40,8 +40,6 @@ import appeng.api.config.SearchBoxMode;
 import appeng.api.config.Settings;
 import appeng.api.config.TerminalStyle;
 import appeng.api.config.YesNo;
-import appeng.api.implementations.guiobjects.IPortableCell;
-import appeng.api.implementations.tiles.IMEChest;
 import appeng.api.implementations.tiles.IViewCellStorage;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.ITerminalPins;
@@ -85,13 +83,10 @@ import appeng.core.sync.packets.PacketValueConfig;
 import appeng.helpers.IPinsHandler;
 import appeng.helpers.InventoryAction;
 import appeng.helpers.MonitorableAction;
-import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.integration.IntegrationRegistry;
 import appeng.integration.IntegrationType;
 import appeng.integration.modules.NEI;
 import appeng.items.storage.ItemViewCell;
-import appeng.parts.reporting.AbstractPartTerminal;
-import appeng.tile.misc.TileSecurity;
 import appeng.util.IConfigManagerHost;
 import appeng.util.Platform;
 
@@ -165,17 +160,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
         this.viewCell = te instanceof IViewCellStorage;
 
-        if (te instanceof TileSecurity) {
-            this.myName = GuiText.Security;
-        } else if (te instanceof WirelessTerminalGuiObject) {
-            this.myName = GuiText.WirelessTerminal;
-        } else if (te instanceof IPortableCell) {
-            this.myName = GuiText.PortableCell;
-        } else if (te instanceof IMEChest) {
-            this.myName = GuiText.Chest;
-        } else if (te instanceof AbstractPartTerminal) {
-            this.myName = GuiText.Terminal;
-        }
+        this.myName = te.getName();
 
         hasPinHost = te instanceof ITerminalPins;
 

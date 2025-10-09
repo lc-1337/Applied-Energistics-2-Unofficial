@@ -45,6 +45,7 @@ import appeng.api.util.AECableType;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
 import appeng.container.interfaces.IInventorySlotAware;
+import appeng.core.localization.GuiText;
 import appeng.items.contents.PinsHandler;
 import appeng.items.contents.PinsHolder;
 import appeng.items.contents.WirelessTerminalViewCells;
@@ -340,5 +341,10 @@ public class WirelessTerminalGuiObject
     @Override
     public IGrid getGrid() {
         return targetGrid;
+    }
+
+    @Override
+    public GuiText getName() {
+        return GuiText.WirelessTerminal;
     }
 }
