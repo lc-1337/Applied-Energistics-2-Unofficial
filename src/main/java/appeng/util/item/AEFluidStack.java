@@ -38,6 +38,8 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IAETagCompound;
 import appeng.util.Platform;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 
 public final class AEFluidStack extends AEStack<IAEFluidStack> implements IAEFluidStack, Comparable<AEFluidStack> {
@@ -404,6 +406,7 @@ public final class AEFluidStack extends AEStack<IAEFluidStack> implements IAEFlu
     public void setTagCompound(NBTTagCompound tagCompound) {}
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void drawInGui(Minecraft mc, int x, int y) {
         final IIcon icon = this.fluid.getIcon();
         final int color = this.fluid.getColor();

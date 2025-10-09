@@ -21,6 +21,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -33,7 +34,6 @@ import appeng.api.config.FuzzyMode;
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAETagCompound;
-import appeng.client.render.AppEngRenderItem;
 import appeng.util.Platform;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
@@ -672,12 +672,11 @@ public final class AEItemStack extends AEStack<IAEItemStack> implements IAEItemS
         }
     }
 
-    public static final AppEngRenderItem aeRenderItem = new AppEngRenderItem();
-
     @Override
+    @SideOnly(Side.CLIENT)
     public void drawInGui(Minecraft mc, int x, int y) {
         ItemStack itemStack = this.getItemStack();
-
+        RenderItem itemRender = RenderItem.getInstance();
         itemRender.renderItemAndEffectIntoGUI(mc.fontRenderer, mc.getTextureManager(), itemStack, x, y);
 
         GL11.glTranslatef(0.0f, 0.0f, 200.0f);

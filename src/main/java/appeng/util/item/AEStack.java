@@ -24,11 +24,11 @@ import appeng.api.storage.data.IAEStack;
 import appeng.client.render.StackSizeRenderer;
 import appeng.core.AEConfig;
 import appeng.core.localization.GuiText;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 
 public abstract class AEStack<StackType extends IAEStack<StackType>> implements IAEStack<StackType> {
-
-    protected static RenderItem itemRender = new RenderItem();
 
     private boolean isCraftable;
     private long stackSize;
@@ -199,6 +199,7 @@ public abstract class AEStack<StackType extends IAEStack<StackType>> implements 
             .orNull();
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void drawOverlayInGui(Minecraft mc, int x, int y, boolean showAmount, boolean showCraftableText,
             boolean showCraftableIcon) {
         final TerminalFontSize fontSize = AEConfig.instance.getTerminalFontSize();
@@ -218,6 +219,7 @@ public abstract class AEStack<StackType extends IAEStack<StackType>> implements 
                 if (showCraftableIcon) {
                     GL11.glPushMatrix();
                     GL11.glScalef(0.4f, 0.4f, 0.4f);
+                    RenderItem itemRender = new RenderItem();
                     itemRender.renderItemIntoGUI(
                             mc.fontRenderer,
                             mc.renderEngine,
