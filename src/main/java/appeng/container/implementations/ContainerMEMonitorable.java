@@ -257,7 +257,7 @@ public class ContainerMEMonitorable extends AEBaseContainer
                 }
             }
 
-            if (!this.items.isEmpty()) {
+            if (!this.items.isEmpty() || !this.fluids.isEmpty()) {
                 try {
                     final IItemList<IAEItemStack> monitorItemCache = this.monitorItems.getStorageList();
                     final IItemList<IAEFluidStack> monitorFluidCache = this.monitorFluids.getStorageList();
@@ -286,6 +286,7 @@ public class ContainerMEMonitorable extends AEBaseContainer
 
                     if (!piu.isEmpty()) {
                         this.items.resetStatus();
+                        this.fluids.resetStatus();
 
                         for (final Object c : this.crafters) {
                             if (c instanceof EntityPlayer) {
