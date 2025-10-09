@@ -614,7 +614,10 @@ public class GuiMEMonitorable extends AEBaseMEGui
                 }
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-                    this.sendAction(MonitorableAction.SHIFT_CLICK, slotStack, this.meSlots.size());
+                    this.sendAction(
+                            MonitorableAction.SHIFT_CLICK,
+                            stackConvert(slot.getAEStack()),
+                            this.meSlots.size());
                     return true;
                 }
 
@@ -624,7 +627,10 @@ public class GuiMEMonitorable extends AEBaseMEGui
                     this.sendAction(MonitorableAction.AUTO_CRAFT, stackConvert(slot.getAEStack()), this.meSlots.size());
                     return true;
                 }
-                this.sendAction(MonitorableAction.PICKUP_OR_SET_DOWN, slotStack, this.meSlots.size());
+                this.sendAction(
+                        MonitorableAction.PICKUP_OR_SET_DOWN,
+                        stackConvert(slot.getAEStack()),
+                        this.meSlots.size());
                 return true;
             }
             case 1 -> { // right click
@@ -638,7 +644,10 @@ public class GuiMEMonitorable extends AEBaseMEGui
                 }
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-                    this.sendAction(MonitorableAction.PICKUP_SINGLE, slotStack, this.meSlots.size());
+                    this.sendAction(
+                            MonitorableAction.PICKUP_SINGLE,
+                            stackConvert(slot.getAEStack()),
+                            this.meSlots.size());
                     return true;
                 }
 

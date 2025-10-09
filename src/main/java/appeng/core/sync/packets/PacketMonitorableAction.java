@@ -1,6 +1,7 @@
 package appeng.core.sync.packets;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 
 import appeng.container.ContainerOpenContext;
@@ -62,6 +63,6 @@ public class PacketMonitorableAction extends AppEngPacket {
             return;
         }
 
-        container.doMonitorableAction(action, slot, player);
+        container.doMonitorableAction(action, slot, (EntityPlayerMP) player);
     }
 }
