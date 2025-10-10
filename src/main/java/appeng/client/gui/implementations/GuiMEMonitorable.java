@@ -622,8 +622,8 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
         final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 
-        final boolean isLShiftDown = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
-        final boolean isLControlDown = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL);
+        final boolean isLShiftDown = isShiftKeyDown();
+        final boolean isLControlDown = isCtrlKeyDown();
 
         switch (mouseButton) {
             case 0 -> { // left click
@@ -643,7 +643,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
                     return true;
                 }
 
-                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+                if (isLShiftDown) {
                     this.sendAction(MonitorableAction.SHIFT_CLICK, slotStack, this.meSlots.size());
                     return true;
                 }
@@ -659,7 +659,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
             }
             case 1 -> { // right click
                 if (slot instanceof VirtualPinSlot) {
-                    if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+                    if (isLShiftDown) {
                         this.sendAction(MonitorableAction.UNSET_PIN, null, slot.getSlotIndex());
                     } else {
                         this.sendAction(
@@ -980,7 +980,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
         super.handleKeyboardInput();
 
         // Pause the terminal when holding shift
-        this.repo.setPaused(hasShiftDown());
+        this.repo.setPaused(isShiftKeyDown());
     }
 
     public boolean hideItemPanelSlot(int tx, int ty, int tw, int th) {
@@ -1007,10 +1007,6 @@ public class GuiMEMonitorable extends AEBaseMEGui
         }
 
         return false;
-    }
-
-    private boolean hasShiftDown() {
-        return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
     }
 
     @Override
