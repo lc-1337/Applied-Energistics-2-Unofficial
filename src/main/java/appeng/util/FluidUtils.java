@@ -13,14 +13,11 @@ import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 
 public class FluidUtils {
 
-    public static boolean isEmptyFluidContainer(@Nullable ItemStack itemStack) {
+    public static boolean isFluidContainer(@Nullable ItemStack itemStack) {
         if (itemStack == null) return false;
         Item item = itemStack.getItem();
-        if (item instanceof IFluidContainerItem container) {
-            FluidStack content = container.getFluid(itemStack);
-            return content == null || content.amount <= 0;
-        }
-        return FluidContainerRegistry.isEmptyContainer(itemStack);
+        if (item instanceof IFluidContainerItem) return true;
+        return FluidContainerRegistry.isContainer(itemStack);
     }
 
     public static boolean isFilledFluidContainer(@Nullable ItemStack itemStack) {

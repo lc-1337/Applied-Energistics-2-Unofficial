@@ -15,8 +15,8 @@ import static appeng.util.FluidUtils.fillFluidContainer;
 import static appeng.util.FluidUtils.getFilledFluidContainer;
 import static appeng.util.FluidUtils.getFluidContainerCapacity;
 import static appeng.util.FluidUtils.getFluidFromContainer;
-import static appeng.util.FluidUtils.isEmptyFluidContainer;
 import static appeng.util.FluidUtils.isFilledFluidContainer;
+import static appeng.util.FluidUtils.isFluidContainer;
 import static appeng.util.IterationCounter.fetchNewId;
 import static appeng.util.Platform.convertStack;
 
@@ -820,7 +820,7 @@ public class ContainerMEMonitorable extends AEBaseContainer
                 if (!isFilledFluidContainer(hand)) return;
 
                 if (hand.stackSize == 1) {
-                    extractFromSingleFilledFluidContainer(player, hand);
+                    extractFromSingleFluidContainer(player, hand);
                 } else {
                     final InventoryAdaptor adaptor = InventoryAdaptor.getAdaptor(player, ForgeDirection.UNKNOWN);
                     if (hand.getItem() instanceof IFluidContainerItem container) {
@@ -860,7 +860,7 @@ public class ContainerMEMonitorable extends AEBaseContainer
                 if (!isFilledFluidContainer(hand)) return;
 
                 if (hand.stackSize == 1) {
-                    extractFromSingleFilledFluidContainer(player, hand);
+                    extractFromSingleFluidContainer(player, hand);
                 } else {
                     FluidStack fluid = getFluidFromContainer(hand);
                     IAEFluidStack toInject = AEFluidStack.create(fluid);
@@ -908,11 +908,11 @@ public class ContainerMEMonitorable extends AEBaseContainer
             }
             case FILL_SINGLE_CONTAINER -> {
                 ItemStack hand = player.inventory.getItemStack();
-                if (slotFluid == null || slotFluid.getStackSize() <= 0 || !isEmptyFluidContainer(hand)) return;
+                if (slotFluid == null || slotFluid.getStackSize() <= 0 || !isFluidContainer(hand)) return;
 
                 if (hand.stackSize == 1) {
                     // Set filled item to player hand
-                    fillToSingleEmptyFluidContainer(player, hand, slotFluid);
+                    fillSingleFluidContainer(player, hand, slotFluid);
                 } else {
                     // Insert filled item to player inventory
                     ItemStack itemToFill = hand.copy();
@@ -931,15 +931,14 @@ public class ContainerMEMonitorable extends AEBaseContainer
                     hand.stackSize--;
                     this.updateHeld(player);
                 }
-
             }
             case FILL_CONTAINERS -> {
                 ItemStack hand = player.inventory.getItemStack();
-                if (slotFluid == null || slotFluid.getStackSize() <= 0 || !isEmptyFluidContainer(hand)) return;
+                if (slotFluid == null || slotFluid.getStackSize() <= 0 || !isFluidContainer(hand)) return;
 
                 // Set filled item to player hand
                 if (hand.stackSize == 1) {
-                    fillToSingleEmptyFluidContainer(player, hand, slotFluid);
+                    fillSingleFluidContainer(player, hand, slotFluid);
                 } else {
                     int capacity = getFluidContainerCapacity(hand, slotFluid.getFluidStack());
                     if (capacity == 0) return;
@@ -984,7 +983,7 @@ public class ContainerMEMonitorable extends AEBaseContainer
         }
     }
 
-    private void fillToSingleEmptyFluidContainer(EntityPlayerMP player, ItemStack hand, IAEFluidStack slotFluid) {
+    private void fillSingleFluidContainer(EntityPlayerMP player, ItemStack hand, IAEFluidStack slotFluid) {
         ObjectIntPair<ItemStack> filledPair = fillFluidContainer(hand, slotFluid.getFluidStack());
         ItemStack filledContainer = filledPair.left();
         int filledAmount = filledPair.rightInt();
@@ -997,7 +996,7 @@ public class ContainerMEMonitorable extends AEBaseContainer
         this.updateHeld(player);
     }
 
-    private void extractFromSingleFilledFluidContainer(EntityPlayerMP player, ItemStack hand) {
+    private void extractFromSingleFluidContainer(EntityPlayerMP player, ItemStack hand) {
         if (hand.getItem() instanceof IFluidContainerItem container) {
             FluidStack fluid = container.getFluid(hand);
             IAEFluidStack leftover = this.getCellFluidInventory()
