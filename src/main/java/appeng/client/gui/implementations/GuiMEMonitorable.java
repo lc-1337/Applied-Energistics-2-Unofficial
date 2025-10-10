@@ -606,18 +606,29 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
         final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 
+        final boolean isLShiftDown = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
+        final boolean isLControlDown = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL);
+
         switch (mouseButton) {
             case 0 -> { // left click
                 if (slot instanceof VirtualPinSlot && player.inventory.getItemStack() != null) {
-                    this.sendAction(MonitorableAction.SET_PIN, null, slot.getSlotIndex());
+                    this.sendAction(
+                            isLControlDown ? MonitorableAction.SET_CONTAINER_PIN : MonitorableAction.SET_ITEM_PIN,
+                            null,
+                            slot.getSlotIndex());
+                    return true;
+                }
+
+                if (isLControlDown) {
+                    this.sendAction(
+                            isLShiftDown ? MonitorableAction.FILL_CONTAINERS : MonitorableAction.FILL_SINGLE_CONTAINER,
+                            stackConvert(slot.getAEStack()),
+                            this.meSlots.size());
                     return true;
                 }
 
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-                    this.sendAction(
-                            MonitorableAction.SHIFT_CLICK,
-                            stackConvert(slot.getAEStack()),
-                            this.meSlots.size());
+                    this.sendAction(MonitorableAction.SHIFT_CLICK, slotStack, this.meSlots.size());
                     return true;
                 }
 
@@ -627,10 +638,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
                     this.sendAction(MonitorableAction.AUTO_CRAFT, stackConvert(slot.getAEStack()), this.meSlots.size());
                     return true;
                 }
-                this.sendAction(
-                        MonitorableAction.PICKUP_OR_SET_DOWN,
-                        stackConvert(slot.getAEStack()),
-                        this.meSlots.size());
+                this.sendAction(MonitorableAction.PICKUP_OR_SET_DOWN, slotStack, this.meSlots.size());
                 return true;
             }
             case 1 -> { // right click
@@ -638,16 +646,25 @@ public class GuiMEMonitorable extends AEBaseMEGui
                     if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
                         this.sendAction(MonitorableAction.UNSET_PIN, null, slot.getSlotIndex());
                     } else {
-                        this.sendAction(MonitorableAction.SET_PIN, null, slot.getSlotIndex());
+                        this.sendAction(
+                                isLControlDown ? MonitorableAction.SET_CONTAINER_PIN : MonitorableAction.SET_ITEM_PIN,
+                                null,
+                                slot.getSlotIndex());
                     }
                     return true;
                 }
 
-                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+                if (isLControlDown) {
                     this.sendAction(
-                            MonitorableAction.PICKUP_SINGLE,
+                            isLShiftDown ? MonitorableAction.DRAIN_CONTAINERS
+                                    : MonitorableAction.DRAIN_SINGLE_CONTAINER,
                             stackConvert(slot.getAEStack()),
                             this.meSlots.size());
+                    return true;
+                }
+
+                if (isLShiftDown) {
+                    this.sendAction(MonitorableAction.PICKUP_SINGLE, slotStack, this.meSlots.size());
                     return true;
                 }
 

@@ -149,7 +149,7 @@ public class ItemRepo implements IDisplayRepo {
         final IAEStack st = this.list.findPrecise(is);
 
         for (IAEStack pin : pinsRepo) {
-            if (pin != null && pin.isSameType(is)) {
+            if (pin != null && pin.isSameType((Object) is)) {
                 pin.reset();
                 pin.add(is);
                 return;
