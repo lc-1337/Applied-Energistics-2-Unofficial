@@ -11,6 +11,7 @@
 package appeng.client.gui.implementations;
 
 import static appeng.util.Platform.stackConvert;
+import static appeng.util.Platform.stackConvertPacket;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import appeng.api.config.YesNo;
 import appeng.api.implementations.tiles.IViewCellStorage;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.ITerminalPins;
+import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IDisplayRepo;
@@ -89,6 +91,7 @@ import appeng.integration.modules.NEI;
 import appeng.items.storage.ItemViewCell;
 import appeng.util.IConfigManagerHost;
 import appeng.util.Platform;
+import codechicken.nei.recipe.StackInfo;
 
 public class GuiMEMonitorable extends AEBaseMEGui
         implements ISortSource, IConfigManagerHost, IDropToFillTextField, IPinsHandler, IGuiTooltipHandler {
@@ -132,7 +135,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
     protected List<VirtualPinSlot> pinSlots = new ArrayList<>();
     protected List<VirtualMESlot> meSlots = new ArrayList<>();
-    private ItemStack hoveredItemStack = null;
+    private IAEStack<?> hoveredItemStack = null;
 
     public GuiMEMonitorable(final InventoryPlayer inventoryPlayer, final ITerminalHost te) {
         this(inventoryPlayer, te, new ContainerMEMonitorable(inventoryPlayer, te));
@@ -556,12 +559,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
         VirtualMESlot slot = this.getVirtualMESlotUnderMouse(mouseX, mouseY);
         if (slot != null) {
             slot.drawHoveredOverlay();
-            IAEStack<?> hovered = slot.getAEStack();
-            if (hovered instanceof IAEItemStack ais) {
-                this.hoveredItemStack = ais.getItemStack();
-            } else {
-                this.hoveredItemStack = null;
-            }
+            this.hoveredItemStack = slot.getAEStack();
         } else {
             this.hoveredItemStack = null;
         }
@@ -569,7 +567,25 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
     @Override
     public ItemStack getHoveredStack() {
-        return hoveredItemStack;
+        if (this.hoveredItemStack == null) return null;
+
+        if (this.hoveredItemStack instanceof IAEItemStack ais) {
+            return ais.getItemStack();
+        } else {
+            // Convert fluid into a proper item using the StackStringifyHandler registered with NEI
+            ItemStack stack = stackConvertPacket(hoveredItemStack).getItemStack();
+            return StackInfo.loadFromNBT(StackInfo.itemStackToNBT(stack));
+        }
+    }
+
+    @Override
+    public List<String> handleItemTooltip(ItemStack stack, int mouseX, int mouseY, List<String> currentToolTip) {
+        if (this.hoveredItemStack instanceof IAEFluidStack afs) {
+            currentToolTip.clear();
+            currentToolTip.add(afs.getDisplayName());
+            return currentToolTip;
+        }
+        return super.handleItemTooltip(stack, mouseX, mouseY, currentToolTip);
     }
 
     @Override
