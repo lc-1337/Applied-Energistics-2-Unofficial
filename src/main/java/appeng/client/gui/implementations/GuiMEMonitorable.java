@@ -539,13 +539,13 @@ public class GuiMEMonitorable extends AEBaseMEGui
                 GuiColors.MEMonitorableInventory.getColor());
 
         VirtualPinSlot.drawSlotsBackground(this.pinSlots, this.mc, this.zLevel);
-        this.drawVirtualSlots(mouseX, mouseY);
+        this.drawVirtualSlots(mouseX, mouseY, null);
 
         this.currentMouseX = mouseX;
         this.currentMouseY = mouseY;
     }
 
-    private void drawVirtualSlots(int mouseX, int mouseY) {
+    protected void drawVirtualSlots(int mouseX, int mouseY, VirtualMESlot[] slots) {
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
         RenderHelper.enableGUIStandardItemLighting();
         for (VirtualMESlot slot : this.pinSlots) {
@@ -553,6 +553,11 @@ public class GuiMEMonitorable extends AEBaseMEGui
         }
         for (VirtualMESlot slot : this.meSlots) {
             if (!this.drawVirtualSlot(slot)) break;
+        }
+        if (slots != null) {
+            for (VirtualMESlot slot : slots) {
+                this.drawVirtualSlot(slot);
+            }
         }
         GL11.glPopAttrib();
 

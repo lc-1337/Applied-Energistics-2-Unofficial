@@ -47,6 +47,7 @@ import appeng.core.sync.packets.PacketPartialItem;
 import appeng.core.sync.packets.PacketPatternItemRenamer;
 import appeng.core.sync.packets.PacketPatternMultiSet;
 import appeng.core.sync.packets.PacketPatternSlot;
+import appeng.core.sync.packets.PacketPatternTerminalSlotUpdate;
 import appeng.core.sync.packets.PacketPatternValueSet;
 import appeng.core.sync.packets.PacketPinsUpdate;
 import appeng.core.sync.packets.PacketProgressBar;
@@ -126,7 +127,8 @@ public class AppEngPacketHandlerBase {
         PACKET_PATTERN_ITEM_RENAMER(PacketPatternItemRenamer.class),
         PACKET_PINS_UPDATE(PacketPinsUpdate.class),
         PACKET_MONITORABLE_ACTION(PacketMonitorableAction.class),
-        PACKET_HIGHLIGHT_BLOCKS(PacketHighlightBlockStorage.class);
+        PACKET_HIGHLIGHT_BLOCKS(PacketHighlightBlockStorage.class),
+        PACKET_PATTERN_TERMINAL_SLOT(PacketPatternTerminalSlotUpdate.class);
 
         private final Class<? extends AppEngPacket> packetClass;
         private final Constructor<? extends AppEngPacket> packetConstructor;

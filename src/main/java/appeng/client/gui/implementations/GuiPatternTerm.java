@@ -25,6 +25,7 @@ import appeng.api.config.ItemSubstitution;
 import appeng.api.config.PatternBeSubstitution;
 import appeng.api.config.Settings;
 import appeng.api.storage.ITerminalHost;
+import appeng.api.storage.data.IAEStack;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.implementations.ContainerPatternTerm;
@@ -199,6 +200,8 @@ public class GuiPatternTerm extends GuiMEMonitorable {
                 8,
                 this.ySize - 96 + 2 - this.getReservedSpace(),
                 GuiColors.PatternTerminalTitle.getColor());
+        drawVirtualSlots(mouseX, mouseY, container.craftingSlots);
+        drawVirtualSlots(mouseX, mouseY, container.outputSlots);
     }
 
     private void updateButtonVisibility() {
@@ -239,5 +242,9 @@ public class GuiPatternTerm extends GuiMEMonitorable {
         } else {
             s.yDisplayPosition = s.getY() + this.ySize - 78 - 3;
         }
+    }
+
+    public void setPatternSlot(String name, int slotId, IAEStack<?> aes) {
+        this.container.setPatternSlot(name, slotId, aes);
     }
 }
