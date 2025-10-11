@@ -1,7 +1,5 @@
 package appeng.client.gui.widgets;
 
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ResourceLocation;
@@ -30,7 +28,7 @@ public class VirtualPinSlot extends VirtualMESlot {
         return this.repo.getAEPin(this.slotIndex);
     }
 
-    public static void drawSlotsBackground(List<VirtualPinSlot> slots, Minecraft mc, float z) {
+    public static void drawSlotsBackground(VirtualPinSlot[] slots, Minecraft mc, float z) {
         mc.getTextureManager().bindTexture(TEXTURE);
         final Tessellator tessellator = Tessellator.instance;
 

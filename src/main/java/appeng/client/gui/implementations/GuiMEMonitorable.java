@@ -14,9 +14,9 @@ import static appeng.util.Platform.stackConvert;
 import static appeng.util.Platform.stackConvertPacket;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
@@ -133,8 +133,8 @@ public class GuiMEMonitorable extends AEBaseMEGui
     private PinsState pinsState;
     public final boolean hasPinHost;
 
-    protected List<VirtualPinSlot> pinSlots = new ArrayList<>();
-    protected List<VirtualMESlot> meSlots = new ArrayList<>();
+    protected VirtualPinSlot[] pinSlots = null;
+    protected VirtualMESlot[] meSlots = null;
     private IAEStack<?> hoveredItemStack = null;
 
     public GuiMEMonitorable(final InventoryPlayer inventoryPlayer, final ITerminalHost te) {
@@ -302,32 +302,31 @@ public class GuiMEMonitorable extends AEBaseMEGui
         this.rows = calculateRowsCount();
 
         this.getMeSlots().clear();
-        this.pinSlots.clear();
-        this.meSlots.clear();
 
         // make sure we have space at least for one row of normal slots, because pins not adjusted by scroll bar
         adjustPinsSize();
 
         int pinsRows = pinsState.ordinal();
+        this.pinSlots = new VirtualPinSlot[pinsRows * this.perRow];
         for (int y = 0; y < pinsRows; y++) {
             for (int x = 0; x < this.perRow; x++) {
-                this.pinSlots.add(
-                        new VirtualPinSlot(
-                                this.offsetX + x * 18,
-                                y * 18 + this.offsetY,
-                                this.repo,
-                                x + y * this.perRow));
+                this.pinSlots[y * this.perRow + x] = new VirtualPinSlot(
+                        this.offsetX + x * 18,
+                        y * 18 + this.offsetY,
+                        this.repo,
+                        y * this.perRow + x);
             }
         }
 
-        for (int y = 0; y < this.rows - pinsRows; y++) {
+        int normalSlotRows = this.rows - pinsRows;
+        this.meSlots = new VirtualMESlot[normalSlotRows * this.perRow];
+        for (int y = 0; y < normalSlotRows; y++) {
             for (int x = 0; x < this.perRow; x++) {
-                this.meSlots.add(
-                        new VirtualMESlot(
-                                this.offsetX + x * 18,
-                                this.offsetY + y * 18 + pinsRows * 18,
-                                this.repo,
-                                x + y * this.perRow));
+                this.meSlots[y * this.perRow + x] = new VirtualMESlot(
+                        this.offsetX + x * 18,
+                        this.offsetY + y * 18 + pinsRows * 18,
+                        this.repo,
+                        y * this.perRow + x);
             }
         }
 
@@ -502,27 +501,25 @@ public class GuiMEMonitorable extends AEBaseMEGui
         VirtualMESlot slot = null;
 
         int hoveredPinSlotIndex = this.getPinSlotIndex(mouseX, mouseY);
-        if (hoveredPinSlotIndex >= 0 && hoveredPinSlotIndex < this.pinSlots.size()) {
-            slot = this.pinSlots.get(hoveredPinSlotIndex);
+        if (hoveredPinSlotIndex >= 0 && hoveredPinSlotIndex < this.pinSlots.length) {
+            slot = this.pinSlots[hoveredPinSlotIndex];
         } else {
             final int hoveredSlotIndex = this.getSlotIndex(mouseX, mouseY);
-            if (hoveredSlotIndex >= 0 && hoveredSlotIndex < this.meSlots.size()) {
-                slot = this.meSlots.get(hoveredSlotIndex);
+            if (hoveredSlotIndex >= 0 && hoveredSlotIndex < this.meSlots.length) {
+                slot = this.meSlots[hoveredSlotIndex];
             }
         }
         return slot;
     }
 
-    private boolean drawVirtualSlot(VirtualMESlot slot) {
+    private void drawVirtualSlot(VirtualMESlot slot) {
         var aes = slot.getAEStack();
-        if (aes == null) return false;
+        if (aes == null) return;
 
         int x = slot.getX();
         int y = slot.getY();
         aes.drawInGui(this.mc, x, y);
         aes.drawOverlayInGui(this.mc, x, y, true, true, true);
-
-        return true;
     }
 
     @Override
@@ -539,27 +536,8 @@ public class GuiMEMonitorable extends AEBaseMEGui
                 GuiColors.MEMonitorableInventory.getColor());
 
         VirtualPinSlot.drawSlotsBackground(this.pinSlots, this.mc, this.zLevel);
-        this.drawVirtualSlots(mouseX, mouseY, null);
-
-        this.currentMouseX = mouseX;
-        this.currentMouseY = mouseY;
-    }
-
-    protected void drawVirtualSlots(int mouseX, int mouseY, VirtualMESlot[] slots) {
-        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
-        RenderHelper.enableGUIStandardItemLighting();
-        for (VirtualMESlot slot : this.pinSlots) {
-            this.drawVirtualSlot(slot);
-        }
-        for (VirtualMESlot slot : this.meSlots) {
-            if (!this.drawVirtualSlot(slot)) break;
-        }
-        if (slots != null) {
-            for (VirtualMESlot slot : slots) {
-                this.drawVirtualSlot(slot);
-            }
-        }
-        GL11.glPopAttrib();
+        this.drawVirtualSlots(this.pinSlots);
+        this.drawVirtualSlots(this.meSlots);
 
         VirtualMESlot slot = this.getVirtualMESlotUnderMouse(mouseX, mouseY);
         if (slot != null) {
@@ -568,6 +546,18 @@ public class GuiMEMonitorable extends AEBaseMEGui
         } else {
             this.hoveredItemStack = null;
         }
+
+        this.currentMouseX = mouseX;
+        this.currentMouseY = mouseY;
+    }
+
+    protected void drawVirtualSlots(@Nonnull VirtualMESlot[] slots) {
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
+        RenderHelper.enableGUIStandardItemLighting();
+        for (VirtualMESlot slot : slots) {
+            this.drawVirtualSlot(slot);
+        }
+        GL11.glPopAttrib();
     }
 
     @Override
@@ -619,7 +609,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
             if (slotStack != null) {
-                this.sendAction(MonitorableAction.MOVE_REGION, slotStack, this.meSlots.size());
+                this.sendAction(MonitorableAction.MOVE_REGION, slotStack, this.meSlots.length);
                 return true;
             }
             return false;
@@ -644,22 +634,22 @@ public class GuiMEMonitorable extends AEBaseMEGui
                     this.sendAction(
                             isLShiftDown ? MonitorableAction.FILL_CONTAINERS : MonitorableAction.FILL_SINGLE_CONTAINER,
                             stackConvert(slot.getAEStack()),
-                            this.meSlots.size());
+                            this.meSlots.length);
                     return true;
                 }
 
                 if (isLShiftDown) {
-                    this.sendAction(MonitorableAction.SHIFT_CLICK, slotStack, this.meSlots.size());
+                    this.sendAction(MonitorableAction.SHIFT_CLICK, slotStack, this.meSlots.length);
                     return true;
                 }
 
                 if (slot.getAEStack() != null && slot.getAEStack().getStackSize() == 0
                         && player.inventory.getItemStack() == null) {
                     // TODO: native
-                    this.sendAction(MonitorableAction.AUTO_CRAFT, stackConvert(slot.getAEStack()), this.meSlots.size());
+                    this.sendAction(MonitorableAction.AUTO_CRAFT, stackConvert(slot.getAEStack()), this.meSlots.length);
                     return true;
                 }
-                this.sendAction(MonitorableAction.PICKUP_OR_SET_DOWN, slotStack, this.meSlots.size());
+                this.sendAction(MonitorableAction.PICKUP_OR_SET_DOWN, slotStack, this.meSlots.length);
                 return true;
             }
             case 1 -> { // right click
@@ -680,25 +670,25 @@ public class GuiMEMonitorable extends AEBaseMEGui
                             isLShiftDown ? MonitorableAction.DRAIN_CONTAINERS
                                     : MonitorableAction.DRAIN_SINGLE_CONTAINER,
                             stackConvert(slot.getAEStack()),
-                            this.meSlots.size());
+                            this.meSlots.length);
                     return true;
                 }
 
                 if (isLShiftDown) {
-                    this.sendAction(MonitorableAction.PICKUP_SINGLE, slotStack, this.meSlots.size());
+                    this.sendAction(MonitorableAction.PICKUP_SINGLE, slotStack, this.meSlots.length);
                     return true;
                 }
 
-                this.sendAction(MonitorableAction.SPLIT_OR_PLACE_SINGLE, slotStack, this.meSlots.size());
+                this.sendAction(MonitorableAction.SPLIT_OR_PLACE_SINGLE, slotStack, this.meSlots.length);
                 return true;
             }
             case 2 -> { // middle click
                 if (slot.getAEStack() != null && slot.getAEStack().isCraftable()) {
                     // TODO: native
-                    this.sendAction(MonitorableAction.AUTO_CRAFT, stackConvert(slot.getAEStack()), this.meSlots.size());
+                    this.sendAction(MonitorableAction.AUTO_CRAFT, stackConvert(slot.getAEStack()), this.meSlots.length);
                     return true;
                 } else if (player.capabilities.isCreativeMode) {
-                    this.sendAction(MonitorableAction.CREATIVE_DUPLICATE, slotStack, this.meSlots.size());
+                    this.sendAction(MonitorableAction.CREATIVE_DUPLICATE, slotStack, this.meSlots.length);
                     return true;
                 }
             }

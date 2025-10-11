@@ -194,14 +194,15 @@ public class GuiPatternTerm extends GuiMEMonitorable {
     public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
         this.updateButtonVisibility();
 
+        drawVirtualSlots(container.craftingSlots);
+        drawVirtualSlots(container.outputSlots);
+
         super.drawFG(offsetX, offsetY, mouseX, mouseY);
         this.fontRendererObj.drawString(
                 GuiText.PatternTerminal.getLocal(),
                 8,
                 this.ySize - 96 + 2 - this.getReservedSpace(),
                 GuiColors.PatternTerminalTitle.getColor());
-        drawVirtualSlots(mouseX, mouseY, container.craftingSlots);
-        drawVirtualSlots(mouseX, mouseY, container.outputSlots);
     }
 
     private void updateButtonVisibility() {
