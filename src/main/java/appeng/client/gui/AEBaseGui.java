@@ -64,7 +64,6 @@ import appeng.container.slot.OptionalSlotRestrictedInput;
 import appeng.container.slot.SlotCraftingTerm;
 import appeng.container.slot.SlotDisabled;
 import appeng.container.slot.SlotFake;
-import appeng.container.slot.SlotFakeCraftingMatrix;
 import appeng.container.slot.SlotInaccessible;
 import appeng.container.slot.SlotOutput;
 import appeng.container.slot.SlotPatternTerm;
@@ -82,7 +81,6 @@ import appeng.integration.IntegrationRegistry;
 import appeng.integration.IntegrationType;
 import appeng.integration.abstraction.INEI;
 import appeng.util.Platform;
-import appeng.util.item.AEItemStack;
 import codechicken.lib.gui.GuiDraw;
 import codechicken.nei.guihook.GuiContainerManager;
 import cpw.mods.fml.common.Loader;
@@ -441,39 +439,18 @@ public abstract class AEBaseGui extends GuiContainer {
     protected void handleMouseClick(final Slot slot, final int slotIdx, final int ctrlDown, final int mouseButton) {
         final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 
-        if (mouseButton == 3) {
-            if (slot instanceof OptionalSlotFake || slot instanceof SlotFakeCraftingMatrix) {
-                if (slot.getHasStack()) {
-                    InventoryAction action = InventoryAction.SET_PATTERN_VALUE;
-                    if (isCtrlKeyDown()) {
-                        action = InventoryAction.RENAME_PATTERN_ITEM;
-                    }
+        if (slot instanceof SlotFake) {
+            final InventoryAction action = ctrlDown == 1 ? InventoryAction.SPLIT_OR_PLACE_SINGLE
+                    : InventoryAction.PICKUP_OR_SET_DOWN;
 
-                    IAEItemStack stack = AEItemStack.create(slot.getStack());
-
-                    ((AEBaseContainer) this.inventorySlots).setTargetStack(stack);
-                    final PacketInventoryAction p = new PacketInventoryAction(action, slotIdx, 0);
-                    NetworkHandler.instance.sendToServer(p);
-
-                    return;
-                }
-            }
-
-        } else {
-
-            if (slot instanceof SlotFake) {
-                final InventoryAction action = ctrlDown == 1 ? InventoryAction.SPLIT_OR_PLACE_SINGLE
-                        : InventoryAction.PICKUP_OR_SET_DOWN;
-
-                if (this.drag_click.size() > 1) {
-                    return;
-                }
-
-                final PacketInventoryAction p = new PacketInventoryAction(action, slotIdx, 0);
-                NetworkHandler.instance.sendToServer(p);
-
+            if (this.drag_click.size() > 1) {
                 return;
             }
+
+            final PacketInventoryAction p = new PacketInventoryAction(action, slotIdx, 0);
+            NetworkHandler.instance.sendToServer(p);
+
+            return;
         }
 
         if (slot instanceof SlotPatternTerm) {

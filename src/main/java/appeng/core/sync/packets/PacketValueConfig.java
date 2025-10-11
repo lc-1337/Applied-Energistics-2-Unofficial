@@ -150,9 +150,9 @@ public class PacketValueConfig extends AppEngPacket {
                 case "PatternTerminalEx.Substitute" -> cpt.getPatternTerminal().setSubstitution(this.Value.equals("1"));
                 case "PatternTerminalEx.BeSubstitute" -> cpt.getPatternTerminal()
                         .setCanBeSubstitution(this.Value.equals("1"));
-                case "PatternTerminalEx.Invert" -> cpt.getPatternTerminal().setInverted(Value.equals("1"));
+                case "PatternTerminalEx.Invert" -> cpt.getExPatternTerminal().setInverted(Value.equals("1"));
                 case "PatternTerminalEx.Double" -> cpt.doubleStacks(Integer.parseInt(this.Value));
-                case "PatternTerminalEx.ActivePage" -> cpt.getPatternTerminal().setActivePage(Integer.parseInt(Value));
+                case "PatternTerminalEx.ActivePage" -> cpt.getExPatternTerminal().setActivePage(Integer.parseInt(Value));
             }
         } else if (this.Name.startsWith("StorageBus.") && c instanceof final ContainerStorageBus ccw) {
             if (this.Name.equals("StorageBus.Action")) {

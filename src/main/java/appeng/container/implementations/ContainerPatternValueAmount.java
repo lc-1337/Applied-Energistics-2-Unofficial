@@ -1,58 +1,64 @@
 package appeng.container.implementations;
 
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Slot;
-import net.minecraft.world.World;
+import net.minecraft.inventory.ICrafting;
 
-import appeng.api.config.SecurityPermissions;
-import appeng.api.networking.IGrid;
-import appeng.api.networking.security.BaseActionSource;
-import appeng.api.networking.security.IActionHost;
-import appeng.api.networking.security.PlayerSource;
 import appeng.api.storage.ITerminalHost;
+import appeng.api.storage.data.IAEStack;
+import appeng.client.StorageName;
 import appeng.container.AEBaseContainer;
-import appeng.container.slot.SlotInaccessible;
-import appeng.tile.inventory.AppEngInternalInventory;
+import appeng.core.sync.GuiBridge;
+import appeng.core.sync.network.NetworkHandler;
+import appeng.core.sync.packets.PacketPatternValueSet;
 
 public class ContainerPatternValueAmount extends AEBaseContainer {
 
-    private final Slot patternValue;
-    private int valueIndex;
+    private IAEStack<?> aes;
+    private int slotsIndex;
+    private StorageName invName;
+    private GuiBridge originalGui;
 
     public ContainerPatternValueAmount(final InventoryPlayer ip, final ITerminalHost te) {
         super(ip, te);
-        this.patternValue = new SlotInaccessible(new AppEngInternalInventory(null, 1), 0, 34, 53);
-        this.addSlotToContainer(patternValue);
     }
 
-    @Override
-    public void detectAndSendChanges() {
-        super.detectAndSendChanges();
-        this.verifyPermissions(SecurityPermissions.CRAFT, false);
+    public void setStack(IAEStack<?> aes) {
+        this.aes = aes;
     }
 
-    public IGrid getGrid() {
-        final IActionHost h = ((IActionHost) this.getTarget());
-        return h.getActionableNode().getGrid();
+    public IAEStack<?> getStack() {
+        return aes;
     }
 
-    public World getWorld() {
-        return this.getPlayerInv().player.worldObj;
+    public void setSlotsIndex(int slotsIndex) {
+        this.slotsIndex = slotsIndex;
     }
 
-    public BaseActionSource getActionSrc() {
-        return new PlayerSource(this.getPlayerInv().player, (IActionHost) this.getTarget());
+    public int getSlotsIndex() {
+        return slotsIndex;
     }
 
-    public Slot getPatternValue() {
-        return patternValue;
+    public StorageName getInvName() {
+        return invName;
     }
 
-    public int getValueIndex() {
-        return valueIndex;
+    public void setInvName(StorageName invName) {
+        this.invName = invName;
     }
 
-    public void setValueIndex(int valueIndex) {
-        this.valueIndex = valueIndex;
+    public GuiBridge getOriginalGui() {
+        return originalGui;
+    }
+
+    public void setOriginalGui(GuiBridge originalGui) {
+        this.originalGui = originalGui;
+    }
+
+    public void update() {
+        for (ICrafting crafter : this.crafters) {
+            final EntityPlayerMP emp = (EntityPlayerMP) crafter;
+            NetworkHandler.instance.sendTo(new PacketPatternValueSet(originalGui, aes, invName, slotsIndex), emp);
+        }
     }
 }

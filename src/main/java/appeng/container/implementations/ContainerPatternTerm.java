@@ -10,6 +10,8 @@
 
 package appeng.container.implementations;
 
+import static appeng.parts.reporting.PartPatternTerminal.*;
+import static appeng.util.Platform.isStacksIdentical;
 import static appeng.util.Platform.writeStackNBT;
 
 import java.io.IOException;
@@ -40,11 +42,10 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
+import appeng.client.StorageName;
 import appeng.container.ContainerNull;
 import appeng.container.guisync.GuiSync;
 import appeng.container.slot.IOptionalSlotHost;
-import appeng.container.slot.OptionalSlotFake;
-import appeng.container.slot.SlotFakeCraftingMatrix;
 import appeng.container.slot.SlotPatternTerm;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.container.slot.VirtualMESlotPattern;
@@ -52,6 +53,7 @@ import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketPatternSlot;
 import appeng.core.sync.packets.PacketPatternTerminalSlotUpdate;
 import appeng.helpers.IContainerCraftingPacket;
+import appeng.helpers.PatternTerminalAction;
 import appeng.items.storage.ItemViewCell;
 import appeng.parts.reporting.PartPatternTerminal;
 import appeng.tile.inventory.AppEngInternalInventory;
@@ -68,15 +70,24 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
     public static final int MULTIPLE_OF_BUTTON_CLICK = 2;
     public static final int MULTIPLE_OF_BUTTON_CLICK_ON_SHIFT = 8;
-    private final PartPatternTerminal patternTerminal;
+    protected final PartPatternTerminal patternTerminal;
     private final AppEngInternalInventory cOut = new AppEngInternalInventory(null, 1);
     private final IAEStackInventory crafting;
-    public final VirtualMESlotPattern[] craftingSlots = new VirtualMESlotPattern[9];
+    public final VirtualMESlotPattern[] craftingSlots = new VirtualMESlotPattern[getPatternInputsWidth()
+            * getPatternInputsHeigh()
+            * getPatternInputPages()];
+    public final IAEStack<?>[] craftingSlotsClient = new IAEStack<?>[getPatternInputsWidth() * getPatternInputsHeigh()
+            * getPatternOutputPages()];
     private final IInventory craftingMatrix;
-    public final VirtualMESlotPattern[] outputSlots = new VirtualMESlotPattern[3];
+    public final VirtualMESlotPattern[] outputSlots = new VirtualMESlotPattern[getPatternOutputsWidth()
+            * getPatternOutputsHeigh()
+            * getPatternOutputPages()];
+    public final IAEStack<?>[] outputSlotsClient = new IAEStack<?>[getPatternOutputsWidth() * getPatternOutputsHeigh()
+            * getPatternOutputPages()];
     private final SlotPatternTerm craftSlot;
     private final SlotRestrictedInput patternSlotIN;
     private final SlotRestrictedInput patternSlotOUT;
+    private final boolean craftingModeSupport;
 
     @GuiSync(97)
     public boolean craftingMode = true;
@@ -88,42 +99,63 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
     public boolean beSubstitute = true;
 
     public ContainerPatternTerm(final InventoryPlayer ip, final ITerminalHost monitorable) {
+        this(ip, monitorable, true);
+    }
+
+    public ContainerPatternTerm(final InventoryPlayer ip, final ITerminalHost monitorable,
+            boolean craftingModeSupport) {
         super(ip, monitorable, false);
         this.patternTerminal = (PartPatternTerminal) monitorable;
 
-        final IInventory patternInv = this.getPatternTerminal().getInventoryByName("pattern");
-        final IAEStackInventory output = this.getPatternTerminal().getAEInventoryByName("output");
+        this.craftingModeSupport = craftingModeSupport;
 
-        this.crafting = this.getPatternTerminal().getAEInventoryByName("crafting");
-        this.craftingMatrix = new AppEngInternalInventory(null, 9);
+        final IInventory patternInv = this.getPatternTerminal()
+                .getInventoryByName(StorageName.CRAFTING_PATTERN.getName());
+        final IAEStackInventory output = this.getPatternTerminal().getAEInventoryByName(StorageName.CRAFTING_OUTPUT);
 
-        copyToMatrix();
+        this.crafting = this.getPatternTerminal().getAEInventoryByName(StorageName.CRAFTING_INPUT);
 
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 3; x++) {
-                this.craftingSlots[x
-                        + y * 3] = new VirtualMESlotPattern(18 + x * 18, 76 + y * 18, this.crafting, x + y * 3);
+        if (craftingModeSupport) {
+            this.craftingMatrix = new AppEngInternalInventory(null, 9);
+            copyToMatrix();
+            this.addSlotToContainer(
+                    this.craftSlot = new SlotPatternTerm(
+                            ip.player,
+                            this.getActionSource(),
+                            this.getPowerSource(),
+                            monitorable,
+                            this.craftingMatrix,
+                            patternInv,
+                            this.cOut,
+                            110,
+                            -76 + 18,
+                            this,
+                            2,
+                            this));
+            this.craftSlot.setIIcon(-1);
+        } else {
+            this.craftingMatrix = null;
+            this.craftSlot = null;
+        }
+
+        for (int y = 0; y < getPatternInputsHeigh() * getPatternOutputPages(); y++) {
+            for (int x = 0; x < getPatternInputsWidth(); x++) {
+                this.craftingSlots[x + y * getPatternInputsWidth()] = new VirtualMESlotPattern(
+                        18 + x * 18,
+                        76 + y * 18, // was -76
+                        this.crafting,
+                        x + y * getPatternInputsWidth());
             }
         }
 
-        this.addSlotToContainer(
-                this.craftSlot = new SlotPatternTerm(
-                        ip.player,
-                        this.getActionSource(),
-                        this.getPowerSource(),
-                        monitorable,
-                        this.craftingMatrix,
-                        patternInv,
-                        this.cOut,
+        for (int y = 0; y < getPatternOutputsHeigh() * getPatternOutputPages(); y++) {
+            for (int x = 0; x < getPatternOutputsWidth(); x++) {
+                this.outputSlots[x + y * getPatternOutputsWidth()] = new VirtualMESlotPattern(
                         110,
-                        -76 + 18,
-                        this,
-                        2,
-                        this));
-        this.craftSlot.setIIcon(-1);
-
-        for (int y = 0; y < 3; y++) {
-            this.outputSlots[y] = new VirtualMESlotPattern(110, 76 + y * 18, output, y);
+                        76 + y * 18, // was -76
+                        output,
+                        x + y * getPatternOutputsWidth());
+            }
         }
 
         this.addSlotToContainer(
@@ -151,23 +183,25 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
     }
 
     private void updateOrderOfOutputSlots() {
-        if (!this.isCraftingMode()) {
-            this.craftSlot.xDisplayPosition = -9000;
+        if (craftingModeSupport) {
+            if (!this.isCraftingMode()) {
+                this.craftSlot.xDisplayPosition = -9000;
 
-            for (int y = 0; y < 3; y++) {
-                // this.outputSlots[y].xDisplayPosition = this.outputSlots[y].getX();
-            }
-        } else {
-            this.craftSlot.xDisplayPosition = this.craftSlot.getX();
+                for (int y = 0; y < 3; y++) {
+                    this.outputSlots[y].setHidden(false);
+                }
+            } else {
+                this.craftSlot.xDisplayPosition = this.craftSlot.getX();
 
-            for (int y = 0; y < 3; y++) {
-                // this.outputSlots[y].xDisplayPosition = -9000;
+                for (int y = 0; y < getPatternOutputsWidth() * getPatternOutputsHeigh(); y++) {
+                    this.outputSlots[y].setHidden(true);
+                }
             }
         }
     }
 
     private void copyToMatrix() {
-        for (int i = 0; i < this.crafting.getSizeInventory(); i++) {
+        for (int i = 0; i < this.craftingMatrix.getSizeInventory(); i++) {
             IAEStack<?> aes = this.crafting.getAEStackInSlot(i);
             if (aes instanceof IAEItemStack ais) {
                 ItemStack is = ais.getItemStack();
@@ -192,6 +226,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
     }
 
     private ItemStack getAndUpdateOutput() {
+        if (!craftingModeSupport) return null;
         final InventoryCrafting ic = new InventoryCrafting(this, 3, 3);
 
         copyToMatrix();
@@ -480,19 +515,27 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
             this.substitute = this.patternTerminal.isSubstitution();
             this.beSubstitute = this.patternTerminal.canBeSubstitution();
 
-            for (VirtualMESlotPattern craftingSlot : this.craftingSlots) {
+            updateSlotsList(StorageName.CRAFTING_INPUT, craftingSlots, craftingSlotsClient);
+            updateSlotsList(StorageName.CRAFTING_OUTPUT, outputSlots, outputSlotsClient);
+        }
+    }
+
+    protected void updateSlotsList(StorageName invName, VirtualMESlotPattern[] slots, IAEStack<?>[] clientSlotsStacks) {
+        for (int i = 0; i < slots.length; ++i) {
+            IAEStack<?> aes = slots[i].getAEStack();
+            IAEStack<?> aesClient = clientSlotsStacks[i];
+
+            if (!isStacksIdentical(aes, aesClient)) {
+                clientSlotsStacks[i] = aes == null ? null : aes.copy();
+
                 for (ICrafting crafter : this.crafters) {
                     final EntityPlayerMP emp = (EntityPlayerMP) crafter;
                     try {
                         NetworkHandler.instance.sendTo(
-                                new PacketPatternTerminalSlotUpdate(
-                                        "crafting",
-                                        craftingSlot.getSlotIndex(),
-                                        craftingSlot.getAEStack()),
+                                new PacketPatternTerminalSlotUpdate(invName, i, aes, PatternTerminalAction.NOTHING),
                                 emp);
                     } catch (IOException ignored) {}
                 }
-
             }
         }
     }
@@ -511,17 +554,6 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
     public void onSlotChange(final Slot s) {
         if (!Platform.isServer()) return;
         if (s == this.patternSlotOUT) {
-            for (final Object crafter : this.crafters) {
-                final ICrafting icrafting = (ICrafting) crafter;
-
-                for (final Object g : this.inventorySlots) {
-                    if (g instanceof OptionalSlotFake || g instanceof SlotFakeCraftingMatrix) {
-                        final Slot sri = (Slot) g;
-                        icrafting.sendSlotContents(this, sri.slotNumber, sri.getStack());
-                    }
-                }
-                ((EntityPlayerMP) icrafting).isChangingQuantityOnly = false;
-            }
             this.detectAndSendChanges();
         } else if (s == patternRefiller && patternRefiller.getStack() != null) {
             refillBlankPatterns(patternSlotIN);
@@ -659,14 +691,42 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         return true;
     }
 
-    public void setPatternSlot(String invName, int slotId, IAEStack<?> aes) {
+    public void setPatternSlot(StorageName invName, int slotId, IAEStack<?> aes) {
         switch (invName) {
-            case "crafting" -> {
+            case CRAFTING_INPUT -> {
                 this.craftingSlots[slotId].setAEStack(aes);
             }
-            case "output" -> {
+            case CRAFTING_OUTPUT -> {
                 this.outputSlots[slotId].setAEStack(aes);
             }
         }
+    }
+
+    public boolean getCraftingModeSupport() {
+        return craftingModeSupport;
+    }
+
+    protected int getPatternInputsWidth() {
+        return patternInputsWidth;
+    }
+
+    protected int getPatternInputsHeigh() {
+        return patternInputsHeigh;
+    }
+
+    protected int getPatternInputPages() {
+        return patternInputsPages;
+    }
+
+    protected int getPatternOutputsWidth() {
+        return patternOutputsWidth;
+    }
+
+    protected int getPatternOutputsHeigh() {
+        return patternOutputsHeigh;
+    }
+
+    protected int getPatternOutputPages() {
+        return patternOutputPages;
     }
 }

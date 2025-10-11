@@ -13,6 +13,7 @@ public class VirtualMESlot {
 
     private final int xPos;
     private final int yPos;
+    private boolean isHidden = false;
 
     protected final IDisplayRepo repo;
     protected final int slotIndex;
@@ -49,5 +50,13 @@ public class VirtualMESlot {
         GL11.glColorMask(true, true, true, true);
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
+    }
+
+    public boolean isHidden() {
+        return this.isHidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.isHidden = hidden;
     }
 }

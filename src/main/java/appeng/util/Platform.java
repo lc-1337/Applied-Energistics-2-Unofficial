@@ -2082,4 +2082,11 @@ public class Platform {
         }
         return AEItemStack.create(stack);
     }
+
+    public static boolean isStacksIdentical(IAEStack<?> a, IAEStack<?> b) {
+        if (a == null && b == null) return true;
+        if (a == null || b == null) return false;
+        if (a.equals(b)) return a.getStackSize() == b.getStackSize();
+        return false;
+    }
 }

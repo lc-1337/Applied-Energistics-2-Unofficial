@@ -20,6 +20,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.data.IAEStack;
+import appeng.client.StorageName;
 import appeng.client.texture.CableBusTextures;
 import appeng.core.sync.GuiBridge;
 import appeng.helpers.PatternHelper;
@@ -37,10 +38,20 @@ public class PartPatternTerminal extends AbstractPartTerminal implements IIAESta
     private static final CableBusTextures FRONT_DARK_ICON = CableBusTextures.PartPatternTerm_Dark;
     private static final CableBusTextures FRONT_COLORED_ICON = CableBusTextures.PartPatternTerm_Colored;
 
-    private final IAEStackInventory crafting = new IAEStackInventory(this, 9);
+    public static final int patternInputsWidth = 3;
+    public static final int patternInputsHeigh = 3;
+    public static final int patternInputsPages = 1;
 
-    private final IAEStackInventory output = new IAEStackInventory(this, 3);
+    public static final int patternOutputsWidth = 1;
+    public static final int patternOutputsHeigh = 3;
+    public static final int patternOutputPages = 1;
 
+    private final IAEStackInventory crafting = new IAEStackInventory(
+            this,
+            getPatternInputsWidth() * getPatternInputsHeigh() * getPatternInputPages());
+    private final IAEStackInventory output = new IAEStackInventory(
+            this,
+            getPatternOutputsWidth() * getPatternOutputsHeigh() * getPatternOutputPages());
     private final AppEngInternalInventory pattern = new AppEngInternalInventory(this, 2);
 
     private boolean craftingMode = true;
@@ -96,10 +107,14 @@ public class PartPatternTerminal extends AbstractPartTerminal implements IIAESta
             z = this.getTile().zCoord;
         }
 
-        if (GuiBridge.GUI_PATTERN_TERMINAL.hasPermissions(this.getHost().getTile(), x, y, z, this.getSide(), p)) {
-            return GuiBridge.GUI_PATTERN_TERMINAL;
+        if (getPatternGui().hasPermissions(this.getHost().getTile(), x, y, z, this.getSide(), p)) {
+            return getPatternGui();
         }
         return GuiBridge.GUI_ME;
+    }
+
+    protected GuiBridge getPatternGui() {
+        return GuiBridge.GUI_PATTERN_TERMINAL;
     }
 
     @Override
@@ -142,6 +157,8 @@ public class PartPatternTerminal extends AbstractPartTerminal implements IIAESta
                     this.setSubstitution(substitute);
                     this.setCanBeSubstitution(beSubstitute);
 
+                    exPatternTerminalCall(inItems, outItems);
+
                     for (int x = 0; x < this.crafting.getSizeInventory(); x++) {
                         this.crafting.putAEStackInSlot(x, null);
                     }
@@ -169,7 +186,11 @@ public class PartPatternTerminal extends AbstractPartTerminal implements IIAESta
     }
 
     @Override
-    public void saveAEStackInv() {}
+    public void saveAEStackInv() {
+        this.getHost().markForSave();
+    }
+
+    protected void exPatternTerminalCall(IAEStack<?>[] in, IAEStack<?>[] out) {}
 
     public boolean isCraftingRecipe() {
         return this.craftingMode;
@@ -205,12 +226,12 @@ public class PartPatternTerminal extends AbstractPartTerminal implements IIAESta
     }
 
     @Override
-    public IAEStackInventory getAEInventoryByName(String name) {
+    public IAEStackInventory getAEInventoryByName(StorageName name) {
         switch (name) {
-            case "crafting" -> {
+            case CRAFTING_INPUT -> {
                 return this.crafting;
             }
-            case "output" -> {
+            case CRAFTING_OUTPUT -> {
                 return this.output;
             }
         }
@@ -230,5 +251,29 @@ public class PartPatternTerminal extends AbstractPartTerminal implements IIAESta
     @Override
     public CableBusTextures getFrontDark() {
         return FRONT_DARK_ICON;
+    }
+
+    protected int getPatternInputsWidth() {
+        return patternInputsWidth;
+    }
+
+    protected int getPatternInputsHeigh() {
+        return patternInputsHeigh;
+    }
+
+    protected int getPatternInputPages() {
+        return patternInputsPages;
+    }
+
+    protected int getPatternOutputsWidth() {
+        return patternOutputsWidth;
+    }
+
+    protected int getPatternOutputsHeigh() {
+        return patternOutputsHeigh;
+    }
+
+    protected int getPatternOutputPages() {
+        return patternOutputPages;
     }
 }

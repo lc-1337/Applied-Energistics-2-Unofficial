@@ -21,9 +21,7 @@ import appeng.client.ClientHelper;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerOpenContext;
 import appeng.container.implementations.ContainerCraftAmount;
-import appeng.container.implementations.ContainerPatternItemRenamer;
 import appeng.container.implementations.ContainerPatternMulti;
-import appeng.container.implementations.ContainerPatternValueAmount;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.INetworkInfo;
@@ -126,23 +124,6 @@ public class PacketInventoryAction extends AppEngPacket {
                         cca.detectAndSendChanges();
                     }
                 }
-            } else if (this.action == InventoryAction.SET_PATTERN_VALUE) {
-                final ContainerOpenContext context = baseContainer.getOpenContext();
-                if (context != null) {
-                    final TileEntity te = context.getTile();
-                    Platform.openGUI(
-                            sender,
-                            te,
-                            baseContainer.getOpenContext().getSide(),
-                            GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
-                    if (sender.openContainer instanceof ContainerPatternValueAmount cpv) {
-                        if (baseContainer.getTargetStack() != null) {
-                            cpv.setValueIndex(this.slot);
-                            cpv.getPatternValue().putStack(baseContainer.getTargetStack().getItemStack());
-                        }
-                        cpv.detectAndSendChanges();
-                    }
-                }
             } else if (this.action == InventoryAction.SET_PATTERN_MULTI) {
                 final ContainerOpenContext context = baseContainer.getOpenContext();
                 if (context != null) {
@@ -150,22 +131,6 @@ public class PacketInventoryAction extends AppEngPacket {
                     Platform.openGUI(sender, te, baseContainer.getOpenContext().getSide(), GuiBridge.GUI_PATTERN_MULTI);
                     if (sender.openContainer instanceof ContainerPatternMulti cpm) {
                         cpm.detectAndSendChanges();
-                    }
-                }
-            } else if (this.action == InventoryAction.RENAME_PATTERN_ITEM) {
-                final ContainerOpenContext context = baseContainer.getOpenContext();
-                if (context != null) {
-                    final TileEntity te = context.getTile();
-                    Platform.openGUI(
-                            sender,
-                            te,
-                            baseContainer.getOpenContext().getSide(),
-                            GuiBridge.GUI_PATTERN_ITEM_RENAMER);
-                    if (sender.openContainer instanceof ContainerPatternItemRenamer cpir) {
-                        if (baseContainer.getTargetStack() != null) {
-                            cpir.getPatternValue().putStack(baseContainer.getTargetStack().getItemStack());
-                        }
-                        cpir.detectAndSendChanges();
                     }
                 }
             } else {

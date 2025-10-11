@@ -555,7 +555,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
         RenderHelper.enableGUIStandardItemLighting();
         for (VirtualMESlot slot : slots) {
-            this.drawVirtualSlot(slot);
+            if (!slot.isHidden()) this.drawVirtualSlot(slot);
         }
         GL11.glPopAttrib();
     }
@@ -600,7 +600,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
         NetworkHandler.instance.sendToServer(p);
     }
 
-    private boolean handleSlotClick(final int mouseX, final int mouseY, final int mouseButton) {
+    protected boolean handleSlotClick(final int mouseX, final int mouseY, final int mouseButton) {
         final VirtualMESlot slot = getVirtualMESlotUnderMouse(mouseX, mouseY);
 
         if (slot == null) return false;
