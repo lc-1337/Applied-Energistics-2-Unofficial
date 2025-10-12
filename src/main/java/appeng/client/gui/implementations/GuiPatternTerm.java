@@ -12,8 +12,6 @@ package appeng.client.gui.implementations;
 
 import java.io.IOException;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
@@ -46,6 +44,9 @@ import appeng.core.sync.packets.PacketPatternTerminalSlotUpdate;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.helpers.InventoryAction;
 import appeng.helpers.PatternTerminalAction;
+import appeng.util.FluidUtils;
+import appeng.util.item.AEFluidStack;
+import appeng.util.item.AEItemStack;
 
 public class GuiPatternTerm extends GuiMEMonitorable {
 
@@ -95,60 +96,63 @@ public class GuiPatternTerm extends GuiMEMonitorable {
     @Override
     protected boolean handleSlotClick(int mouseX, int mouseY, int mouseButton) {
         final VirtualMESlotPattern slot = container.craftingSlots[0]; // TODO get slot somehow
-        final StorageName name = StorageName.CRAFTING_INPUT; // TODO get storage name somehow
         if (slot != null) {
             final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+            final StorageName invName = StorageName.CRAFTING_INPUT; // TODO get storage name somehow
+            IAEStack<?> aes = slot.getAEStack();
+            final ItemStack playerHand = player.inventory.getItemStack();
+            PatternTerminalAction action = PatternTerminalAction.SET;
 
             final boolean isLShiftDown = isShiftKeyDown();
             final boolean isLControlDown = isCtrlKeyDown();
 
             switch (mouseButton) {
-                /*
-                 * case 0 -> { // left click if (player.inventory.getItemStack() != null) { this.sendAction(
-                 * isLControlDown ? PatternTerminalAction.EMPTY_CAN : PatternTerminalAction.SET_STACK, null,
-                 * slot.getSlotIndex(), name); return true; } if (isLControlDown) { this.sendAction( isLShiftDown ?
-                 * MonitorableAction.FILL_CONTAINERS : MonitorableAction.FILL_SINGLE_CONTAINER,
-                 * stackConvert(slot.getAEStack()), this.meSlots.length); return true; } if (isLShiftDown) {
-                 * this.sendAction(MonitorableAction.SHIFT_CLICK, slotStack, this.meSlots.length); return true; } if
-                 * (slot.getAEStack() != null && slot.getAEStack().getStackSize() == 0 &&
-                 * player.inventory.getItemStack() == null) { // TODO: native
-                 * this.sendAction(MonitorableAction.AUTO_CRAFT, stackConvert(slot.getAEStack()), this.meSlots.length);
-                 * return true; } this.sendAction(MonitorableAction.PICKUP_OR_SET_DOWN, slotStack, this.meSlots.length);
-                 * return true; } case 1 -> { // right click if (slot instanceof VirtualPinSlot) { if (isLShiftDown) {
-                 * this.sendAction(MonitorableAction.UNSET_PIN, null, slot.getSlotIndex()); } else { this.sendAction(
-                 * isLControlDown ? MonitorableAction.SET_CONTAINER_PIN : MonitorableAction.SET_ITEM_PIN, null,
-                 * slot.getSlotIndex()); } return true; } if (isLControlDown) { this.sendAction( isLShiftDown ?
-                 * MonitorableAction.DRAIN_CONTAINERS : MonitorableAction.DRAIN_SINGLE_CONTAINER,
-                 * stackConvert(slot.getAEStack()), this.meSlots.length); return true; } if (isLShiftDown) {
-                 * this.sendAction(MonitorableAction.PICKUP_SINGLE, slotStack, this.meSlots.length); return true; }
-                 * this.sendAction(MonitorableAction.SPLIT_OR_PLACE_SINGLE, slotStack, this.meSlots.length); return
-                 * true; }
-                 */
-                case 2 -> { // middle click
-                    if (slot.getAEStack() != null) {
-                        PatternTerminalAction action = PatternTerminalAction.SET_PATTERN_VALUE;
-                        if (isCtrlKeyDown()) {
-                            action = PatternTerminalAction.SET_PATTERN_ITEM_NAME;
+                case 0 -> { // left click
+                    if (playerHand != null) {
+                        if (isLControlDown) {
+                            aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(playerHand));
+                        } else {
+                            aes = AEItemStack.create(playerHand);
                         }
-                        this.sendAction(action, slot.getAEStack(), slot.getSlotIndex(), name);
-                        return true;
+                    } else {
+                        aes = null;
                     }
                 }
-                default -> {}
+                case 1 -> { // right click
+                    if (playerHand != null) {
+                        playerHand.stackSize = 1;
+                        if (isLControlDown) {
+                            aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(playerHand));
+                        } else {
+                            aes = AEItemStack.create(playerHand);
+                        }
+                    } else if (aes != null) {
+                        aes.decStackSize(1);
+                    }
+                }
+                case 2 -> { // middle click
+                    if (aes != null) {
+                        if (isLControlDown) {
+                            action = PatternTerminalAction.SET_PATTERN_ITEM_NAME;
+                        } else {
+                            action = PatternTerminalAction.SET_PATTERN_VALUE;
+                        }
+                    }
+                }
+                default -> action = PatternTerminalAction.NOTHING;
+            }
+
+            if (action != PatternTerminalAction.NOTHING) {
+                try {
+                    NetworkHandler.instance.sendToServer(
+                            new PacketPatternTerminalSlotUpdate(invName, slot.getSlotIndex(), aes, action));
+                } catch (IOException e) {
+                    AELog.error(e);
+                }
             }
         }
 
         return super.handleSlotClick(mouseX, mouseY, mouseButton);
-    }
-
-    private void sendAction(PatternTerminalAction action, @Nullable IAEStack<?> stack, int slotIndex,
-            StorageName invName) {
-        try {
-            NetworkHandler.instance
-                    .sendToServer(new PacketPatternTerminalSlotUpdate(invName, slotIndex, stack, action));
-        } catch (IOException e) {
-            AELog.error(e);
-        }
     }
 
     @Override

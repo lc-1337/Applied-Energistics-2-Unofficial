@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
 
+import appeng.api.networking.IGridHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
 import appeng.client.gui.implementations.GuiPatternTerm;
@@ -107,36 +108,57 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
         if (container instanceof ContainerPatternTerm cpt) {
             GuiBridge originalGui = container instanceof ContainerPatternTermEx ? GuiBridge.GUI_PATTERN_TERMINAL_EX
                     : GuiBridge.GUI_PATTERN_TERMINAL;
-            if (this.action == PatternTerminalAction.SET_PATTERN_VALUE) {
-                final ContainerOpenContext context = cpt.getOpenContext();
-                if (context != null) {
-                    final TileEntity te = context.getTile();
-                    Platform.openGUI(player, te, cpt.getOpenContext().getSide(), GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
-                    if (player.openContainer instanceof ContainerPatternValueAmount cpv) {
-                        if (slotItem != null) {
-                            cpv.setOriginalGui(originalGui);
-                            cpv.setStack(slotItem);
-                            cpv.setInvName(invName);
-                            cpv.setSlotsIndex(slotId);
-                            cpv.update();
-                        }
+            if (this.action == PatternTerminalAction.SET) {
+                cpt.setPatternSlot(invName, slotId, slotItem);
+            } else if (this.action == PatternTerminalAction.SET_PATTERN_VALUE) {
+                if (slotItem == null) return;
+                final Object target = cpt.getTarget();
+                if (target instanceof IGridHost) {
+                    final ContainerOpenContext context = cpt.getOpenContext();
+                    if (context != null) {
+                        final TileEntity te = context.getTile();
+                        Platform.openGUI(
+                                player,
+                                te,
+                                cpt.getOpenContext().getSide(),
+                                GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
                     }
+                } else {
+                    Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
+                }
+
+                if (player.openContainer instanceof ContainerPatternValueAmount cpv) {
+                    cpv.setOriginalGui(originalGui);
+                    cpv.setStack(slotItem);
+                    cpv.setInvName(invName);
+                    cpv.setSlotsIndex(slotId);
+                    cpv.update();
+                }
+            } else if (this.action == PatternTerminalAction.SET_PATTERN_ITEM_NAME) {
+                if (slotItem == null || !slotItem.isItem()) return;
+                final Object target = cpt.getTarget();
+                if (target instanceof IGridHost) {
+                    final ContainerOpenContext context = cpt.getOpenContext();
+                    if (context != null) {
+                        final TileEntity te = context.getTile();
+                        Platform.openGUI(
+                                player,
+                                te,
+                                cpt.getOpenContext().getSide(),
+                                GuiBridge.GUI_PATTERN_ITEM_RENAMER);
+                    }
+                } else {
+                    Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_ITEM_RENAMER);
+                }
+
+                if (player.openContainer instanceof ContainerPatternValueAmount cpv) {
+                    cpv.setOriginalGui(originalGui);
+                    cpv.setStack(slotItem);
+                    cpv.setInvName(invName);
+                    cpv.setSlotsIndex(slotId);
+                    cpv.update();
                 }
             }
-        } /*
-           * if (this.action == InventoryAction.SET_PATTERN_VALUE) { final ContainerOpenContext context =
-           * baseContainer.getOpenContext(); if (context != null) { final TileEntity te = context.getTile();
-           * Platform.openGUI( sender, te, baseContainer.getOpenContext().getSide(),
-           * GuiBridge.GUI_PATTERN_VALUE_AMOUNT); if (sender.openContainer instanceof ContainerPatternValueAmount cpv) {
-           * if (baseContainer.getTargetStack() != null) { cpv.setValueIndex(this.slot);
-           * cpv.getPatternValue().putStack(baseContainer.getTargetStack().getItemStack()); }
-           * cpv.detectAndSendChanges(); } } } else if (this.action == InventoryAction.RENAME_PATTERN_ITEM) { final
-           * ContainerOpenContext context = baseContainer.getOpenContext(); if (context != null) { final TileEntity te =
-           * context.getTile(); Platform.openGUI( sender, te, baseContainer.getOpenContext().getSide(),
-           * GuiBridge.GUI_PATTERN_ITEM_RENAMER); if (sender.openContainer instanceof ContainerPatternItemRenamer cpir)
-           * { if (baseContainer.getTargetStack() != null) {
-           * cpir.getPatternValue().putStack(baseContainer.getTargetStack().getItemStack()); }
-           * cpir.detectAndSendChanges(); } } }
-           */
+        }
     }
 }

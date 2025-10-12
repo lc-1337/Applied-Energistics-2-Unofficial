@@ -19,6 +19,7 @@ import appeng.helpers.Reflected;
 public class GuiPatternValueAmount extends GuiAmount {
 
     ContainerPatternValueAmount container;
+    ItemStack renderStack;
 
     @Reflected
     public GuiPatternValueAmount(final InventoryPlayer inventoryPlayer, final ITerminalHost te) {

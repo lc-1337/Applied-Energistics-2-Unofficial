@@ -6,10 +6,13 @@ import static appeng.util.Platform.writeStackByte;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
 
+import appeng.api.networking.IGridHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
 import appeng.client.gui.implementations.GuiPatternValueAmount;
+import appeng.container.ContainerOpenContext;
 import appeng.container.implementations.ContainerPatternTerm;
 import appeng.container.implementations.ContainerPatternValueAmount;
 import appeng.core.sync.AppEngPacket;
@@ -67,10 +70,22 @@ public class PacketPatternValueSet extends AppEngPacket {
 
     @Override
     public void serverPacketData(INetworkInfo manager, AppEngPacket packet, EntityPlayer player) {
-        if (player.openContainer instanceof ContainerPatternValueAmount) {
-            Platform.openGUI(player, null, null, originGui);
-            if (player.openContainer instanceof ContainerPatternTerm cpt) {
-                cpt.setPatternSlot(invName, slotIndex, aes);
+        if (player.openContainer instanceof ContainerPatternValueAmount cpva) {
+            final Object target = cpva.getTarget();
+            if (target instanceof IGridHost) {
+                final ContainerOpenContext context = cpva.getOpenContext();
+                if (context != null) {
+                    final TileEntity te = context.getTile();
+                    Platform.openGUI(player, te, context.getSide(), originGui);
+                    if (player.openContainer instanceof ContainerPatternTerm cpt) {
+                        cpt.setPatternSlot(invName, slotIndex, aes);
+                    }
+                }
+            } else {
+                Platform.openGUI(player, null, null, originGui);
+                if (player.openContainer instanceof ContainerPatternTerm cpt) {
+                    cpt.setPatternSlot(invName, slotIndex, aes);
+                }
             }
         }
     }
