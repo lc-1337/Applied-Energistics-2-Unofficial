@@ -137,6 +137,8 @@ public class GuiMEMonitorable extends AEBaseMEGui
     protected VirtualMESlot[] meSlots = null;
     private IAEStack<?> hoveredItemStack = null;
 
+    private final ITerminalHost host;
+
     public GuiMEMonitorable(final InventoryPlayer inventoryPlayer, final ITerminalHost te) {
         this(inventoryPlayer, te, new ContainerMEMonitorable(inventoryPlayer, te));
     }
@@ -149,6 +151,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
         final GuiScrollbar scrollbar = new GuiScrollbar();
         this.setScrollBar(scrollbar);
         this.repo = new ItemRepo(scrollbar, this);
+        this.host = te;
 
         this.xSize = 195;
         this.ySize = 204;
@@ -200,6 +203,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
     @Override
     protected void actionPerformed(final GuiButton btn) {
+        if (host.customButtonsActionPerformed(btn)) return;
 
         if (btn == this.craftingStatusBtn || btn == this.craftingStatusImgBtn) {
             NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_CRAFTING_STATUS));
@@ -411,6 +415,8 @@ public class GuiMEMonitorable extends AEBaseMEGui
                             AEConfig.instance.settings.getSetting(Settings.TERMINAL_STYLE)));
             offset += 20;
         }
+
+        this.host.addCustomButtons(offset, this.buttonList);
 
         if (this.viewCell || this instanceof GuiWirelessTerm) {
             if (AEConfig.instance.getConfigManager().getSetting(Settings.CRAFTING_STATUS)
