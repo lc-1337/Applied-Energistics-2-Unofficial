@@ -53,9 +53,10 @@ import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketPatternSlot;
 import appeng.core.sync.packets.PacketPatternTerminalSlotUpdate;
 import appeng.helpers.IContainerCraftingPacket;
+import appeng.helpers.IPatternTerminal;
 import appeng.helpers.PatternTerminalAction;
+import appeng.helpers.WirelessPatternTerminalGuiObject;
 import appeng.items.storage.ItemViewCell;
-import appeng.parts.reporting.PartPatternTerminal;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.IAEAppEngInventory;
 import appeng.tile.inventory.IAEStackInventory;
@@ -70,7 +71,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
     public static final int MULTIPLE_OF_BUTTON_CLICK = 2;
     public static final int MULTIPLE_OF_BUTTON_CLICK_ON_SHIFT = 8;
-    protected final PartPatternTerminal patternTerminal;
+    protected final IPatternTerminal patternTerminal;
     private final AppEngInternalInventory cOut = new AppEngInternalInventory(null, 1);
     private final IAEStackInventory crafting;
     public final VirtualMESlotPattern[] craftingSlots = new VirtualMESlotPattern[getPatternInputsWidth()
@@ -105,7 +106,14 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
     public ContainerPatternTerm(final InventoryPlayer ip, final ITerminalHost monitorable,
             boolean craftingModeSupport) {
         super(ip, monitorable, false);
-        this.patternTerminal = (PartPatternTerminal) monitorable;
+        this.patternTerminal = (IPatternTerminal) monitorable;
+
+        if (monitorable instanceof WirelessPatternTerminalGuiObject wptgo) {
+            wptgo.setInventorySize(
+                    getPatternInputsWidth() * getPatternInputsHeigh() * getPatternInputPages(),
+                    getPatternOutputsWidth() * getPatternOutputsHeigh() * getPatternOutputPages());
+            wptgo.readInventory();
+        }
 
         this.craftingModeSupport = craftingModeSupport;
 
@@ -179,7 +187,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
         this.bindPlayerInventory(ip, 0, 0);
         this.updateOrderOfOutputSlots();
-        if (getPatternTerminal().hasRefillerUpgrade()) refillBlankPatterns(patternSlotIN);
+        refillBlankPatterns(patternSlotIN);
     }
 
     private void updateOrderOfOutputSlots() {
@@ -260,7 +268,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
                 getPlayerInv().player.entityDropItem(output, 0);
             }
             this.patternSlotOUT.putStack(null);
-            if (getPatternTerminal().hasRefillerUpgrade()) refillBlankPatterns(patternSlotIN);
+            refillBlankPatterns(patternSlotIN);
         }
     }
 
@@ -305,7 +313,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
                     this.patternSlotOUT.putStack(output);
                 }
             }
-            if (getPatternTerminal().hasRefillerUpgrade()) refillBlankPatterns(patternSlotIN);
+            refillBlankPatterns(patternSlotIN);
         }
 
         // encode the slot.
@@ -602,7 +610,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         this.craftingMode = craftingMode;
     }
 
-    public PartPatternTerminal getPatternTerminal() {
+    public IPatternTerminal getPatternTerminal() {
         return this.patternTerminal;
     }
 

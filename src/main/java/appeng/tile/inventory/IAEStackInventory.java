@@ -36,6 +36,7 @@ public class IAEStackInventory {
 
     public void putAEStackInSlot(final int n, IAEStack<?> aes) {
         this.inv[n] = aes;
+        markDirty();
     }
 
     public void writeToNBT(final NBTTagCompound data, final String name) {

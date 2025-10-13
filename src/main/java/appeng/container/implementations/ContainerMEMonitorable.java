@@ -53,7 +53,6 @@ import appeng.api.config.SortDir;
 import appeng.api.config.SortOrder;
 import appeng.api.config.TypeFilter;
 import appeng.api.config.ViewItems;
-import appeng.api.implementations.IUpgradeableHost;
 import appeng.api.implementations.guiobjects.IPortableCell;
 import appeng.api.implementations.tiles.IMEChest;
 import appeng.api.implementations.tiles.IViewCellStorage;
@@ -81,7 +80,6 @@ import appeng.api.util.IConfigurableObject;
 import appeng.container.AEBaseContainer;
 import appeng.container.guisync.GuiSync;
 import appeng.container.slot.SlotRestrictedInput;
-import appeng.container.slot.SlotRestrictedInput.PlacableItemType;
 import appeng.core.AELog;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketMEInventoryUpdate;
@@ -201,16 +199,6 @@ public class ContainerMEMonitorable extends AEBaseContainer
                 this.cellView[y].setAllowEdit(this.canAccessViewCells);
                 this.addSlotToContainer(this.cellView[y]);
             }
-        }
-        if (isAPatternTerminal()) {
-            patternRefiller = new SlotRestrictedInput(
-                    PlacableItemType.UPGRADES,
-                    ((IUpgradeableHost) monitorable).getInventoryByName("upgrades"),
-                    0,
-                    206,
-                    5 * 18 + 11,
-                    this.getInventoryPlayer());
-            addSlotToContainer(patternRefiller);
         }
 
         if (bindInventory) {

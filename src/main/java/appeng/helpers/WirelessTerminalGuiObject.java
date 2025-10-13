@@ -347,4 +347,12 @@ public class WirelessTerminalGuiObject
     public GuiText getName() {
         return GuiText.WirelessTerminal;
     }
+
+    public TerminalMode getMode() {
+        return TerminalMode.values()[this.getItemStack().getTagCompound().getInteger("terminal_mode")];
+    }
+
+    public void writeInventory() {}
+
+    public void readInventory() {}
 }

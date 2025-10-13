@@ -17,22 +17,18 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import appeng.api.implementations.ICraftingPatternItem;
-import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
 import appeng.client.texture.CableBusTextures;
 import appeng.core.sync.GuiBridge;
-import appeng.helpers.PatternHelper;
+import appeng.helpers.IPatternTerminal;
 import appeng.helpers.Reflected;
-import appeng.helpers.UltimatePatternHelper;
-import appeng.items.misc.ItemEncodedPattern;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.tile.inventory.IIAEStackInventory;
 import appeng.tile.inventory.InvOperation;
 
-public class PartPatternTerminal extends AbstractPartTerminal implements IIAEStackInventory {
+public class PartPatternTerminal extends AbstractPartTerminal implements IIAEStackInventory, IPatternTerminal {
 
     private static final CableBusTextures FRONT_BRIGHT_ICON = CableBusTextures.PartPatternTerm_Bright;
     private static final CableBusTextures FRONT_DARK_ICON = CableBusTextures.PartPatternTerm_Dark;
@@ -121,65 +117,8 @@ public class PartPatternTerminal extends AbstractPartTerminal implements IIAESta
     public void onChangeInventory(final IInventory inv, final int slot, final InvOperation mc,
             final ItemStack removedStack, final ItemStack newStack) {
         if (inv == this.pattern && slot == 1) {
-
             final ItemStack stack = this.pattern.getStackInSlot(1);
-
-            if (stack != null && stack.getItem() instanceof ICraftingPatternItem pattern) {
-                final NBTTagCompound encodedValue = stack.getTagCompound();
-
-                if (encodedValue != null) {
-                    final ICraftingPatternDetails details = pattern
-                            .getPatternForItem(stack, this.getHost().getTile().getWorldObj());
-                    final boolean substitute = encodedValue.getBoolean("substitute");
-                    final boolean beSubstitute = encodedValue.getBoolean("beSubstitute");
-                    final boolean isCrafting = encodedValue.getBoolean("crafting");
-                    final IAEStack<?>[] inItems;
-                    final IAEStack<?>[] outItems;
-
-                    if (details == null) {
-                        if (stack.getItem() instanceof ItemEncodedPattern) {
-                            inItems = PatternHelper
-                                    .loadIAEItemStackFromNBT(encodedValue.getTagList("in", 10), true, null);
-                            outItems = PatternHelper
-                                    .loadIAEItemStackFromNBT(encodedValue.getTagList("out", 10), true, null);
-                        } else {
-                            inItems = UltimatePatternHelper
-                                    .loadIAEStackFromNBT(encodedValue.getTagList("in", 10), true, null);
-                            outItems = UltimatePatternHelper
-                                    .loadIAEStackFromNBT(encodedValue.getTagList("out", 10), true, null);
-                        }
-                    } else {
-                        inItems = details.getAEInputs();
-                        outItems = details.getAEOutputs();
-                    }
-
-                    this.setCraftingRecipe(isCrafting);
-                    this.setSubstitution(substitute);
-                    this.setCanBeSubstitution(beSubstitute);
-
-                    exPatternTerminalCall(inItems, outItems);
-
-                    for (int x = 0; x < this.crafting.getSizeInventory(); x++) {
-                        this.crafting.putAEStackInSlot(x, null);
-                    }
-
-                    for (int x = 0; x < this.output.getSizeInventory(); x++) {
-                        this.output.putAEStackInSlot(x, null);
-                    }
-
-                    for (int x = 0; x < this.crafting.getSizeInventory() && x < inItems.length; x++) {
-                        if (inItems[x] != null) {
-                            this.crafting.putAEStackInSlot(x, inItems[x]);
-                        }
-                    }
-
-                    for (int x = 0; x < this.output.getSizeInventory() && x < outItems.length; x++) {
-                        if (outItems[x] != null) {
-                            this.output.putAEStackInSlot(x, outItems[x]);
-                        }
-                    }
-                }
-            }
+            loadPatternFromItem(stack, this.host.getTile().getWorldObj(), this.crafting, this.output);
         }
 
         this.getHost().markForSave();
@@ -190,7 +129,7 @@ public class PartPatternTerminal extends AbstractPartTerminal implements IIAESta
         this.getHost().markForSave();
     }
 
-    protected void exPatternTerminalCall(IAEStack<?>[] in, IAEStack<?>[] out) {}
+    public void exPatternTerminalCall(IAEStack<?>[] in, IAEStack<?>[] out) {}
 
     public boolean isCraftingRecipe() {
         return this.craftingMode;

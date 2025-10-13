@@ -46,7 +46,7 @@ public class PartPatternTerminalEx extends PartPatternTerminal {
     }
 
     @Override
-    protected void exPatternTerminalCall(IAEStack<?>[] in, IAEStack<?>[] out) {
+    public void exPatternTerminalCall(IAEStack<?>[] in, IAEStack<?>[] out) {
         int inputsCount = 0;
         int outputCount = 0;
 

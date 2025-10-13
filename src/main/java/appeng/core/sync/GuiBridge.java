@@ -91,9 +91,11 @@ import appeng.container.implementations.ContainerWireless;
 import appeng.container.implementations.ContainerWirelessTerm;
 import appeng.core.stats.Achievements;
 import appeng.helpers.ICellRestriction;
+import appeng.helpers.ICraftingTerminal;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IOreFilterable;
+import appeng.helpers.IPatternTerminal;
 import appeng.helpers.IPriorityHost;
 import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.items.contents.PriorityCardObject;
@@ -101,10 +103,6 @@ import appeng.items.contents.QuartzKnifeObj;
 import appeng.parts.automation.PartFormationPlane;
 import appeng.parts.automation.PartLevelEmitter;
 import appeng.parts.misc.PartStorageBus;
-import appeng.parts.reporting.PartCraftingTerminal;
-import appeng.parts.reporting.PartInterfaceTerminal;
-import appeng.parts.reporting.PartPatternTerminal;
-import appeng.parts.reporting.PartPatternTerminalEx;
 import appeng.tile.crafting.TileCraftingTile;
 import appeng.tile.crafting.TileMolecularAssembler;
 import appeng.tile.grindstone.TileGrinder;
@@ -134,16 +132,16 @@ public enum GuiBridge implements IGuiHandler {
 
     GUI_WIRELESS_TERM(ContainerWirelessTerm.class, WirelessTerminalGuiObject.class, GuiHostType.ITEM, null),
 
-    GUI_CRAFTING_TERMINAL(ContainerCraftingTerm.class, PartCraftingTerminal.class, GuiHostType.ITEM_OR_WORLD,
+    GUI_CRAFTING_TERMINAL(ContainerCraftingTerm.class, ICraftingTerminal.class, GuiHostType.ITEM_OR_WORLD,
             SecurityPermissions.CRAFT),
 
-    GUI_PATTERN_TERMINAL(ContainerPatternTerm.class, PartPatternTerminal.class, GuiHostType.ITEM_OR_WORLD,
+    GUI_PATTERN_TERMINAL(ContainerPatternTerm.class, IPatternTerminal.class, GuiHostType.ITEM_OR_WORLD,
             SecurityPermissions.CRAFT),
 
-    GUI_PATTERN_TERMINAL_EX(ContainerPatternTermEx.class, PartPatternTerminalEx.class, GuiHostType.ITEM_OR_WORLD,
+    GUI_PATTERN_TERMINAL_EX(ContainerPatternTermEx.class, IPatternTerminal.class, GuiHostType.ITEM_OR_WORLD,
             SecurityPermissions.CRAFT),
 
-    GUI_INTERFACE_TERMINAL(ContainerInterfaceTerminal.class, PartInterfaceTerminal.class, GuiHostType.ITEM_OR_WORLD,
+    GUI_INTERFACE_TERMINAL(ContainerInterfaceTerminal.class, IActionHost.class, GuiHostType.ITEM_OR_WORLD,
             SecurityPermissions.BUILD),
 
     GUI_PORTABLE_CELL(ContainerMEPortableCell.class, IPortableCell.class, GuiHostType.ITEM, null),
