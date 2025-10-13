@@ -43,6 +43,7 @@ import appeng.core.sync.packets.PacketPatternTerminalSlotUpdate;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.helpers.InventoryAction;
 import appeng.helpers.PatternTerminalAction;
+import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.FluidUtils;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
@@ -100,7 +101,6 @@ public class GuiPatternTerm extends GuiMEMonitorable {
         final var clickedSlot = this.getVirtualMESlotUnderMouse();
         if (clickedSlot instanceof VirtualMESlotPattern slot) {
             final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-            final StorageName invName = StorageName.CRAFTING_INPUT; // TODO get storage name somehow
             IAEStack<?> aes = slot.getAEStack();
             final ItemStack playerHand = player.inventory.getItemStack();
             PatternTerminalAction action = PatternTerminalAction.SET;
@@ -147,7 +147,11 @@ public class GuiPatternTerm extends GuiMEMonitorable {
             if (action != PatternTerminalAction.NOTHING) {
                 try {
                     NetworkHandler.instance.sendToServer(
-                            new PacketPatternTerminalSlotUpdate(invName, slot.getSlotIndex(), aes, action));
+                            new PacketPatternTerminalSlotUpdate(
+                                    slot.getStorageName(),
+                                    slot.getSlotIndex(),
+                                    aes,
+                                    action));
                 } catch (IOException e) {
                     AELog.error(e);
                 }
@@ -298,12 +302,14 @@ public class GuiPatternTerm extends GuiMEMonitorable {
         final int inputSlotPerRow = container.getPatternInputsWidth();
         final int inputPage = container.getPatternInputPages();
         this.craftingSlots = new VirtualMESlotPattern[inputSlotPerRow * inputSlotRow * inputPage];
+        final IAEStackInventory inputInv = container.getPatternTerminal()
+                .getAEInventoryByName(StorageName.CRAFTING_INPUT);
         for (int y = 0; y < inputSlotRow * inputPage; y++) {
             for (int x = 0; x < inputSlotPerRow; x++) {
                 this.craftingSlots[x + y * inputSlotPerRow] = new VirtualMESlotPattern(
                         getInputSlotOffsetX() + 18 * x,
                         this.rows * 18 + getInputSlotOffsetY() + 18 * (y % (inputSlotRow)),
-                        container.getPatternTerminal().getAEInventoryByName(StorageName.CRAFTING_INPUT),
+                        inputInv,
                         x + y * inputSlotPerRow);
             }
         }
@@ -312,12 +318,14 @@ public class GuiPatternTerm extends GuiMEMonitorable {
         final int outputSlotPerRow = container.getPatternOutputsWidth();
         final int outputPage = container.getPatternOutputPages();
         this.outputSlots = new VirtualMESlotPattern[outputSlotPerRow * outputSlotRow * outputPage];
+        final IAEStackInventory outputInv = container.getPatternTerminal()
+                .getAEInventoryByName(StorageName.CRAFTING_OUTPUT);
         for (int y = 0; y < outputSlotRow * outputPage; y++) {
             for (int x = 0; x < outputSlotPerRow; x++) {
                 this.outputSlots[x + y * outputSlotPerRow] = new VirtualMESlotPattern(
                         getOutputSlotOffsetX(),
                         this.rows * 18 + getOutputSlotOffsetY() + 18 * (y % outputSlotRow),
-                        container.getPatternTerminal().getAEInventoryByName(StorageName.CRAFTING_OUTPUT),
+                        outputInv,
                         x + y * outputSlotPerRow);
             }
         }

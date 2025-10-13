@@ -44,10 +44,12 @@ public class PartPatternTerminal extends AbstractPartTerminal implements IIAESta
 
     private final IAEStackInventory crafting = new IAEStackInventory(
             this,
-            getPatternInputsWidth() * getPatternInputsHeigh() * getPatternInputPages());
+            getPatternInputsWidth() * getPatternInputsHeigh() * getPatternInputPages(),
+            StorageName.CRAFTING_INPUT);
     private final IAEStackInventory output = new IAEStackInventory(
             this,
-            getPatternOutputsWidth() * getPatternOutputsHeigh() * getPatternOutputPages());
+            getPatternOutputsWidth() * getPatternOutputsHeigh() * getPatternOutputPages(),
+            StorageName.CRAFTING_OUTPUT);
     private final AppEngInternalInventory pattern = new AppEngInternalInventory(this, 2);
 
     private boolean craftingMode = true;

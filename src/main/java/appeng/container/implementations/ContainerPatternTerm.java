@@ -11,6 +11,7 @@
 package appeng.container.implementations;
 
 import static appeng.parts.reporting.PartPatternTerminal.*;
+import static appeng.util.Platform.isServer;
 import static appeng.util.Platform.isStacksIdentical;
 import static appeng.util.Platform.writeStackNBT;
 
@@ -120,7 +121,6 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
         if (craftingModeSupport) {
             this.craftingMatrix = new AppEngInternalInventory(null, 9);
-            copyToMatrix();
             this.addSlotToContainer(
                     this.craftSlot = new SlotPatternTerm(
                             ip.player,
@@ -179,10 +179,11 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         for (int i = 0; i < this.craftingMatrix.getSizeInventory(); i++) {
             IAEStack<?> aes = this.inputs.getAEStackInSlot(i);
             if (aes instanceof IAEItemStack ais) {
+                ais.setStackSize(1);
                 ItemStack is = ais.getItemStack();
-                is.stackSize = 1;
                 this.craftingMatrix.setInventorySlotContents(i, is);
             } else {
+                this.inputs.putAEStackInSlot(i, null);
                 this.craftingMatrix.setInventorySlotContents(i, null);
             }
         }
@@ -201,10 +202,8 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
     }
 
     private ItemStack getAndUpdateOutput() {
-        if (!craftingModeSupport) return null;
+        if (!craftingModeSupport || !isCraftingMode()) return null;
         final InventoryCrafting ic = new InventoryCrafting(this, 3, 3);
-
-        copyToMatrix();
 
         for (int x = 0; x < ic.getSizeInventory(); x++) {
             ic.setInventorySlotContents(x, this.craftingMatrix.getStackInSlot(x));
@@ -311,7 +310,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         final IAEStack<?>[] input = new IAEStack<?>[9];
         boolean hasValue = false;
 
-        for (int i = 0; 8 < this.inputs.getSizeInventory(); i++) {
+        for (int i = 0; i < this.inputs.getSizeInventory(); i++) {
             input[i] = this.inputs.getAEStackInSlot(i);
             if (input[i] != null) {
                 hasValue = true;
@@ -336,7 +335,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
             final List<IAEStack<?>> list = new ArrayList<>(3);
             boolean hasValue = false;
 
-            for (int i = 0; 8 < this.outputs.getSizeInventory(); i++) {
+            for (int i = 0; i < this.outputs.getSizeInventory(); i++) {
                 final IAEStack<?> out = this.outputs.getAEStackInSlot(i);
 
                 if (out != null && out.getStackSize() > 0) {
@@ -370,9 +369,9 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
     @Override
     public boolean isSlotEnabled(final int idx) {
         if (idx == 1) {
-            return Platform.isServer() ? !this.getPatternTerminal().isCraftingRecipe() : !this.isCraftingMode();
+            return isServer() ? !this.getPatternTerminal().isCraftingRecipe() : !this.isCraftingMode();
         } else if (idx == 2) {
-            return Platform.isServer() ? this.getPatternTerminal().isCraftingRecipe() : this.isCraftingMode();
+            return isServer() ? this.getPatternTerminal().isCraftingRecipe() : this.isCraftingMode();
         } else {
             return false;
         }
@@ -481,7 +480,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
-        if (Platform.isServer()) {
+        if (isServer()) {
             if (this.isCraftingMode() != this.getPatternTerminal().isCraftingRecipe()) {
                 this.setCraftingMode(this.getPatternTerminal().isCraftingRecipe());
                 this.updateOrderOfOutputSlots();
@@ -527,7 +526,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
     @Override
     public void onSlotChange(final Slot s) {
-        if (!Platform.isServer()) return;
+        if (!isServer()) return;
         if (s == this.patternSlotOUT) {
             this.detectAndSendChanges();
         } else if (s == patternRefiller && patternRefiller.getStack() != null) {
@@ -574,6 +573,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
     private void setCraftingMode(final boolean craftingMode) {
         this.craftingMode = craftingMode;
+        if (craftingMode && craftingModeSupport) copyToMatrix();
     }
 
     public IPatternTerminal getPatternTerminal() {

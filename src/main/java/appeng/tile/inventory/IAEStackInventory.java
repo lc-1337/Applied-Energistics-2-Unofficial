@@ -6,6 +6,7 @@ import static appeng.util.Platform.writeStackNBT;
 import net.minecraft.nbt.NBTTagCompound;
 
 import appeng.api.storage.data.IAEStack;
+import appeng.client.StorageName;
 import appeng.core.AELog;
 import appeng.util.Platform;
 
@@ -14,11 +15,20 @@ public class IAEStackInventory {
     private final IIAEStackInventory aesInventory;
     private final IAEStack<?>[] inv;
     private final int size;
+    private final StorageName storageName;
+
+    public IAEStackInventory(final IIAEStackInventory te, final int size, StorageName storageName) {
+        this.aesInventory = te;
+        this.size = size;
+        this.inv = new IAEStack<?>[size];
+        this.storageName = storageName;
+    }
 
     public IAEStackInventory(final IIAEStackInventory te, final int size) {
         this.aesInventory = te;
         this.size = size;
         this.inv = new IAEStack<?>[size];
+        this.storageName = null;
     }
 
     public boolean isEmpty() {
@@ -89,5 +99,9 @@ public class IAEStackInventory {
         if (this.aesInventory != null && Platform.isServer()) {
             this.aesInventory.saveAEStackInv();
         }
+    }
+
+    public StorageName getStorageName() {
+        return storageName;
     }
 }

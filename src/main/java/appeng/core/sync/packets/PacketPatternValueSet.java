@@ -11,6 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 import appeng.api.networking.IGridHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
+import appeng.client.gui.implementations.GuiPatternItemRenamer;
 import appeng.client.gui.implementations.GuiPatternValueAmount;
 import appeng.container.ContainerOpenContext;
 import appeng.container.implementations.ContainerPatternTerm;
@@ -65,6 +66,8 @@ public class PacketPatternValueSet extends AppEngPacket {
 
         if (gs instanceof GuiPatternValueAmount gpva) {
             gpva.update();
+        } else if (gs instanceof GuiPatternItemRenamer gpir) {
+            gpir.update();
         }
     }
 

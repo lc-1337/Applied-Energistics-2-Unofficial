@@ -3,6 +3,7 @@ package appeng.container.slot;
 import javax.annotation.Nullable;
 
 import appeng.api.storage.data.IAEStack;
+import appeng.client.StorageName;
 import appeng.client.gui.widgets.VirtualMESlot;
 import appeng.tile.inventory.IAEStackInventory;
 
@@ -18,5 +19,9 @@ public class VirtualMESlotPattern extends VirtualMESlot {
     @Override
     public @Nullable IAEStack<?> getAEStack() {
         return this.inventory.getAEStackInSlot(this.getSlotIndex());
+    }
+
+    public StorageName getStorageName() {
+        return this.inventory.getStorageName();
     }
 }
