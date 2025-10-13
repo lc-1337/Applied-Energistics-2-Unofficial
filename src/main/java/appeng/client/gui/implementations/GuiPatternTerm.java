@@ -282,7 +282,7 @@ public class GuiPatternTerm extends GuiMEMonitorable {
     }
 
     protected int getInputSlotOffsetY() {
-        return 93;
+        return 39;
     }
 
     protected int getOutputSlotOffsetX() {
@@ -290,7 +290,7 @@ public class GuiPatternTerm extends GuiMEMonitorable {
     }
 
     protected int getOutputSlotOffsetY() {
-        return 93;
+        return 39;
     }
 
     private void initVirtualSlots() {
@@ -302,7 +302,7 @@ public class GuiPatternTerm extends GuiMEMonitorable {
             for (int x = 0; x < inputSlotPerRow; x++) {
                 this.craftingSlots[x + y * inputSlotPerRow] = new VirtualMESlotPattern(
                         getInputSlotOffsetX() + 18 * x,
-                        getInputSlotOffsetY() + 18 * (y % (inputSlotRow)),
+                        this.rows * 18 + getInputSlotOffsetY() + 18 * (y % (inputSlotRow)),
                         container.getPatternTerminal().getAEInventoryByName(StorageName.CRAFTING_INPUT),
                         x + y * inputSlotPerRow);
             }
@@ -316,7 +316,7 @@ public class GuiPatternTerm extends GuiMEMonitorable {
             for (int x = 0; x < outputSlotPerRow; x++) {
                 this.outputSlots[x + y * outputSlotPerRow] = new VirtualMESlotPattern(
                         getOutputSlotOffsetX(),
-                        getOutputSlotOffsetY() + 18 * (y % outputSlotRow),
+                        this.rows * 18 + getOutputSlotOffsetY() + 18 * (y % outputSlotRow),
                         container.getPatternTerminal().getAEInventoryByName(StorageName.CRAFTING_OUTPUT),
                         x + y * outputSlotPerRow);
             }

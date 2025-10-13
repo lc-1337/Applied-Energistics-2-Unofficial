@@ -79,7 +79,7 @@ public class GuiPatternTermEx extends GuiPatternTerm {
     }
 
     protected int getInputSlotOffsetY() {
-        return 86;
+        return 32;
     }
 
     protected int getOutputSlotOffsetX() {
@@ -87,7 +87,7 @@ public class GuiPatternTermEx extends GuiPatternTerm {
     }
 
     protected int getOutputSlotOffsetY() {
-        return 86;
+        return 32;
     }
 
     @Override

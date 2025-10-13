@@ -114,7 +114,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
     private int perRow = 9;
     private int reservedSpace = 0;
     private boolean customSortOrder = true;
-    private int rows = 0;
+    protected int rows = 0;
     private int standardSize;
     private GuiImgButton ViewBox;
     private GuiImgButton SortByBox;
