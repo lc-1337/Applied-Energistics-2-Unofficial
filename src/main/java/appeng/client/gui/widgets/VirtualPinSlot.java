@@ -1,5 +1,7 @@
 package appeng.client.gui.widgets;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ResourceLocation;
@@ -10,7 +12,7 @@ import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IDisplayRepo;
 import appeng.core.AppEng;
 
-public class VirtualPinSlot extends VirtualMESlot {
+public class VirtualPinSlot extends VirtualMonitorableSlot {
 
     private static final int PIN_ICON_INDEX = 5 * 16 + 14;
     private static final int UV_Y = (int) Math.floor((double) PIN_ICON_INDEX / 16);
@@ -24,7 +26,7 @@ public class VirtualPinSlot extends VirtualMESlot {
     }
 
     @Override
-    public IAEStack<?> getAEStack() {
+    public @Nullable IAEStack<?> getAEStack() {
         return this.repo.getAEPin(this.slotIndex);
     }
 

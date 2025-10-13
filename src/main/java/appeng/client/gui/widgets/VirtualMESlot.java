@@ -9,21 +9,18 @@ import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 
 import appeng.api.storage.data.IAEStack;
-import appeng.api.storage.data.IDisplayRepo;
 
-public class VirtualMESlot {
+public abstract class VirtualMESlot {
 
     private final int xPos;
     private final int yPos;
     private boolean isHidden = false;
 
-    protected final IDisplayRepo repo;
     protected final int slotIndex;
 
-    public VirtualMESlot(int x, int y, IDisplayRepo repo, int slotIndex) {
+    public VirtualMESlot(int x, int y, int slotIndex) {
         this.xPos = x;
         this.yPos = y;
-        this.repo = repo;
         this.slotIndex = slotIndex;
     }
 
@@ -40,9 +37,7 @@ public class VirtualMESlot {
     }
 
     @Nullable
-    public IAEStack<?> getAEStack() {
-        return this.repo.getReferenceStack(this.slotIndex);
-    }
+    public abstract IAEStack<?> getAEStack();
 
     public boolean isHovered(int mouseX, int mouseY) {
         return mouseX >= this.xPos && mouseX < this.xPos + 18 && mouseY >= this.yPos && mouseY < this.yPos + 18;

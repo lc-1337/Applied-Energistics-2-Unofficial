@@ -11,7 +11,7 @@ public class VirtualMESlotPattern extends VirtualMESlot {
     private final IAEStackInventory inventory;
 
     public VirtualMESlotPattern(int x, int y, IAEStackInventory inventory, int slotIndex) {
-        super(x, y, null, slotIndex);
+        super(x, y, slotIndex);
         this.inventory = inventory;
     }
 

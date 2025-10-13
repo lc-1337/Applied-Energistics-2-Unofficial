@@ -57,6 +57,7 @@ import appeng.client.gui.widgets.IDropToFillTextField;
 import appeng.client.gui.widgets.ISortSource;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.client.gui.widgets.VirtualMESlot;
+import appeng.client.gui.widgets.VirtualMonitorableSlot;
 import appeng.client.gui.widgets.VirtualPinSlot;
 import appeng.client.me.ItemRepo;
 import appeng.client.me.SlotME;
@@ -131,7 +132,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
     public final boolean hasPinHost;
 
     protected VirtualPinSlot[] pinSlots = null;
-    protected VirtualMESlot[] meSlots = null;
+    protected VirtualMonitorableSlot[] monitorableSlots = null;
 
     private final ITerminalHost host;
 
@@ -289,10 +290,10 @@ public class GuiMEMonitorable extends AEBaseMEGui
         }
 
         int normalSlotRows = this.rows - pinsRows;
-        this.meSlots = new VirtualMESlot[normalSlotRows * this.perRow];
+        this.monitorableSlots = new VirtualMonitorableSlot[normalSlotRows * this.perRow];
         for (int y = 0; y < normalSlotRows; y++) {
             for (int x = 0; x < this.perRow; x++) {
-                this.meSlots[y * this.perRow + x] = new VirtualMESlot(
+                this.monitorableSlots[y * this.perRow + x] = new VirtualMonitorableSlot(
                         this.offsetX + x * 18,
                         this.offsetY + y * 18 + pinsRows * 18,
                         this.repo,
@@ -483,7 +484,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
         VirtualPinSlot.drawSlotsBackground(this.pinSlots, this.mc, this.zLevel);
         this.drawVirtualSlots(this.pinSlots, mouseX, mouseY);
-        this.drawVirtualSlots(this.meSlots, mouseX, mouseY);
+        this.drawVirtualSlots(this.monitorableSlots, mouseX, mouseY);
 
         this.currentMouseX = mouseX;
         this.currentMouseY = mouseY;
@@ -541,11 +542,16 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
         if (slot == null) return false;
 
+        return this.handleMonitorableSlotClick(slot, mouseButton);
+    }
+
+    private boolean handleMonitorableSlotClick(VirtualMESlot virtualSlot, final int mouseButton) {
+        if (!(virtualSlot instanceof VirtualMonitorableSlot slot)) return false;
         IAEItemStack slotStack = slot.getAEStack() instanceof IAEItemStack ais ? ais : null;
 
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
             if (slotStack != null) {
-                this.sendAction(MonitorableAction.MOVE_REGION, slotStack, this.meSlots.length);
+                this.sendAction(MonitorableAction.MOVE_REGION, slotStack, this.monitorableSlots.length);
                 return true;
             }
             return false;
@@ -570,22 +576,25 @@ public class GuiMEMonitorable extends AEBaseMEGui
                     this.sendAction(
                             isLShiftDown ? MonitorableAction.FILL_CONTAINERS : MonitorableAction.FILL_SINGLE_CONTAINER,
                             stackConvert(slot.getAEStack()),
-                            this.meSlots.length);
+                            this.monitorableSlots.length);
                     return true;
                 }
 
                 if (isLShiftDown) {
-                    this.sendAction(MonitorableAction.SHIFT_CLICK, slotStack, this.meSlots.length);
+                    this.sendAction(MonitorableAction.SHIFT_CLICK, slotStack, this.monitorableSlots.length);
                     return true;
                 }
 
                 if (slot.getAEStack() != null && slot.getAEStack().getStackSize() == 0
                         && player.inventory.getItemStack() == null) {
                     // TODO: native
-                    this.sendAction(MonitorableAction.AUTO_CRAFT, stackConvert(slot.getAEStack()), this.meSlots.length);
+                    this.sendAction(
+                            MonitorableAction.AUTO_CRAFT,
+                            stackConvert(slot.getAEStack()),
+                            this.monitorableSlots.length);
                     return true;
                 }
-                this.sendAction(MonitorableAction.PICKUP_OR_SET_DOWN, slotStack, this.meSlots.length);
+                this.sendAction(MonitorableAction.PICKUP_OR_SET_DOWN, slotStack, this.monitorableSlots.length);
                 return true;
             }
             case 1 -> { // right click
@@ -606,25 +615,28 @@ public class GuiMEMonitorable extends AEBaseMEGui
                             isLShiftDown ? MonitorableAction.DRAIN_CONTAINERS
                                     : MonitorableAction.DRAIN_SINGLE_CONTAINER,
                             stackConvert(slot.getAEStack()),
-                            this.meSlots.length);
+                            this.monitorableSlots.length);
                     return true;
                 }
 
                 if (isLShiftDown) {
-                    this.sendAction(MonitorableAction.PICKUP_SINGLE, slotStack, this.meSlots.length);
+                    this.sendAction(MonitorableAction.PICKUP_SINGLE, slotStack, this.monitorableSlots.length);
                     return true;
                 }
 
-                this.sendAction(MonitorableAction.SPLIT_OR_PLACE_SINGLE, slotStack, this.meSlots.length);
+                this.sendAction(MonitorableAction.SPLIT_OR_PLACE_SINGLE, slotStack, this.monitorableSlots.length);
                 return true;
             }
             case 2 -> { // middle click
                 if (slot.getAEStack() != null && slot.getAEStack().isCraftable()) {
                     // TODO: native
-                    this.sendAction(MonitorableAction.AUTO_CRAFT, stackConvert(slot.getAEStack()), this.meSlots.length);
+                    this.sendAction(
+                            MonitorableAction.AUTO_CRAFT,
+                            stackConvert(slot.getAEStack()),
+                            this.monitorableSlots.length);
                     return true;
                 } else if (player.capabilities.isCreativeMode) {
-                    this.sendAction(MonitorableAction.CREATIVE_DUPLICATE, slotStack, this.meSlots.length);
+                    this.sendAction(MonitorableAction.CREATIVE_DUPLICATE, slotStack, this.monitorableSlots.length);
                     return true;
                 }
             }
