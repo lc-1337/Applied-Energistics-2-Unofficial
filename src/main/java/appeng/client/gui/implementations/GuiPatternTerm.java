@@ -277,8 +277,8 @@ public class GuiPatternTerm extends GuiMEMonitorable {
 
         super.drawFG(offsetX, offsetY, mouseX, mouseY);
 
-        drawVirtualSlots(container.craftingSlots);
-        drawVirtualSlots(container.outputSlots);
+        drawVirtualSlots(container.craftingSlots, mouseX, mouseY);
+        drawVirtualSlots(container.outputSlots, mouseX, mouseY);
 
         drawTitle();
     }

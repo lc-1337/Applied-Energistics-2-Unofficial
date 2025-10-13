@@ -16,12 +16,10 @@ import static appeng.util.Platform.stackConvertPacket;
 import java.io.IOException;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
@@ -31,7 +29,6 @@ import net.minecraftforge.common.MinecraftForge;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
 import appeng.api.AEApi;
 import appeng.api.config.CraftingStatus;
@@ -135,7 +132,6 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
     protected VirtualPinSlot[] pinSlots = null;
     protected VirtualMESlot[] meSlots = null;
-    private IAEStack<?> hoveredItemStack = null;
 
     private final ITerminalHost host;
 
@@ -265,36 +261,6 @@ public class GuiMEMonitorable extends AEBaseMEGui
             this.initGui();
         }
         MinecraftForge.EVENT_BUS.post(new InitGuiEvent.Post(this, this.buttonList));
-    }
-
-    private int getPinSlotIndex(int x, int y) {
-        int pinsRows = pinsState.ordinal();
-        int left = this.guiLeft + this.offsetX - 1;
-        int top = this.guiTop + this.offsetY - 1;
-
-        if (x < left || x >= left + 18 * perRow || y < top || y >= top + 18 * pinsRows) {
-            return -1;
-        }
-
-        int ox = x - left;
-        int oy = y - top;
-
-        return oy / 18 * perRow + ox / 18;
-    }
-
-    private int getSlotIndex(int x, int y) {
-        final int pinsHeight = 18 * pinsState.ordinal();
-        int left = this.guiLeft + this.offsetX - 1;
-        int top = this.guiTop + this.offsetY + pinsHeight - 1;
-
-        if (x < left || x >= left + 18 * perRow || y < top || y >= top + 18 * this.rows) {
-            return -1;
-        }
-
-        int ox = x - left;
-        int oy = y - top;
-
-        return oy / 18 * perRow + ox / 18;
     }
 
     @Override
@@ -502,32 +468,6 @@ public class GuiMEMonitorable extends AEBaseMEGui
         return Math.max(3, Math.min(this.getMaxRows(), (int) Math.floor(extraSpace / 18)));
     }
 
-    @Nullable
-    private VirtualMESlot getVirtualMESlotUnderMouse(int mouseX, int mouseY) {
-        VirtualMESlot slot = null;
-
-        int hoveredPinSlotIndex = this.getPinSlotIndex(mouseX, mouseY);
-        if (hoveredPinSlotIndex >= 0 && hoveredPinSlotIndex < this.pinSlots.length) {
-            slot = this.pinSlots[hoveredPinSlotIndex];
-        } else {
-            final int hoveredSlotIndex = this.getSlotIndex(mouseX, mouseY);
-            if (hoveredSlotIndex >= 0 && hoveredSlotIndex < this.meSlots.length) {
-                slot = this.meSlots[hoveredSlotIndex];
-            }
-        }
-        return slot;
-    }
-
-    private void drawVirtualSlot(VirtualMESlot slot) {
-        var aes = slot.getAEStack();
-        if (aes == null) return;
-
-        int x = slot.getX();
-        int y = slot.getY();
-        aes.drawInGui(this.mc, x, y);
-        aes.drawOverlayInGui(this.mc, x, y, true, true, true);
-    }
-
     @Override
     public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
         this.fontRendererObj.drawString(
@@ -542,51 +482,41 @@ public class GuiMEMonitorable extends AEBaseMEGui
                 GuiColors.MEMonitorableInventory.getColor());
 
         VirtualPinSlot.drawSlotsBackground(this.pinSlots, this.mc, this.zLevel);
-        this.drawVirtualSlots(this.pinSlots);
-        this.drawVirtualSlots(this.meSlots);
-
-        VirtualMESlot slot = this.getVirtualMESlotUnderMouse(mouseX, mouseY);
-        if (slot != null) {
-            slot.drawHoveredOverlay();
-            this.hoveredItemStack = slot.getAEStack();
-        } else {
-            this.hoveredItemStack = null;
-        }
+        this.drawVirtualSlots(this.pinSlots, mouseX, mouseY);
+        this.drawVirtualSlots(this.meSlots, mouseX, mouseY);
 
         this.currentMouseX = mouseX;
         this.currentMouseY = mouseY;
     }
 
-    protected void drawVirtualSlots(@Nonnull VirtualMESlot[] slots) {
-        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
-        RenderHelper.enableGUIStandardItemLighting();
-        for (VirtualMESlot slot : slots) {
-            if (!slot.isHidden()) this.drawVirtualSlot(slot);
-        }
-        GL11.glPopAttrib();
-    }
-
     @Override
     public ItemStack getHoveredStack() {
-        if (this.hoveredItemStack == null) return null;
+        VirtualMESlot hoveredSlot = this.getVirtualMESlotUnderMouse();
+        if (hoveredSlot == null) return null;
 
-        if (this.hoveredItemStack instanceof IAEItemStack ais) {
+        IAEStack<?> hoveredAEStack = hoveredSlot.getAEStack();
+        if (hoveredAEStack == null) return null;
+
+        if (hoveredAEStack instanceof IAEItemStack ais) {
             return ais.getItemStack();
         } else {
             // Convert fluid into a proper item using the StackStringifyHandler registered with NEI
-            ItemStack stack = stackConvertPacket(hoveredItemStack).getItemStack();
+            ItemStack stack = stackConvertPacket(hoveredAEStack).getItemStack();
             return StackInfo.loadFromNBT(StackInfo.itemStackToNBT(stack));
         }
     }
 
     @Override
     public List<String> handleItemTooltip(ItemStack stack, int mouseX, int mouseY, List<String> currentToolTip) {
-        if (this.hoveredItemStack instanceof IAEFluidStack afs) {
+        VirtualMESlot hoveredSlot = this.getVirtualMESlotUnderMouse();
+        if (hoveredSlot == null) return currentToolTip;
+
+        if (hoveredSlot.getAEStack() instanceof IAEFluidStack afs) {
             currentToolTip.clear();
             currentToolTip.add(afs.getDisplayName());
             return currentToolTip;
         }
-        return super.handleItemTooltip(stack, mouseX, mouseY, currentToolTip);
+        return currentToolTip;
     }
 
     @Override
@@ -607,7 +537,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
     }
 
     protected boolean handleSlotClick(final int mouseX, final int mouseY, final int mouseButton) {
-        final VirtualMESlot slot = getVirtualMESlotUnderMouse(mouseX, mouseY);
+        final VirtualMESlot slot = getVirtualMESlotUnderMouse();
 
         if (slot == null) return false;
 

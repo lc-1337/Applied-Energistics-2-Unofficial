@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -50,6 +53,7 @@ import appeng.client.ActionKey;
 import appeng.client.ClientHelper;
 import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.client.gui.widgets.ITooltip;
+import appeng.client.gui.widgets.VirtualMESlot;
 import appeng.client.me.InternalSlotME;
 import appeng.client.me.SlotDisconnected;
 import appeng.client.me.SlotME;
@@ -144,6 +148,7 @@ public abstract class AEBaseGui extends GuiContainer {
     private Slot bl_clicked;
     private boolean subGui;
     private static int controlKey;
+    private VirtualMESlot hoveredVirtualSlot = null;
 
     public AEBaseGui(final Container container) {
         super(container);
@@ -315,6 +320,7 @@ public abstract class AEBaseGui extends GuiContainer {
         }
 
         this.currentToolTip.shift(ox, oy);
+        this.hoveredVirtualSlot = null;
         this.drawFG(ox, oy, x, y);
         this.currentToolTip.shift(0, 0);
     }
@@ -1098,5 +1104,34 @@ public abstract class AEBaseGui extends GuiContainer {
 
     public static boolean isCtrlKeyDown() {
         return Keyboard.isKeyDown(controlKey);
+    }
+
+    public void drawVirtualSlots(@Nonnull VirtualMESlot[] slots, int mouseX, int mouseY) {
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
+        RenderHelper.enableGUIStandardItemLighting();
+        for (VirtualMESlot slot : slots) {
+            boolean isHovered = slot.drawStackAndOverlay(this.mc, mouseX - this.guiLeft + 1, mouseY - this.guiTop + 1);
+            if (isHovered) {
+                this.hoveredVirtualSlot = slot;
+            }
+        }
+        GL11.glPopAttrib();
+    }
+
+    public void drawSingleVirtualSlot(@Nonnull VirtualMESlot slot, int mouseX, int mouseY) {
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
+        RenderHelper.enableGUIStandardItemLighting();
+        boolean isHovered = slot.drawStackAndOverlay(this.mc, mouseX - this.guiLeft + 1, mouseY - this.guiTop + 1);
+        if (isHovered) {
+            this.hoveredVirtualSlot = slot;
+        }
+        GL11.glPopAttrib();
+    }
+
+    /**
+     * Call after drawing slots with {@link AEBaseGui#drawVirtualSlots(VirtualMESlot[], int, int)}
+     */
+    public @Nullable VirtualMESlot getVirtualMESlotUnderMouse() {
+        return this.hoveredVirtualSlot;
     }
 }
