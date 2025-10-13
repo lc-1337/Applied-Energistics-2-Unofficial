@@ -12,8 +12,8 @@ import appeng.api.storage.data.IAEStack;
 
 public abstract class VirtualMESlot {
 
-    private final int xPos;
-    private final int yPos;
+    private int xPos;
+    private int yPos;
     private boolean isHidden = false;
 
     protected final int slotIndex;
@@ -30,6 +30,14 @@ public abstract class VirtualMESlot {
 
     public int getY() {
         return this.yPos;
+    }
+
+    public void setX(int x) {
+        this.xPos = x;
+    }
+
+    public void setY(int y) {
+        this.yPos = y;
     }
 
     public int getSlotIndex() {

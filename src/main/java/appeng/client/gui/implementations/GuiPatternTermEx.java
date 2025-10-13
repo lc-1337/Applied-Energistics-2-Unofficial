@@ -13,6 +13,7 @@ import appeng.api.storage.ITerminalHost;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.container.implementations.ContainerPatternTermEx;
+import appeng.container.slot.VirtualMESlotPattern;
 import appeng.core.AELog;
 import appeng.core.AppEng;
 import appeng.core.localization.GuiColors;
@@ -26,6 +27,9 @@ public class GuiPatternTermEx extends GuiPatternTerm {
     private GuiImgButton invertBtn;
     private final GuiScrollbar processingScrollBar = new GuiScrollbar();
 
+    private boolean isInverted;
+    private int activePage;
+
     public GuiPatternTermEx(final InventoryPlayer inventoryPlayer, final ITerminalHost te) {
         super(inventoryPlayer, te, new ContainerPatternTermEx(inventoryPlayer, te));
         this.container = (ContainerPatternTermEx) this.inventorySlots;
@@ -33,6 +37,9 @@ public class GuiPatternTermEx extends GuiPatternTerm {
 
         processingScrollBar.setHeight(70).setWidth(7).setLeft(6).setRange(0, 1, 1);
         processingScrollBar.setTexture(AppEng.MOD_ID, "guis/pattern3.png", 242, 0);
+
+        this.isInverted = this.container.inverted;
+        this.activePage = this.container.activePage;
     }
 
     @Override
@@ -43,6 +50,8 @@ public class GuiPatternTermEx extends GuiPatternTerm {
             if (this.invertBtn == btn) {
                 NetworkHandler.instance.sendToServer(
                         new PacketValueConfig("PatternTerminalEx.Invert", container.inverted ? "0" : "1"));
+                container.getExPatternTerminal().setInverted(container.inverted);
+                this.updateSlotVisibility();
             }
         } catch (final IOException e) {
             AELog.error(e);
@@ -62,6 +71,23 @@ public class GuiPatternTermEx extends GuiPatternTerm {
         this.buttonList.add(this.invertBtn);
 
         processingScrollBar.setTop(this.ySize - 164);
+        this.updateSlotVisibility();
+    }
+
+    protected int getInputSlotOffsetX() {
+        return 15;
+    }
+
+    protected int getInputSlotOffsetY() {
+        return 86;
+    }
+
+    protected int getOutputSlotOffsetX() {
+        return this.isInverted ? 58 : 112;
+    }
+
+    protected int getOutputSlotOffsetY() {
+        return 86;
     }
 
     @Override
@@ -92,6 +118,12 @@ public class GuiPatternTermEx extends GuiPatternTerm {
         invertBtn.xPosition = this.guiLeft + 87 + offset;
 
         processingScrollBar.setCurrentScroll(container.activePage);
+
+        if (this.isInverted != this.container.inverted || this.activePage != this.container.activePage) {
+            this.isInverted = this.container.inverted;
+            this.activePage = this.container.activePage;
+            this.updateSlotVisibility();
+        }
 
         super.drawScreen(mouseX, mouseY, btn);
     }
@@ -146,8 +178,39 @@ public class GuiPatternTermEx extends GuiPatternTerm {
                     new PacketValueConfig(
                             "PatternTerminalEx.ActivePage",
                             String.valueOf(this.processingScrollBar.getCurrentScroll())));
+            container.activePage = this.processingScrollBar.getCurrentScroll();
+            this.updateSlotVisibility();
         } catch (final IOException e) {
             AELog.error(e);
+        }
+    }
+
+    @Override
+    protected void updateSlotVisibility() {
+        final int inputSlotRow = container.getPatternInputsHeigh();
+        final int inputSlotPerRow = container.getPatternInputsWidth();
+        for (int page = 0; page < container.getPatternInputPages(); page++) {
+            for (int y = 0; y < inputSlotRow; y++) {
+                for (int x = 0; x < inputSlotPerRow; x++) {
+                    VirtualMESlotPattern slot = this.craftingSlots[x + y * inputSlotPerRow
+                            + page * (inputSlotPerRow * inputSlotRow)];
+                    slot.setHidden(page != this.activePage);
+                    slot.setX(getInputSlotOffsetX() + 18 * x);
+                }
+            }
+        }
+
+        final int outputSlotRow = container.getPatternOutputsHeigh();
+        final int outputSlotPerRow = container.getPatternOutputsWidth();
+        for (int page = 0; page < container.getPatternOutputPages(); page++) {
+            for (int y = 0; y < outputSlotRow; y++) {
+                for (int x = 0; x < outputSlotPerRow; x++) {
+                    VirtualMESlotPattern slot = this.outputSlots[x + y * outputSlotPerRow
+                            + page * (outputSlotPerRow * outputSlotRow)];
+                    slot.setHidden(page != this.activePage);
+                    slot.setX(getOutputSlotOffsetX());
+                }
+            }
         }
     }
 }

@@ -15,12 +15,8 @@ public class VirtualMESlotPattern extends VirtualMESlot {
         this.inventory = inventory;
     }
 
-    @Nullable
-    public IAEStack<?> getAEStack() {
+    @Override
+    public @Nullable IAEStack<?> getAEStack() {
         return this.inventory.getAEStackInSlot(this.getSlotIndex());
-    }
-
-    public void setAEStack(IAEStack<?> aes) {
-        this.inventory.putAEStackInSlot(this.getSlotIndex(), aes);
     }
 }

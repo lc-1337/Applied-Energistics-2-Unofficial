@@ -32,7 +32,6 @@ import appeng.client.StorageName;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.implementations.ContainerPatternTerm;
-import appeng.container.implementations.ContainerPatternTermEx;
 import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.VirtualMESlotPattern;
 import appeng.core.AELog;
@@ -68,17 +67,20 @@ public class GuiPatternTerm extends GuiMEMonitorable {
     protected GuiImgButton clearBtn;
     protected GuiImgButton doubleBtn;
 
+    protected VirtualMESlotPattern[] craftingSlots;
+    protected VirtualMESlotPattern[] outputSlots;
+    private boolean cragtingMode;
+
     public GuiPatternTerm(final InventoryPlayer inventoryPlayer, final ITerminalHost te,
-            final ContainerPatternTermEx containerPatternTermEx) {
-        super(inventoryPlayer, te, containerPatternTermEx);
+            final ContainerPatternTerm containerPatternTerm) {
+        super(inventoryPlayer, te, containerPatternTerm);
         this.container = (ContainerPatternTerm) this.inventorySlots;
+        this.cragtingMode = this.container.isCraftingMode();
         this.setReservedSpace(81);
     }
 
     public GuiPatternTerm(final InventoryPlayer inventoryPlayer, final ITerminalHost te) {
-        super(inventoryPlayer, te, new ContainerPatternTerm(inventoryPlayer, te, true));
-        this.container = (ContainerPatternTerm) this.inventorySlots;
-        this.setReservedSpace(81);
+        this(inventoryPlayer, te, new ContainerPatternTerm(inventoryPlayer, te, true));
     }
 
     @Override
@@ -95,8 +97,8 @@ public class GuiPatternTerm extends GuiMEMonitorable {
 
     @Override
     protected boolean handleSlotClick(int mouseX, int mouseY, int mouseButton) {
-        final VirtualMESlotPattern slot = container.craftingSlots[0]; // TODO get slot somehow
-        if (slot != null) {
+        final var clickedSlot = this.getVirtualMESlotUnderMouse();
+        if (clickedSlot instanceof VirtualMESlotPattern slot) {
             final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
             final StorageName invName = StorageName.CRAFTING_INPUT; // TODO get storage name somehow
             IAEStack<?> aes = slot.getAEStack();
@@ -161,6 +163,8 @@ public class GuiPatternTerm extends GuiMEMonitorable {
 
         try {
             if (this.tabCraftButton == btn || this.tabProcessButton == btn) {
+                this.cragtingMode = this.tabProcessButton == btn;
+                updateSlotVisibility();
                 NetworkHandler.instance.sendToServer(
                         new PacketValueConfig(
                                 "PatternTerminal.CraftMode",
@@ -269,16 +273,82 @@ public class GuiPatternTerm extends GuiMEMonitorable {
         this.doubleBtn.setHalfSize(true);
         this.buttonList.add(this.doubleBtn);
         this.updateButtonVisibility();
+
+        this.initVirtualSlots();
+    }
+
+    protected int getInputSlotOffsetX() {
+        return 18;
+    }
+
+    protected int getInputSlotOffsetY() {
+        return 93;
+    }
+
+    protected int getOutputSlotOffsetX() {
+        return 110;
+    }
+
+    protected int getOutputSlotOffsetY() {
+        return 93;
+    }
+
+    private void initVirtualSlots() {
+        final int inputSlotRow = container.getPatternInputsHeigh();
+        final int inputSlotPerRow = container.getPatternInputsWidth();
+        final int inputPage = container.getPatternInputPages();
+        this.craftingSlots = new VirtualMESlotPattern[inputSlotPerRow * inputSlotRow * inputPage];
+        for (int y = 0; y < inputSlotRow * inputPage; y++) {
+            for (int x = 0; x < inputSlotPerRow; x++) {
+                this.craftingSlots[x + y * inputSlotPerRow] = new VirtualMESlotPattern(
+                        getInputSlotOffsetX() + 18 * x,
+                        getInputSlotOffsetY() + 18 * (y % (inputSlotRow)),
+                        container.getPatternTerminal().getAEInventoryByName(StorageName.CRAFTING_INPUT),
+                        x + y * inputSlotPerRow);
+            }
+        }
+
+        final int outputSlotRow = container.getPatternOutputsHeigh();
+        final int outputSlotPerRow = container.getPatternOutputsWidth();
+        final int outputPage = container.getPatternOutputPages();
+        this.outputSlots = new VirtualMESlotPattern[outputSlotPerRow * outputSlotRow * outputPage];
+        for (int y = 0; y < outputSlotRow * outputPage; y++) {
+            for (int x = 0; x < outputSlotPerRow; x++) {
+                this.outputSlots[x + y * outputSlotPerRow] = new VirtualMESlotPattern(
+                        getOutputSlotOffsetX(),
+                        getOutputSlotOffsetY() + 18 * (y % outputSlotRow),
+                        container.getPatternTerminal().getAEInventoryByName(StorageName.CRAFTING_OUTPUT),
+                        x + y * outputSlotPerRow);
+            }
+        }
+        updateSlotVisibility();
+    }
+
+    protected void updateSlotVisibility() {
+        if (this.cragtingMode) {
+            for (VirtualMESlotPattern outputSlot : outputSlots) {
+                outputSlot.setHidden(true);
+            }
+        } else {
+            for (VirtualMESlotPattern outputSlot : outputSlots) {
+                outputSlot.setHidden(false);
+            }
+        }
     }
 
     @Override
     public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
         this.updateButtonVisibility();
 
+        if (this.cragtingMode != this.container.craftingMode) {
+            this.cragtingMode = this.container.craftingMode;
+            this.updateSlotVisibility();
+        }
+
         super.drawFG(offsetX, offsetY, mouseX, mouseY);
 
-        drawVirtualSlots(container.craftingSlots, mouseX, mouseY);
-        drawVirtualSlots(container.outputSlots, mouseX, mouseY);
+        drawVirtualSlots(this.craftingSlots, mouseX, mouseY);
+        drawVirtualSlots(this.outputSlots, mouseX, mouseY);
 
         drawTitle();
     }
