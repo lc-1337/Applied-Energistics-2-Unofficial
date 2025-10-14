@@ -1109,6 +1109,8 @@ public abstract class AEBaseGui extends GuiContainer {
     public void drawVirtualSlots(@Nonnull VirtualMESlot[] slots, int mouseX, int mouseY) {
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
         RenderHelper.enableGUIStandardItemLighting();
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
         for (VirtualMESlot slot : slots) {
             boolean isHovered = slot.drawStackAndOverlay(this.mc, mouseX - this.guiLeft + 1, mouseY - this.guiTop + 1);
             if (isHovered) {
@@ -1121,6 +1123,8 @@ public abstract class AEBaseGui extends GuiContainer {
     public void drawSingleVirtualSlot(@Nonnull VirtualMESlot slot, int mouseX, int mouseY) {
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
         RenderHelper.enableGUIStandardItemLighting();
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
         boolean isHovered = slot.drawStackAndOverlay(this.mc, mouseX - this.guiLeft + 1, mouseY - this.guiTop + 1);
         if (isHovered) {
             this.hoveredVirtualSlot = slot;

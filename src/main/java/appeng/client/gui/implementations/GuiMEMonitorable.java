@@ -10,8 +10,6 @@
 
 package appeng.client.gui.implementations;
 
-import static appeng.util.Platform.stackConvert;
-
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
@@ -523,7 +521,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
         super.mouseClicked(xCoord, yCoord, btn);
     }
 
-    private void sendAction(MonitorableAction action, @Nullable IAEItemStack stack, int slotIndex) {
+    private void sendAction(MonitorableAction action, @Nullable IAEStack<?> stack, int slotIndex) {
         ((AEBaseContainer) this.inventorySlots).setTargetStack(stack);
         final PacketMonitorableAction p = new PacketMonitorableAction(action, slotIndex);
         NetworkHandler.instance.sendToServer(p);
@@ -567,7 +565,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
                 if (isLControlDown) {
                     this.sendAction(
                             isLShiftDown ? MonitorableAction.FILL_CONTAINERS : MonitorableAction.FILL_SINGLE_CONTAINER,
-                            stackConvert(slot.getAEStack()),
+                            slot.getAEStack(),
                             this.monitorableSlots.length);
                     return true;
                 }
@@ -579,11 +577,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
                 if (slot.getAEStack() != null && slot.getAEStack().getStackSize() == 0
                         && player.inventory.getItemStack() == null) {
-                    // TODO: native
-                    this.sendAction(
-                            MonitorableAction.AUTO_CRAFT,
-                            stackConvert(slot.getAEStack()),
-                            this.monitorableSlots.length);
+                    this.sendAction(MonitorableAction.AUTO_CRAFT, slot.getAEStack(), this.monitorableSlots.length);
                     return true;
                 }
                 this.sendAction(MonitorableAction.PICKUP_OR_SET_DOWN, slotStack, this.monitorableSlots.length);
@@ -606,7 +600,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
                     this.sendAction(
                             isLShiftDown ? MonitorableAction.DRAIN_CONTAINERS
                                     : MonitorableAction.DRAIN_SINGLE_CONTAINER,
-                            stackConvert(slot.getAEStack()),
+                            slot.getAEStack(),
                             this.monitorableSlots.length);
                     return true;
                 }
@@ -621,11 +615,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
             }
             case 2 -> { // middle click
                 if (slot.getAEStack() != null && slot.getAEStack().isCraftable()) {
-                    // TODO: native
-                    this.sendAction(
-                            MonitorableAction.AUTO_CRAFT,
-                            stackConvert(slot.getAEStack()),
-                            this.monitorableSlots.length);
+                    this.sendAction(MonitorableAction.AUTO_CRAFT, slot.getAEStack(), this.monitorableSlots.length);
                     return true;
                 } else if (player.capabilities.isCreativeMode) {
                     this.sendAction(MonitorableAction.CREATIVE_DUPLICATE, slotStack, this.monitorableSlots.length);

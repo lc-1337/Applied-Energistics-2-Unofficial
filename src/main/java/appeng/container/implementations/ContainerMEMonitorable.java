@@ -18,7 +18,6 @@ import static appeng.util.FluidUtils.getFluidFromContainer;
 import static appeng.util.FluidUtils.isFilledFluidContainer;
 import static appeng.util.FluidUtils.isFluidContainer;
 import static appeng.util.IterationCounter.fetchNewId;
-import static appeng.util.Platform.convertStack;
 
 import java.io.IOException;
 import java.nio.BufferOverflowException;
@@ -600,10 +599,10 @@ public class ContainerMEMonitorable extends AEBaseContainer
     public void doMonitorableAction(MonitorableAction action, int slotIndex, final EntityPlayerMP player) {
         IAEItemStack slotItem = null;
         IAEFluidStack slotFluid = null;
-        if (convertStack(this.getTargetStack()) instanceof IAEFluidStack afs) {
+        if (this.getTargetStack() instanceof IAEFluidStack afs) {
             slotFluid = this.getCellFluidInventory().getAvailableItem(afs, fetchNewId());
-        } else {
-            slotItem = this.getCellInventory().getAvailableItem(this.getTargetStack(), fetchNewId());
+        } else if (this.getTargetStack() instanceof IAEItemStack ais) {
+            slotItem = this.getCellInventory().getAvailableItem(ais, fetchNewId());
         }
 
         switch (action) {
