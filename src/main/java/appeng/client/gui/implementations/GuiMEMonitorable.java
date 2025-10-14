@@ -14,7 +14,9 @@ import static appeng.util.Platform.stackConvert;
 import static appeng.util.Platform.stackConvertPacket;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.Nullable;
 
@@ -24,6 +26,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -36,6 +39,7 @@ import appeng.api.config.PinsState;
 import appeng.api.config.SearchBoxFocusPriority;
 import appeng.api.config.SearchBoxMode;
 import appeng.api.config.Settings;
+import appeng.api.config.TerminalFontSize;
 import appeng.api.config.TerminalStyle;
 import appeng.api.config.YesNo;
 import appeng.api.implementations.tiles.IViewCellStorage;
@@ -67,6 +71,7 @@ import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.SlotCraftingMatrix;
 import appeng.container.slot.SlotFakeCraftingMatrix;
 import appeng.container.slot.SlotRestrictedInput;
+import appeng.container.slot.VirtualMESlotPattern;
 import appeng.core.AEConfig;
 import appeng.core.AELog;
 import appeng.core.CommonHelper;
@@ -515,8 +520,20 @@ public class GuiMEMonitorable extends AEBaseMEGui
         if (hoveredSlot.getAEStack() instanceof IAEFluidStack afs) {
             currentToolTip.clear();
             currentToolTip.add(afs.getDisplayName());
-            return currentToolTip;
         }
+
+        final boolean isMonitorableSlot = hoveredSlot instanceof VirtualMonitorableSlot;
+        if (isMonitorableSlot || hoveredSlot instanceof VirtualMESlotPattern) {
+            IAEStack<?> aes = hoveredSlot.getAEStack();
+            final int threshold = AEConfig.instance.getTerminalFontSize() == TerminalFontSize.SMALL ? 9999 : 999;
+            if (aes != null && aes.getStackSize() > threshold) {
+                final String local = isMonitorableSlot ? ButtonToolTips.ItemsStored.getLocal()
+                        : ButtonToolTips.ItemCount.getLocal();
+                final String formattedAmount = NumberFormat.getNumberInstance(Locale.US).format(aes.getStackSize());
+                currentToolTip.add(EnumChatFormatting.GRAY + String.format(local, formattedAmount));
+            }
+        }
+
         return currentToolTip;
     }
 
