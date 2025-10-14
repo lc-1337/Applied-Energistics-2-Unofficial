@@ -115,7 +115,7 @@ public abstract class AEBaseContainer extends Container {
     private IEnergySource powerSrc;
     private boolean sentCustomName;
     private int ticksSinceCheck = 900;
-    private IAEItemStack clientRequestedTargetItem = null;
+    private IAEStack<?> clientRequestedTargetItem = null;
 
     public AEBaseContainer(final InventoryPlayer ip, final TileEntity myTile, final IPart myPart) {
         this(ip, myTile, myPart, null);
@@ -210,7 +210,7 @@ public abstract class AEBaseContainer extends Container {
         try {
             final NBTTagCompound data = CompressedStreamTools.readCompressed(new ByteArrayInputStream(buffer));
             if (data != null) {
-                this.setTargetStack(AEApi.instance().storage().createItemStack(ItemStack.loadItemStackFromNBT(data)));
+                this.setTargetStack(Platform.readStackNBT(data));
             }
         } catch (final IOException e) {
             AELog.debug(e);
@@ -219,30 +219,32 @@ public abstract class AEBaseContainer extends Container {
         this.dataChunks.clear();
     }
 
-    public IAEItemStack getTargetStack() {
+    public IAEStack<?> getTargetStack() {
         return this.clientRequestedTargetItem;
     }
 
-    public void setTargetStack(final IAEItemStack stack) {
+    public void setTargetStack(final IAEStack<?> stack) {
         // client doesn't need to re-send, makes for lower overhead rapid packets.
         if (Platform.isClient()) {
-            final ItemStack a = stack == null ? null : stack.getItemStack();
-            final ItemStack b = this.clientRequestedTargetItem == null ? null
-                    : this.clientRequestedTargetItem.getItemStack();
-
-            if (Platform.isSameItemPrecise(a, b)) {
-                return;
+            if (stack == null) {
+                if (this.clientRequestedTargetItem == null) {
+                    return;
+                }
+            } else {
+                if (stack.equals(this.clientRequestedTargetItem)) {
+                    return;
+                }
             }
 
             final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            final NBTTagCompound item = new NBTTagCompound();
+            final NBTTagCompound nbt = new NBTTagCompound();
 
             if (stack != null) {
-                stack.writeToNBT(item);
+                Platform.writeStackNBT(stack, nbt, true);
             }
 
             try {
-                CompressedStreamTools.writeCompressed(item, stream);
+                CompressedStreamTools.writeCompressed(nbt, stream);
 
                 final int maxChunkSize = 30000;
                 final List<byte[]> miniPackets = new LinkedList<>();
@@ -749,7 +751,7 @@ public abstract class AEBaseContainer extends Container {
         }
 
         // get target item.
-        final IAEItemStack slotItem = this.clientRequestedTargetItem;
+        final IAEItemStack slotItem = this.clientRequestedTargetItem instanceof IAEItemStack ais ? ais : null;
 
         switch (action) {
             case SHIFT_CLICK -> {
