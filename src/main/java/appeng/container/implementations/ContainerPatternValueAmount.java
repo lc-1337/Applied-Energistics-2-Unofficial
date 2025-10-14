@@ -11,8 +11,10 @@ import appeng.container.AEBaseContainer;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketPatternValueSet;
+import appeng.helpers.ISecondaryGUI;
+import appeng.helpers.IVirtualMESlotHandler;
 
-public class ContainerPatternValueAmount extends AEBaseContainer {
+public class ContainerPatternValueAmount extends AEBaseContainer implements ISecondaryGUI, IVirtualMESlotHandler {
 
     private IAEStack<?> aes;
     private int slotsIndex;
@@ -51,11 +53,21 @@ public class ContainerPatternValueAmount extends AEBaseContainer {
         return originalGui;
     }
 
+    @Override
     public void setOriginalGui(GuiBridge originalGui) {
         this.originalGui = originalGui;
     }
 
-    public void update() {
+    @Override
+    public void setVirtualSlot(StorageName invName, int slotId, IAEStack<?> aes) {
+        this.invName = invName;
+        this.slotsIndex = slotId;
+        this.aes = aes;
+
+        update();
+    }
+
+    private void update() {
         for (ICrafting crafter : this.crafters) {
             final EntityPlayerMP emp = (EntityPlayerMP) crafter;
             NetworkHandler.instance.sendTo(new PacketPatternValueSet(originalGui, aes, invName, slotsIndex), emp);

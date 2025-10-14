@@ -81,13 +81,13 @@ public class PacketPatternValueSet extends AppEngPacket {
                     final TileEntity te = context.getTile();
                     Platform.openGUI(player, te, context.getSide(), originGui);
                     if (player.openContainer instanceof ContainerPatternTerm cpt) {
-                        cpt.setPatternSlot(invName, slotIndex, aes);
+                        cpt.setVirtualSlot(invName, slotIndex, aes);
                     }
                 }
             } else {
                 Platform.openGUI(player, null, null, originGui);
                 if (player.openContainer instanceof ContainerPatternTerm cpt) {
-                    cpt.setPatternSlot(invName, slotIndex, aes);
+                    cpt.setVirtualSlot(invName, slotIndex, aes);
                 }
             }
         }

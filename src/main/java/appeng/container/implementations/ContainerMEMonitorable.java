@@ -495,27 +495,6 @@ public class ContainerMEMonitorable extends AEBaseContainer
         return monitorFluids;
     }
 
-    // to avoid duplicating this method in 2 pattern terminals
-    protected void refillBlankPatterns(Slot slot) {
-        if (Platform.isServer()) {
-            ItemStack blanks = slot.getStack();
-            int blanksToRefill = 64;
-            if (blanks != null) blanksToRefill -= blanks.stackSize;
-            if (blanksToRefill <= 0) return;
-            final AEItemStack request = AEItemStack
-                    .create(AEApi.instance().definitions().materials().blankPattern().maybeStack(blanksToRefill).get());
-            final IAEItemStack extracted = Platform
-                    .poweredExtraction(this.getPowerSource(), this.getCellInventory(), request, this.getActionSource());
-            if (extracted != null) {
-                if (blanks != null) blanks.stackSize += extracted.getStackSize();
-                else {
-                    blanks = extracted.getItemStack();
-                }
-                slot.putStack(blanks);
-            }
-        }
-    }
-
     private int lastUpdate = 0;
 
     public void updatePins(boolean forceUpdate) {

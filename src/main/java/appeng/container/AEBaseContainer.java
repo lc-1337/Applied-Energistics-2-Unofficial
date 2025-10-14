@@ -10,6 +10,8 @@
 
 package appeng.container;
 
+import static appeng.util.Platform.isStacksIdentical;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,6 +57,7 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.ItemSearchDTO;
+import appeng.client.StorageName;
 import appeng.client.me.InternalSlotME;
 import appeng.client.me.SlotME;
 import appeng.container.guisync.GuiSync;
@@ -77,10 +80,12 @@ import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketHighlightBlockStorage;
 import appeng.core.sync.packets.PacketInventoryAction;
 import appeng.core.sync.packets.PacketPartialItem;
+import appeng.core.sync.packets.PacketPatternTerminalSlotUpdate;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IPinsHandler;
 import appeng.helpers.InventoryAction;
+import appeng.helpers.PatternTerminalAction;
 import appeng.items.materials.ItemMultiMaterial;
 import appeng.me.Grid;
 import appeng.me.MachineSet;
@@ -89,6 +94,7 @@ import appeng.me.cache.NetworkMonitor;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.parts.automation.UpgradeInventory;
 import appeng.parts.misc.PartStorageBus;
+import appeng.tile.inventory.IAEStackInventory;
 import appeng.tile.storage.TileChest;
 import appeng.tile.storage.TileDrive;
 import appeng.util.InventoryAdaptor;
@@ -399,16 +405,34 @@ public abstract class AEBaseContainer extends Container {
         this.sendCustomName();
 
         if (Platform.isServer()) {
-            for (final Object crafter : this.crafters) {
-                final ICrafting icrafting = (ICrafting) crafter;
-
+            for (final ICrafting crafter : this.crafters) {
                 for (final SyncData sd : this.syncData.values()) {
-                    sd.tick(icrafting);
+                    sd.tick(crafter);
                 }
             }
         }
 
         super.detectAndSendChanges();
+    }
+
+    protected void updateSlotsList(StorageName invName, IAEStackInventory inventory, IAEStack<?>[] clientSlotsStacks) {
+        for (int i = 0; i < inventory.getSizeInventory(); ++i) {
+            IAEStack<?> aes = inventory.getAEStackInSlot(i);
+            IAEStack<?> aesClient = clientSlotsStacks[i];
+
+            if (!isStacksIdentical(aes, aesClient)) {
+                clientSlotsStacks[i] = aes == null ? null : aes.copy();
+
+                for (ICrafting crafter : this.crafters) {
+                    final EntityPlayerMP emp = (EntityPlayerMP) crafter;
+                    try {
+                        NetworkHandler.instance.sendTo(
+                                new PacketPatternTerminalSlotUpdate(invName, i, aes, PatternTerminalAction.NOTHING),
+                                emp);
+                    } catch (IOException ignored) {}
+                }
+            }
+        }
     }
 
     @Override

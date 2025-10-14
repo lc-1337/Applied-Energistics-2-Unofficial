@@ -44,7 +44,6 @@ import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.storage.IBaseMonitor;
-import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.ITickManager;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
@@ -52,12 +51,10 @@ import appeng.api.parts.IPartCollisionHelper;
 import appeng.api.parts.IPartHost;
 import appeng.api.parts.IPartRenderHelper;
 import appeng.api.parts.PartItemStack;
-import appeng.api.storage.ICellContainer;
 import appeng.api.storage.IExternalStorageHandler;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.IMEMonitor;
-import appeng.api.storage.IMEMonitorHandlerReceiver;
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
@@ -68,8 +65,7 @@ import appeng.core.settings.TickRates;
 import appeng.core.stats.Achievements;
 import appeng.core.sync.GuiBridge;
 import appeng.helpers.IInterfaceHost;
-import appeng.helpers.IOreFilterable;
-import appeng.helpers.IPriorityHost;
+import appeng.helpers.IStorageBus;
 import appeng.helpers.Reflected;
 import appeng.integration.IntegrationType;
 import appeng.me.GridAccessException;
@@ -88,18 +84,16 @@ import appeng.util.Platform;
 import appeng.util.prioitylist.FuzzyPriorityList;
 import appeng.util.prioitylist.OreFilteredList;
 import appeng.util.prioitylist.PrecisePriorityList;
-import buildcraft.api.transport.IPipeConnection;
 import buildcraft.api.transport.IPipeTile.PipeType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @Interface(iname = IntegrationType.BuildCraftTransport, iface = "buildcraft.api.transport.IPipeConnection")
-public class PartStorageBus extends PartUpgradeable implements IGridTickable, ICellContainer, IMEMonitorHandlerReceiver,
-        IPipeConnection, IPriorityHost, IOreFilterable {
+public class PartStorageBus extends PartUpgradeable implements IStorageBus {
 
     private final BaseActionSource mySrc;
     private final AppEngInternalAEInventory Config = new AppEngInternalAEInventory(this, 63);
-    public boolean needSyncGUI = false;
+    private boolean needSyncGUI = false;
     // represents the 45 optional slots unlockable with a Storage Card
     private final ItemStack[] filterCache = new ItemStack[63 - 18];
     private int priority = 0;
@@ -246,6 +240,16 @@ public class PartStorageBus extends PartUpgradeable implements IGridTickable, IC
         needSyncGUI = true;
 
         this.resetCache(true);
+    }
+
+    @Override
+    public boolean needSyncGUI() {
+        return this.needSyncGUI;
+    }
+
+    @Override
+    public void setNeedSyncGUI(boolean needSyncGUI) {
+        this.needSyncGUI = needSyncGUI;
     }
 
     private void readFilterCache(NBTTagCompound tagCompound) {

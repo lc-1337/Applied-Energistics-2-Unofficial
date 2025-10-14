@@ -13,7 +13,6 @@ package appeng.core.sync;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
-import appeng.helpers.IInterfaceTerminal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
@@ -92,22 +91,23 @@ import appeng.container.implementations.ContainerWireless;
 import appeng.container.implementations.ContainerWirelessTerm;
 import appeng.core.stats.Achievements;
 import appeng.helpers.ICellRestriction;
+import appeng.helpers.ICellWorkbench;
 import appeng.helpers.ICraftingTerminal;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IInterfaceHost;
+import appeng.helpers.IInterfaceTerminal;
+import appeng.helpers.ILevelEmitter;
 import appeng.helpers.IOreFilterable;
 import appeng.helpers.IPatternTerminal;
 import appeng.helpers.IPriorityHost;
+import appeng.helpers.IStorageBus;
 import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.items.contents.PriorityCardObject;
 import appeng.items.contents.QuartzKnifeObj;
 import appeng.parts.automation.PartFormationPlane;
-import appeng.parts.automation.PartLevelEmitter;
-import appeng.parts.misc.PartStorageBus;
 import appeng.tile.crafting.TileCraftingTile;
 import appeng.tile.crafting.TileMolecularAssembler;
 import appeng.tile.grindstone.TileGrinder;
-import appeng.tile.misc.TileCellWorkbench;
 import appeng.tile.misc.TileCondenser;
 import appeng.tile.misc.TileInscriber;
 import appeng.tile.misc.TileSecurity;
@@ -131,7 +131,8 @@ public enum GuiBridge implements IGuiHandler {
 
     GUI_ME(ContainerMEMonitorable.class, ITerminalHost.class, GuiHostType.ITEM_OR_WORLD, null),
 
-    GUI_WIRELESS_TERM(ContainerWirelessTerm.class, WirelessTerminalGuiObject.class, GuiHostType.ITEM, null),
+    GUI_WIRELESS_TERM(ContainerWirelessTerm.class, WirelessTerminalGuiObject.class, GuiHostType.ITEM, null), // remove
+                                                                                                             // then
 
     GUI_CRAFTING_TERMINAL(ContainerCraftingTerm.class, ICraftingTerminal.class, GuiHostType.ITEM_OR_WORLD,
             SecurityPermissions.CRAFT),
@@ -181,7 +182,7 @@ public enum GuiBridge implements IGuiHandler {
 
     GUI_IOPORT(ContainerIOPort.class, TileIOPort.class, GuiHostType.WORLD, SecurityPermissions.BUILD),
 
-    GUI_STORAGEBUS(ContainerStorageBus.class, PartStorageBus.class, GuiHostType.WORLD, SecurityPermissions.BUILD),
+    GUI_STORAGEBUS(ContainerStorageBus.class, IStorageBus.class, GuiHostType.WORLD, SecurityPermissions.BUILD),
 
     GUI_FORMATION_PLANE(ContainerFormationPlane.class, PartFormationPlane.class, GuiHostType.WORLD,
             SecurityPermissions.BUILD),
@@ -191,15 +192,14 @@ public enum GuiBridge implements IGuiHandler {
     GUI_SECURITY(ContainerSecurity.class, TileSecurity.class, GuiHostType.WORLD, SecurityPermissions.SECURITY),
 
     // extends (Container/Gui) + Bus
-    GUI_LEVEL_EMITTER(ContainerLevelEmitter.class, PartLevelEmitter.class, GuiHostType.WORLD,
-            SecurityPermissions.BUILD),
+    GUI_LEVEL_EMITTER(ContainerLevelEmitter.class, ILevelEmitter.class, GuiHostType.WORLD, SecurityPermissions.BUILD),
 
     GUI_SPATIAL_IO_PORT(ContainerSpatialIOPort.class, TileSpatialIOPort.class, GuiHostType.WORLD,
             SecurityPermissions.BUILD),
 
     GUI_INSCRIBER(ContainerInscriber.class, TileInscriber.class, GuiHostType.WORLD, null),
 
-    GUI_CELL_WORKBENCH(ContainerCellWorkbench.class, TileCellWorkbench.class, GuiHostType.WORLD, null),
+    GUI_CELL_WORKBENCH(ContainerCellWorkbench.class, ICellWorkbench.class, GuiHostType.WORLD, null),
 
     GUI_MAC(ContainerMAC.class, TileMolecularAssembler.class, GuiHostType.WORLD, null),
 

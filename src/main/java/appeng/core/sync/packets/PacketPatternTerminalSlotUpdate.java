@@ -14,14 +14,16 @@ import net.minecraft.tileentity.TileEntity;
 import appeng.api.networking.IGridHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
-import appeng.client.gui.implementations.GuiPatternTerm;
 import appeng.container.ContainerOpenContext;
+import appeng.container.implementations.ContainerCraftingTerm;
 import appeng.container.implementations.ContainerPatternTerm;
 import appeng.container.implementations.ContainerPatternTermEx;
-import appeng.container.implementations.ContainerPatternValueAmount;
+import appeng.container.implementations.ContainerStorageBus;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.INetworkInfo;
+import appeng.helpers.ISecondaryGUI;
+import appeng.helpers.IVirtualMESlotHandler;
 import appeng.helpers.PatternTerminalAction;
 import appeng.util.Platform;
 import io.netty.buffer.ByteBuf;
@@ -92,12 +94,24 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
         }
     }
 
+    private GuiBridge getOriginalGui(Container container) {
+        if (container instanceof ContainerPatternTermEx) {
+            return GuiBridge.GUI_PATTERN_TERMINAL_EX;
+        } else if (container instanceof ContainerPatternTerm) {
+            return GuiBridge.GUI_PATTERN_TERMINAL;
+        } else if (container instanceof ContainerCraftingTerm) {
+            return GuiBridge.GUI_CRAFTING_TERMINAL;
+        } else if (container instanceof ContainerStorageBus) {
+            return GuiBridge.GUI_STORAGEBUS;
+        } else return GuiBridge.GUI_ME;
+    }
+
     @Override
     public void clientPacketData(final INetworkInfo network, final AppEngPacket packet, final EntityPlayer player) {
         final GuiScreen gs = Minecraft.getMinecraft().currentScreen;
 
-        if (gs instanceof GuiPatternTerm gpt) {
-            gpt.setPatternSlot(this.invName, this.slotId, this.slotItem);
+        if (gs instanceof IVirtualMESlotHandler vsh) {
+            vsh.setVirtualSlot(this.invName, this.slotId, this.slotItem);
         }
     }
 
@@ -105,11 +119,12 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
     public void serverPacketData(INetworkInfo manager, AppEngPacket packet, EntityPlayer player) {
         final Container container = player.openContainer;
 
+        GuiBridge originalGui = container instanceof ContainerPatternTermEx ? GuiBridge.GUI_PATTERN_TERMINAL_EX
+                : GuiBridge.GUI_PATTERN_TERMINAL;
+
         if (container instanceof ContainerPatternTerm cpt) {
-            GuiBridge originalGui = container instanceof ContainerPatternTermEx ? GuiBridge.GUI_PATTERN_TERMINAL_EX
-                    : GuiBridge.GUI_PATTERN_TERMINAL;
             if (this.action == PatternTerminalAction.SET) {
-                cpt.setPatternSlot(invName, slotId, slotItem);
+                cpt.setVirtualSlot(invName, slotId, slotItem);
             } else if (this.action == PatternTerminalAction.SET_PATTERN_VALUE) {
                 if (slotItem == null) return;
                 final Object target = cpt.getTarget();
@@ -125,14 +140,6 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
                     }
                 } else {
                     Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
-                }
-
-                if (player.openContainer instanceof ContainerPatternValueAmount cpv) {
-                    cpv.setOriginalGui(originalGui);
-                    cpv.setStack(slotItem);
-                    cpv.setInvName(invName);
-                    cpv.setSlotsIndex(slotId);
-                    cpv.update();
                 }
             } else if (this.action == PatternTerminalAction.SET_PATTERN_ITEM_NAME) {
                 if (slotItem == null || !slotItem.isItem()) return;
@@ -150,15 +157,15 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
                 } else {
                     Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_ITEM_RENAMER);
                 }
-
-                if (player.openContainer instanceof ContainerPatternValueAmount cpv) {
-                    cpv.setOriginalGui(originalGui);
-                    cpv.setStack(slotItem);
-                    cpv.setInvName(invName);
-                    cpv.setSlotsIndex(slotId);
-                    cpv.update();
-                }
             }
+        }
+
+        if (container instanceof IVirtualMESlotHandler vsh) {
+            vsh.setVirtualSlot(invName, slotId, slotItem);
+        }
+
+        if (container instanceof ISecondaryGUI isg) {
+            isg.setOriginalGui(originalGui);
         }
     }
 }

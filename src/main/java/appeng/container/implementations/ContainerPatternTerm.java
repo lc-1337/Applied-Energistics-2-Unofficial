@@ -12,17 +12,14 @@ package appeng.container.implementations;
 
 import static appeng.parts.reporting.PartPatternTerminal.*;
 import static appeng.util.Platform.isServer;
-import static appeng.util.Platform.isStacksIdentical;
 import static appeng.util.Platform.writeStackNBT;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
@@ -49,12 +46,10 @@ import appeng.container.guisync.GuiSync;
 import appeng.container.slot.IOptionalSlotHost;
 import appeng.container.slot.SlotPatternTerm;
 import appeng.container.slot.SlotRestrictedInput;
-import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketPatternSlot;
-import appeng.core.sync.packets.PacketPatternTerminalSlotUpdate;
 import appeng.helpers.IContainerCraftingPacket;
 import appeng.helpers.IPatternTerminal;
-import appeng.helpers.PatternTerminalAction;
+import appeng.helpers.IVirtualMESlotHandler;
 import appeng.helpers.WirelessPatternTerminalGuiObject;
 import appeng.items.storage.ItemViewCell;
 import appeng.tile.inventory.AppEngInternalInventory;
@@ -67,7 +62,7 @@ import appeng.util.inv.AdaptorPlayerHand;
 import appeng.util.item.AEItemStack;
 
 public class ContainerPatternTerm extends ContainerMEMonitorable
-        implements IAEAppEngInventory, IOptionalSlotHost, IContainerCraftingPacket {
+        implements IAEAppEngInventory, IOptionalSlotHost, IContainerCraftingPacket, IVirtualMESlotHandler {
 
     public static final int MULTIPLE_OF_BUTTON_CLICK = 2;
     public static final int MULTIPLE_OF_BUTTON_CLICK_ON_SHIFT = 8;
@@ -494,26 +489,6 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         }
     }
 
-    protected void updateSlotsList(StorageName invName, IAEStackInventory inventory, IAEStack<?>[] clientSlotsStacks) {
-        for (int i = 0; i < inventory.getSizeInventory(); ++i) {
-            IAEStack<?> aes = inventory.getAEStackInSlot(i);
-            IAEStack<?> aesClient = clientSlotsStacks[i];
-
-            if (!isStacksIdentical(aes, aesClient)) {
-                clientSlotsStacks[i] = aes == null ? null : aes.copy();
-
-                for (ICrafting crafter : this.crafters) {
-                    final EntityPlayerMP emp = (EntityPlayerMP) crafter;
-                    try {
-                        NetworkHandler.instance.sendTo(
-                                new PacketPatternTerminalSlotUpdate(invName, i, aes, PatternTerminalAction.NOTHING),
-                                emp);
-                    } catch (IOException ignored) {}
-                }
-            }
-        }
-    }
-
     @Override
     public void onUpdate(final String field, final Object oldValue, final Object newValue) {
         super.onUpdate(field, oldValue, newValue);
@@ -545,6 +520,26 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
         this.detectAndSendChanges();
         this.getAndUpdateOutput();
+    }
+
+    protected void refillBlankPatterns(Slot slot) {
+        if (Platform.isServer()) {
+            ItemStack blanks = slot.getStack();
+            int blanksToRefill = 64;
+            if (blanks != null) blanksToRefill -= blanks.stackSize;
+            if (blanksToRefill <= 0) return;
+            final AEItemStack request = AEItemStack
+                    .create(AEApi.instance().definitions().materials().blankPattern().maybeStack(blanksToRefill).get());
+            final IAEItemStack extracted = Platform
+                    .poweredExtraction(this.getPowerSource(), this.getCellInventory(), request, this.getActionSource());
+            if (extracted != null) {
+                if (blanks != null) blanks.stackSize += (int) extracted.getStackSize();
+                else {
+                    blanks = extracted.getItemStack();
+                }
+                slot.putStack(blanks);
+            }
+        }
     }
 
     @Override
@@ -669,7 +664,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         return true;
     }
 
-    public void setPatternSlot(StorageName invName, int slotId, IAEStack<?> aes) {
+    public void setVirtualSlot(StorageName invName, int slotId, IAEStack<?> aes) {
         switch (invName) {
             case CRAFTING_INPUT -> {
                 this.inputs.putAEStackInSlot(slotId, aes);
