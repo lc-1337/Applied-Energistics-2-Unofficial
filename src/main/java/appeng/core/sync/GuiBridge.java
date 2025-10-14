@@ -13,6 +13,7 @@ package appeng.core.sync;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
+import appeng.helpers.IInterfaceTerminal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
@@ -141,7 +142,7 @@ public enum GuiBridge implements IGuiHandler {
     GUI_PATTERN_TERMINAL_EX(ContainerPatternTermEx.class, IPatternTerminal.class, GuiHostType.ITEM_OR_WORLD,
             SecurityPermissions.CRAFT),
 
-    GUI_INTERFACE_TERMINAL(ContainerInterfaceTerminal.class, IActionHost.class, GuiHostType.ITEM_OR_WORLD,
+    GUI_INTERFACE_TERMINAL(ContainerInterfaceTerminal.class, IInterfaceTerminal.class, GuiHostType.ITEM_OR_WORLD,
             SecurityPermissions.BUILD),
 
     GUI_PORTABLE_CELL(ContainerMEPortableCell.class, IPortableCell.class, GuiHostType.ITEM, null),
