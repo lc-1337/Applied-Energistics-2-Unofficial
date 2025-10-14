@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 
 import org.lwjgl.input.Keyboard;
 
-import appeng.client.gui.AEBaseGui;
+import appeng.client.gui.AEBaseMEGui;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.container.AEBaseContainer;
@@ -19,7 +19,7 @@ import appeng.helpers.Reflected;
 import appeng.util.calculators.ArithHelper;
 import appeng.util.calculators.Calculator;
 
-public abstract class GuiAmount extends AEBaseGui {
+public abstract class GuiAmount extends AEBaseMEGui {
 
     protected MEGuiTextField amountTextField;
     protected GuiTabButton originalGuiBtn;

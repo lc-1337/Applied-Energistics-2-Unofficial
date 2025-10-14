@@ -52,7 +52,6 @@ public class PacketMonitorableAction extends AppEngPacket {
                 if (player.openContainer instanceof ContainerCraftAmount cca) {
 
                     if (container.getTargetStack() != null) {
-                        cca.getCraftingItem().putStack(container.getTargetStack().getItemStack());
                         cca.setItemToCraft(container.getTargetStack());
                         cca.setInitialCraftAmount(1);
                     }

@@ -18,6 +18,10 @@ public abstract class VirtualMESlot {
 
     protected final int slotIndex;
 
+    protected boolean showAmount = true;
+    protected boolean showCraftableText = true;
+    protected boolean showCraftableIcon = true;
+
     public VirtualMESlot(int x, int y, int slotIndex) {
         this.xPos = x;
         this.yPos = y;
@@ -63,7 +67,13 @@ public abstract class VirtualMESlot {
         IAEStack<?> aes = this.getAEStack();
         if (aes != null) {
             aes.drawInGui(mc, this.xPos, this.yPos);
-            aes.drawOverlayInGui(mc, this.xPos, this.yPos, true, true, true);
+            aes.drawOverlayInGui(
+                    mc,
+                    this.xPos,
+                    this.yPos,
+                    this.showAmount,
+                    this.showCraftableText,
+                    this.showCraftableIcon);
         }
         final boolean hovered = this.isHovered(mouseX, mouseY);
         if (hovered) {

@@ -38,7 +38,6 @@ import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.PlayerSource;
 import appeng.api.storage.ITerminalHost;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.container.AEBaseContainer;
@@ -263,15 +262,9 @@ public class ContainerCraftConfirm extends AEBaseContainer implements ICraftingC
         return h.getActionableNode().getGrid();
     }
 
-    public IAEItemStack getItemToCraft() {
-        try {
-            ByteBuf deserialized = Unpooled.wrappedBuffer(serializedItemToCraft.getBytes(StandardCharsets.ISO_8859_1));
-            return AEApi.instance().storage().readItemFromPacket(deserialized);
-        } catch (IOException e) {
-            AELog.debug(e);
-            AELog.debug("Deserializing IAEItemStack Failed");
-            return null;
-        }
+    public IAEStack<?> getItemToCraft() {
+        ByteBuf deserialized = Unpooled.wrappedBuffer(serializedItemToCraft.getBytes(StandardCharsets.ISO_8859_1));
+        return Platform.readStackByte(deserialized);
     }
 
     public boolean cpuCraftingSameItem(final CraftingCPUStatus c) {
@@ -464,14 +457,9 @@ public class ContainerCraftConfirm extends AEBaseContainer implements ICraftingC
         this.job = job;
     }
 
-    public void setItemToCraft(@Nonnull final IAEItemStack itemToCraft) {
-        try {
-            ByteBuf serialized = Unpooled.buffer();
-            itemToCraft.writeToPacket(serialized);
-            this.serializedItemToCraft = serialized.toString(StandardCharsets.ISO_8859_1);
-        } catch (IOException e) {
-            AELog.debug(e);
-            AELog.debug("Deserializing IAEItemStack Failed");
-        }
+    public void setItemToCraft(@Nonnull final IAEStack<?> itemToCraft) {
+        ByteBuf serialized = Unpooled.buffer();
+        Platform.writeStackByte(itemToCraft, serialized);
+        this.serializedItemToCraft = serialized.toString(StandardCharsets.ISO_8859_1);
     }
 }

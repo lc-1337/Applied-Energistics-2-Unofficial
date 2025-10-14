@@ -522,16 +522,22 @@ public class CraftingGridCache
     @Override
     public Future<ICraftingJob> beginCraftingJob(final World world, final IGrid grid, final BaseActionSource actionSrc,
             final IAEItemStack slotItem, final ICraftingCallback cb) {
-        return beginCraftingJob(world, grid, actionSrc, slotItem, CraftingMode.STANDARD, cb);
+        return beginCraftingJob(world, grid, actionSrc, convertStack(slotItem), CraftingMode.STANDARD, cb);
+    }
+
+    @Override
+    public Future<ICraftingJob> beginCraftingJob(final World world, final IGrid grid, final BaseActionSource actionSrc,
+            final IAEStack<?> stack, final ICraftingCallback cb) {
+        return beginCraftingJob(world, grid, actionSrc, stack, CraftingMode.STANDARD, cb);
     }
 
     public Future<ICraftingJob> beginCraftingJob(final World world, final IGrid grid, final BaseActionSource actionSrc,
-            final IAEItemStack slotItem, final CraftingMode craftingMode, final ICraftingCallback cb) {
-        if (world == null || grid == null || actionSrc == null || slotItem == null) {
+            final IAEStack<?> stack, final CraftingMode craftingMode, final ICraftingCallback cb) {
+        if (world == null || grid == null || actionSrc == null || stack == null) {
             throw new IllegalArgumentException("Invalid Crafting Job Request");
         }
 
-        final ICraftingJob job = new CraftingJobV2<>(world, grid, actionSrc, convertStack(slotItem), craftingMode, cb);
+        final ICraftingJob job = new CraftingJobV2<>(world, grid, actionSrc, (IAEStack) stack, craftingMode, cb);
 
         return job.schedule();
     }

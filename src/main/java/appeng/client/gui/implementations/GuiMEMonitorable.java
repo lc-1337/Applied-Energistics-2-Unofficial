@@ -11,7 +11,6 @@
 package appeng.client.gui.implementations;
 
 import static appeng.util.Platform.stackConvert;
-import static appeng.util.Platform.stackConvertPacket;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -45,7 +44,6 @@ import appeng.api.config.YesNo;
 import appeng.api.implementations.tiles.IViewCellStorage;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.ITerminalPins;
-import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IDisplayRepo;
@@ -94,7 +92,6 @@ import appeng.integration.modules.NEI;
 import appeng.items.storage.ItemViewCell;
 import appeng.util.IConfigManagerHost;
 import appeng.util.Platform;
-import codechicken.nei.recipe.StackInfo;
 
 public class GuiMEMonitorable extends AEBaseMEGui
         implements ISortSource, IConfigManagerHost, IDropToFillTextField, IPinsHandler, IGuiTooltipHandler {
@@ -496,31 +493,9 @@ public class GuiMEMonitorable extends AEBaseMEGui
     }
 
     @Override
-    public ItemStack getHoveredStack() {
-        VirtualMESlot hoveredSlot = this.getVirtualMESlotUnderMouse();
-        if (hoveredSlot == null) return null;
-
-        IAEStack<?> hoveredAEStack = hoveredSlot.getAEStack();
-        if (hoveredAEStack == null) return null;
-
-        if (hoveredAEStack instanceof IAEItemStack ais) {
-            return ais.getItemStack();
-        } else {
-            // Convert fluid into a proper item using the StackStringifyHandler registered with NEI
-            ItemStack stack = stackConvertPacket(hoveredAEStack).getItemStack();
-            return StackInfo.loadFromNBT(StackInfo.itemStackToNBT(stack));
-        }
-    }
-
-    @Override
     public List<String> handleItemTooltip(ItemStack stack, int mouseX, int mouseY, List<String> currentToolTip) {
+        super.handleItemTooltip(stack, mouseX, mouseY, currentToolTip);
         VirtualMESlot hoveredSlot = this.getVirtualMESlotUnderMouse();
-        if (hoveredSlot == null) return currentToolTip;
-
-        if (hoveredSlot.getAEStack() instanceof IAEFluidStack afs) {
-            currentToolTip.clear();
-            currentToolTip.add(afs.getDisplayName());
-        }
 
         final boolean isMonitorableSlot = hoveredSlot instanceof VirtualMonitorableSlot;
         if (isMonitorableSlot || hoveredSlot instanceof VirtualMESlotPattern) {

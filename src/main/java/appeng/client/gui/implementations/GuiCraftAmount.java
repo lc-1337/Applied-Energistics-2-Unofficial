@@ -22,7 +22,10 @@ import appeng.api.config.Settings;
 import appeng.api.definitions.IDefinitions;
 import appeng.api.definitions.IParts;
 import appeng.api.storage.ITerminalHost;
+import appeng.api.storage.data.IAEStack;
 import appeng.client.gui.widgets.GuiImgButton;
+import appeng.client.gui.widgets.IVirtualSlotHolder;
+import appeng.client.gui.widgets.VirtualMESlotSingle;
 import appeng.container.implementations.ContainerCraftAmount;
 import appeng.core.localization.GuiColors;
 import appeng.core.localization.GuiText;
@@ -36,14 +39,18 @@ import appeng.parts.reporting.PartPatternTerminal;
 import appeng.parts.reporting.PartPatternTerminalEx;
 import appeng.parts.reporting.PartTerminal;
 import appeng.util.Platform;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 
-public class GuiCraftAmount extends GuiAmount {
+public class GuiCraftAmount extends GuiAmount implements IVirtualSlotHolder {
 
     private GuiImgButton craftingMode;
+    private final VirtualMESlotSingle slot;
 
     @Reflected
     public GuiCraftAmount(final InventoryPlayer inventoryPlayer, final ITerminalHost te) {
         super(new ContainerCraftAmount(inventoryPlayer, te));
+
+        this.slot = new VirtualMESlotSingle(34, 53, 0, null);
     }
 
     @Override
@@ -108,6 +115,7 @@ public class GuiCraftAmount extends GuiAmount {
     public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
         this.fontRendererObj
                 .drawString(GuiText.SelectAmount.getLocal(), 8, 6, GuiColors.CraftAmountSelectAmount.getColor());
+        this.drawSingleVirtualSlot(slot, mouseX, mouseY);
     }
 
     @Override
@@ -167,5 +175,10 @@ public class GuiCraftAmount extends GuiAmount {
     @Override
     protected String getBackground() {
         return "guis/craftAmt.png";
+    }
+
+    @Override
+    public void receiveSlotStacks(Int2ObjectMap<IAEStack<?>> slotStacks) {
+        this.slot.setAEStack(slotStacks.get(0));
     }
 }

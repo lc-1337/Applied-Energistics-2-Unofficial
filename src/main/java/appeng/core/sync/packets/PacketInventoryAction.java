@@ -116,7 +116,6 @@ public class PacketInventoryAction extends AppEngPacket {
                     if (sender.openContainer instanceof ContainerCraftAmount cca) {
 
                         if (baseContainer.getTargetStack() != null) {
-                            cca.getCraftingItem().putStack(baseContainer.getTargetStack().getItemStack());
                             cca.setItemToCraft(baseContainer.getTargetStack());
                             cca.setInitialCraftAmount(this.id);
                         }

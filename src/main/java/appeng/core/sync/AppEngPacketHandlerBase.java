@@ -54,6 +54,7 @@ import appeng.core.sync.packets.PacketSwapSlots;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketTransitionEffect;
 import appeng.core.sync.packets.PacketValueConfig;
+import appeng.core.sync.packets.PacketVirtualSlot;
 import io.netty.buffer.ByteBuf;
 
 public class AppEngPacketHandlerBase {
@@ -126,6 +127,7 @@ public class AppEngPacketHandlerBase {
         PACKET_PINS_UPDATE(PacketPinsUpdate.class),
         PACKET_MONITORABLE_ACTION(PacketMonitorableAction.class),
         PACKET_HIGHLIGHT_BLOCKS(PacketHighlightBlockStorage.class),
+        PACKET_VIRTUAL_SLOT(PacketVirtualSlot.class),
         PACKET_PATTERN_TERMINAL_SLOT(PacketPatternTerminalSlotUpdate.class);
 
         private final Class<? extends AppEngPacket> packetClass;

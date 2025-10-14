@@ -13,6 +13,7 @@ package appeng.client.gui.implementations;
 import static appeng.api.config.Settings.CRAFTING_SORT_BY;
 import static appeng.api.config.Settings.SORT_DIRECTION;
 import static appeng.util.Platform.stackConvert;
+import static appeng.util.Platform.stackConvertPacket;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -76,6 +77,7 @@ import appeng.util.Platform;
 import appeng.util.ReadableNumberConverter;
 import appeng.util.RoundHelper;
 import appeng.util.item.AEItemStack;
+import codechicken.nei.recipe.StackInfo;
 
 public class GuiCraftConfirm extends AEBaseGui implements ICraftingCPUTableHolder, IGuiTooltipHandler {
 
@@ -1118,13 +1120,20 @@ public class GuiCraftConfirm extends AEBaseGui implements ICraftingCPUTableHolde
                 missing.add(iaeItemStack.getItemStack());
             }
 
-            final IAEItemStack outputStack = ((ContainerCraftConfirm) this.inventorySlots).getItemToCraft();
+            final ItemStack outputStack = this.getItemStackForBookMark();
 
-            if (outputStack != null) {
-                NEI.instance.addToBookmark(outputStack.getItemStack(), missing);
-            } else {
-                NEI.instance.addToBookmark(null, missing);
-            }
+            NEI.instance.addToBookmark(outputStack, missing);
+        }
+    }
+
+    private ItemStack getItemStackForBookMark() {
+        final IAEStack<?> outputStack = ((ContainerCraftConfirm) this.inventorySlots).getItemToCraft();
+        if (outputStack instanceof IAEItemStack ais) {
+            return ais.getItemStack();
+        } else {
+            // Convert fluid into a proper item using the StackStringifyHandler registered with NEI
+            ItemStack stack = stackConvertPacket(outputStack).getItemStack();
+            return StackInfo.loadFromNBT(StackInfo.itemStackToNBT(stack));
         }
     }
 
