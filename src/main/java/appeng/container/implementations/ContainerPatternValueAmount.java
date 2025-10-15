@@ -8,7 +8,6 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
 import appeng.container.AEBaseContainer;
-import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketPatternValueSet;
 import appeng.helpers.ISecondaryGUI;
@@ -19,22 +18,13 @@ public class ContainerPatternValueAmount extends AEBaseContainer implements ISec
     private IAEStack<?> aes;
     private int slotsIndex;
     private StorageName invName;
-    private GuiBridge originalGui;
 
     public ContainerPatternValueAmount(final InventoryPlayer ip, final ITerminalHost te) {
         super(ip, te);
     }
 
-    public void setStack(IAEStack<?> aes) {
-        this.aes = aes;
-    }
-
     public IAEStack<?> getStack() {
         return aes;
-    }
-
-    public void setSlotsIndex(int slotsIndex) {
-        this.slotsIndex = slotsIndex;
     }
 
     public int getSlotsIndex() {
@@ -43,14 +33,6 @@ public class ContainerPatternValueAmount extends AEBaseContainer implements ISec
 
     public StorageName getInvName() {
         return invName;
-    }
-
-    public void setInvName(StorageName invName) {
-        this.invName = invName;
-    }
-
-    public GuiBridge getOriginalGui() {
-        return originalGui;
     }
 
     @Override

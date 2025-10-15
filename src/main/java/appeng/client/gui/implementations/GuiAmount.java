@@ -34,6 +34,7 @@ public abstract class GuiAmount extends AEBaseMEGui {
     protected GuiButton minus100;
     protected GuiButton minus1000;
     protected final AEBaseContainer container;
+    private ItemStack myIcon;
 
     @Reflected
     public GuiAmount(final Container container) {
@@ -64,14 +65,13 @@ public abstract class GuiAmount extends AEBaseMEGui {
         this.buttonList.add(
                 this.nextBtn = new GuiButton(0, this.guiLeft + 128, this.guiTop + 51, 38, 20, GuiText.Next.getLocal()));
 
-        final ItemStack myIcon = container.getThisItemStack();
-        if (myIcon != null) {
+        if (this.myIcon != null) {
             this.buttonList.add(
                     this.originalGuiBtn = new GuiTabButton(
                             this.guiLeft + 154,
                             this.guiTop,
-                            myIcon,
-                            myIcon.getDisplayName(),
+                            this.myIcon,
+                            this.myIcon.getDisplayName(),
                             itemRender));
         }
 

@@ -48,9 +48,7 @@ public class PacketPatternValueSet extends AppEngPacket {
     @Override
     public void clientPacketData(INetworkInfo network, AppEngPacket packet, EntityPlayer player) {
         if (player.openContainer instanceof ContainerPatternValueAmount cpva) {
-            cpva.setStack(aes);
-            cpva.setSlotsIndex(slotIndex);
-            cpva.setInvName(invName);
+            cpva.setVirtualSlot(invName, slotIndex, aes);
         }
         final GuiScreen gs = Minecraft.getMinecraft().currentScreen;
 
