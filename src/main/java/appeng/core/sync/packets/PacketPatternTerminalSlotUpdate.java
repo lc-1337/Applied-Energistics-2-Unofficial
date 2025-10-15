@@ -14,7 +14,9 @@ import net.minecraft.tileentity.TileEntity;
 import appeng.api.networking.IGridHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
+import appeng.container.AEBaseContainer;
 import appeng.container.ContainerOpenContext;
+import appeng.container.PrimaryGui;
 import appeng.container.implementations.ContainerCraftingTerm;
 import appeng.container.implementations.ContainerPatternTerm;
 import appeng.container.implementations.ContainerPatternTermEx;
@@ -119,53 +121,54 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
     public void serverPacketData(INetworkInfo manager, AppEngPacket packet, EntityPlayer player) {
         final Container container = player.openContainer;
 
-        GuiBridge originalGui = container instanceof ContainerPatternTermEx ? GuiBridge.GUI_PATTERN_TERMINAL_EX
-                : GuiBridge.GUI_PATTERN_TERMINAL;
+        if (container instanceof AEBaseContainer bc) {
+            final PrimaryGui pg = bc.getPrimaryGui();
 
-        if (container instanceof ContainerPatternTerm cpt) {
-            if (this.action == PatternTerminalAction.SET) {
-                cpt.setVirtualSlot(invName, slotId, slotItem);
-            } else if (this.action == PatternTerminalAction.SET_PATTERN_VALUE) {
-                if (slotItem == null) return;
-                final Object target = cpt.getTarget();
-                if (target instanceof IGridHost) {
-                    final ContainerOpenContext context = cpt.getOpenContext();
-                    if (context != null) {
-                        final TileEntity te = context.getTile();
-                        Platform.openGUI(
-                                player,
-                                te,
-                                cpt.getOpenContext().getSide(),
-                                GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
+            if (container instanceof ContainerPatternTerm cpt) {
+                if (this.action == PatternTerminalAction.SET) {
+                    cpt.setVirtualSlot(invName, slotId, slotItem);
+                } else if (this.action == PatternTerminalAction.SET_PATTERN_VALUE) {
+                    if (slotItem == null) return;
+                    final Object target = cpt.getTarget();
+                    if (target instanceof IGridHost) {
+                        final ContainerOpenContext context = cpt.getOpenContext();
+                        if (context != null) {
+                            final TileEntity te = context.getTile();
+                            Platform.openGUI(
+                                    player,
+                                    te,
+                                    cpt.getOpenContext().getSide(),
+                                    GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
+                        }
+                    } else {
+                        Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
                     }
-                } else {
-                    Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
-                }
-            } else if (this.action == PatternTerminalAction.SET_PATTERN_ITEM_NAME) {
-                if (slotItem == null || !slotItem.isItem()) return;
-                final Object target = cpt.getTarget();
-                if (target instanceof IGridHost) {
-                    final ContainerOpenContext context = cpt.getOpenContext();
-                    if (context != null) {
-                        final TileEntity te = context.getTile();
-                        Platform.openGUI(
-                                player,
-                                te,
-                                cpt.getOpenContext().getSide(),
-                                GuiBridge.GUI_PATTERN_ITEM_RENAMER);
+                } else if (this.action == PatternTerminalAction.SET_PATTERN_ITEM_NAME) {
+                    if (slotItem == null || !slotItem.isItem()) return;
+                    final Object target = cpt.getTarget();
+                    if (target instanceof IGridHost) {
+                        final ContainerOpenContext context = cpt.getOpenContext();
+                        if (context != null) {
+                            final TileEntity te = context.getTile();
+                            Platform.openGUI(
+                                    player,
+                                    te,
+                                    cpt.getOpenContext().getSide(),
+                                    GuiBridge.GUI_PATTERN_ITEM_RENAMER);
+                        }
+                    } else {
+                        Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_ITEM_RENAMER);
                     }
-                } else {
-                    Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_ITEM_RENAMER);
                 }
             }
-        }
 
-        if (container instanceof IVirtualMESlotHandler vsh) {
-            vsh.setVirtualSlot(invName, slotId, slotItem);
-        }
+            if (container instanceof IVirtualMESlotHandler vsh) {
+                vsh.setVirtualSlot(invName, slotId, slotItem);
+            }
 
-        if (container instanceof ISecondaryGUI isg) {
-            isg.setOriginalGui(originalGui);
+            if (player.openContainer instanceof ISecondaryGUI sg) {
+                sg.setPrimaryGui(pg);
+            }
         }
     }
 }

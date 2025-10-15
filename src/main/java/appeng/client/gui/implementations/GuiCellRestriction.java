@@ -13,7 +13,6 @@ import appeng.container.implementations.ContainerCellRestriction.CellData;
 import appeng.core.AELog;
 import appeng.core.localization.GuiColors;
 import appeng.core.localization.GuiText;
-import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
@@ -144,7 +143,7 @@ public class GuiCellRestriction extends AEBaseGui {
             } catch (IOException e) {
                 AELog.debug(e);
             }
-            NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_CELL_WORKBENCH));
+            NetworkHandler.instance.sendToServer(new PacketSwitchGuis());
         } else if (!(this.amountField.textboxKeyTyped(character, key)
                 || this.typesField.textboxKeyTyped(character, key))) {
                     super.keyTyped(character, key);

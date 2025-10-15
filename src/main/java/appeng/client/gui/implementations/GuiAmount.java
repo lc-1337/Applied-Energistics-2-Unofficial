@@ -12,7 +12,6 @@ import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.container.AEBaseContainer;
 import appeng.core.AEConfig;
 import appeng.core.localization.GuiText;
-import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.helpers.Reflected;
@@ -34,13 +33,12 @@ public abstract class GuiAmount extends AEBaseMEGui {
     protected GuiButton minus10;
     protected GuiButton minus100;
     protected GuiButton minus1000;
-
-    protected GuiBridge originalGui;
-    protected ItemStack myIcon;
+    protected final AEBaseContainer container;
 
     @Reflected
     public GuiAmount(final Container container) {
         super(container);
+        this.container = (AEBaseContainer) container;
     }
 
     @Override
@@ -66,16 +64,14 @@ public abstract class GuiAmount extends AEBaseMEGui {
         this.buttonList.add(
                 this.nextBtn = new GuiButton(0, this.guiLeft + 128, this.guiTop + 51, 38, 20, GuiText.Next.getLocal()));
 
-        final Object target = ((AEBaseContainer) this.inventorySlots).getTarget();
-
-        this.setOriginGUI(target);
-        if (this.originalGui != null && myIcon != null) {
+        final ItemStack myIcon = container.getThisItemStack();
+        if (myIcon != null) {
             this.buttonList.add(
                     this.originalGuiBtn = new GuiTabButton(
                             this.guiLeft + 154,
                             this.guiTop,
-                            this.myIcon,
-                            this.myIcon.getDisplayName(),
+                            myIcon,
+                            myIcon.getDisplayName(),
                             itemRender));
         }
 
@@ -85,8 +81,6 @@ public abstract class GuiAmount extends AEBaseMEGui {
         this.amountTextField.setMaxStringLength(16);
         this.amountTextField.setFocused(true);
     }
-
-    protected abstract void setOriginGUI(Object target);
 
     protected int getButtonQtyByIndex(int index) {
         return AEConfig.instance.craftItemsByStackAmounts(index);
@@ -119,7 +113,7 @@ public abstract class GuiAmount extends AEBaseMEGui {
     protected void actionPerformed(final GuiButton btn) {
         super.actionPerformed(btn);
         if (btn == this.originalGuiBtn) {
-            NetworkHandler.instance.sendToServer(new PacketSwitchGuis(this.originalGui));
+            NetworkHandler.instance.sendToServer(new PacketSwitchGuis());
         }
 
         final boolean isPlus = btn == this.plus1 || btn == this.plus10 || btn == this.plus100 || btn == this.plus1000;

@@ -8,11 +8,12 @@ import appeng.api.parts.IPart;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.container.AEBaseContainer;
 import appeng.helpers.ICustomNameObject;
+import appeng.helpers.ISecondaryGUI;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ContainerRenamer extends AEBaseContainer {
+public class ContainerRenamer extends AEBaseContainer implements ISecondaryGUI {
 
     private final ICustomNameObject namedObject;
 

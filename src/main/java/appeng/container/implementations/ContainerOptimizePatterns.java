@@ -36,6 +36,7 @@ import appeng.crafting.v2.CraftingContext;
 import appeng.crafting.v2.CraftingJobV2;
 import appeng.crafting.v2.resolvers.CraftableItemResolver.CraftFromPatternTask;
 import appeng.crafting.v2.resolvers.CraftingTask;
+import appeng.helpers.ISecondaryGUI;
 import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.me.cache.CraftingGridCache;
 import appeng.parts.reporting.PartCraftingTerminal;
@@ -48,7 +49,7 @@ import appeng.util.Platform;
 import codechicken.nei.ItemStackMap;
 import codechicken.nei.ItemStackSet;
 
-public class ContainerOptimizePatterns extends AEBaseContainer {
+public class ContainerOptimizePatterns extends AEBaseContainer implements ISecondaryGUI {
 
     private ICraftingJob result;
 

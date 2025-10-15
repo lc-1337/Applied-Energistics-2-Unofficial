@@ -322,4 +322,9 @@ public class ContainerStorageBus extends ContainerUpgradeable {
             return null;
         }
     }
+
+    @Override
+    public ItemStack getThisItemStack() {
+        return AEApi.instance().definitions().parts().storageBus().maybeStack(1).orNull();
+    }
 }

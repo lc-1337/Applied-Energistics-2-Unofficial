@@ -17,6 +17,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
+import appeng.api.AEApi;
 import appeng.api.config.AdvancedBlockingMode;
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.InsertionMode;
@@ -304,5 +305,11 @@ public class ContainerInterface extends ContainerUpgradeable implements IOptiona
     public boolean isSlotEnabled(final int idx) {
         if (Platform.isClient() && (isEmpty || isConfigEmpty)) return false;
         return myDuality.getInstalledUpgrades(Upgrades.PATTERN_CAPACITY) >= idx;
+    }
+
+    @Override
+    public ItemStack getThisItemStack() {
+        if (getTileEntity() != null) return AEApi.instance().definitions().blocks().iface().maybeStack(1).orNull();
+        else return AEApi.instance().definitions().parts().iface().maybeStack(1).orNull();
     }
 }

@@ -1,8 +1,8 @@
 package appeng.helpers;
 
-import appeng.core.sync.GuiBridge;
+import appeng.container.PrimaryGui;
 
 public interface ISecondaryGUI {
 
-    void setOriginalGui(GuiBridge originalGui);
+    void setPrimaryGui(PrimaryGui pg);
 }

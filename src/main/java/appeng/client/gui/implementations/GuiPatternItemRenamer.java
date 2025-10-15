@@ -67,11 +67,7 @@ public class GuiPatternItemRenamer extends AEBaseGui implements IDropToFillTextF
     protected void keyTyped(final char character, final int key) {
         if (key == Keyboard.KEY_RETURN || key == Keyboard.KEY_NUMPADENTER) {
             NetworkHandler.instance.sendToServer(
-                    new PacketPatternValueSet(
-                            container.getOriginalGui(),
-                            getNewNameStack(),
-                            container.getInvName(),
-                            container.getSlotsIndex()));
+                    new PacketPatternValueSet(getNewNameStack(), container.getInvName(), container.getSlotsIndex()));
         } else if (!textField.textboxKeyTyped(character, key)) {
             super.keyTyped(character, key);
         }

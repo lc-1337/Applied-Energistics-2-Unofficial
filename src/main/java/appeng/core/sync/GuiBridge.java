@@ -544,4 +544,17 @@ public enum GuiBridge implements IGuiHandler {
     public GuiHostType getType() {
         return this.type;
     }
+
+    public Class getContainerClass() {
+        return containerClass;
+    }
+
+    public static GuiBridge getGuiByContainerClass(Class cs) {
+        for (GuiBridge gb : GuiBridge.values()) {
+            if (gb.containerClass == cs) {
+                return gb;
+            }
+        }
+        return null;
+    }
 }

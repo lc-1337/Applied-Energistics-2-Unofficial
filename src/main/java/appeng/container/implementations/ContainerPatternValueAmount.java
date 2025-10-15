@@ -54,11 +54,6 @@ public class ContainerPatternValueAmount extends AEBaseContainer implements ISec
     }
 
     @Override
-    public void setOriginalGui(GuiBridge originalGui) {
-        this.originalGui = originalGui;
-    }
-
-    @Override
     public void setVirtualSlot(StorageName invName, int slotId, IAEStack<?> aes) {
         this.invName = invName;
         this.slotsIndex = slotId;
@@ -70,7 +65,7 @@ public class ContainerPatternValueAmount extends AEBaseContainer implements ISec
     private void update() {
         for (ICrafting crafter : this.crafters) {
             final EntityPlayerMP emp = (EntityPlayerMP) crafter;
-            NetworkHandler.instance.sendTo(new PacketPatternValueSet(originalGui, aes, invName, slotsIndex), emp);
+            NetworkHandler.instance.sendTo(new PacketPatternValueSet(aes, invName, slotsIndex), emp);
         }
     }
 }

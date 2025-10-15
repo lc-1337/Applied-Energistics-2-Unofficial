@@ -31,11 +31,12 @@ import appeng.container.guisync.GuiSync;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketVirtualSlot;
+import appeng.helpers.ISecondaryGUI;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ContainerCraftAmount extends AEBaseContainer {
+public class ContainerCraftAmount extends AEBaseContainer implements ISecondaryGUI {
 
     @SideOnly(Side.CLIENT)
     private MEGuiTextField amountField;

@@ -11,7 +11,9 @@
 package appeng.container.implementations;
 
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 
+import appeng.api.AEApi;
 import appeng.container.AEBaseContainer;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.tile.storage.TileChest;
@@ -34,5 +36,10 @@ public class ContainerChest extends AEBaseContainer {
                         this.getInventoryPlayer()));
 
         this.bindPlayerInventory(ip, 0, 166 - /* height of player inventory */ 82);
+    }
+
+    @Override
+    public ItemStack getThisItemStack() {
+        return AEApi.instance().definitions().blocks().chest().maybeStack(1).orNull();
     }
 }

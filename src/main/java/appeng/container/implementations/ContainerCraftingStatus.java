@@ -17,8 +17,10 @@ import net.minecraft.entity.player.InventoryPlayer;
 import appeng.api.storage.ITerminalHost;
 import appeng.container.guisync.GuiSync;
 import appeng.container.interfaces.ICraftingCPUSelectorContainer;
+import appeng.helpers.ISecondaryGUI;
 
-public class ContainerCraftingStatus extends ContainerCraftingCPU implements ICraftingCPUSelectorContainer {
+public class ContainerCraftingStatus extends ContainerCraftingCPU
+        implements ICraftingCPUSelectorContainer, ISecondaryGUI {
 
     @GuiSync.Recurse(5)
     public ContainerCPUTable cpuTable;

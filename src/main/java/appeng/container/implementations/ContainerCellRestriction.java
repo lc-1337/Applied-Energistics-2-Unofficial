@@ -8,11 +8,12 @@ import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.container.AEBaseContainer;
 import appeng.container.guisync.GuiSync;
 import appeng.helpers.ICellRestriction;
+import appeng.helpers.ISecondaryGUI;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ContainerCellRestriction extends AEBaseContainer {
+public class ContainerCellRestriction extends AEBaseContainer implements ISecondaryGUI {
 
     public static class CellData {
 

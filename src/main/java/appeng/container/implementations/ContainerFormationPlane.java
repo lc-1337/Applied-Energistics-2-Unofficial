@@ -12,7 +12,9 @@ package appeng.container.implementations;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 
+import appeng.api.AEApi;
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.SecurityPermissions;
 import appeng.api.config.Settings;
@@ -133,5 +135,10 @@ public class ContainerFormationPlane extends ContainerUpgradeable {
 
     private void setPlaceMode(final YesNo placeMode) {
         this.placeMode = placeMode;
+    }
+
+    @Override
+    public ItemStack getThisItemStack() {
+        return AEApi.instance().definitions().parts().formationPlane().maybeStack(1).orNull();
     }
 }

@@ -51,6 +51,7 @@ import appeng.core.sync.packets.PacketMEInventoryUpdate;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.crafting.MECraftingInventory;
 import appeng.crafting.v2.CraftingJobV2;
+import appeng.helpers.ISecondaryGUI;
 import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.parts.reporting.PartCraftingTerminal;
 import appeng.parts.reporting.PartPatternTerminal;
@@ -61,7 +62,7 @@ import appeng.util.Platform;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public class ContainerCraftConfirm extends AEBaseContainer implements ICraftingCPUSelectorContainer {
+public class ContainerCraftConfirm extends AEBaseContainer implements ICraftingCPUSelectorContainer, ISecondaryGUI {
 
     private Future<ICraftingJob> job;
     protected ICraftingJob result;
@@ -347,8 +348,7 @@ public class ContainerCraftConfirm extends AEBaseContainer implements ICraftingC
         }
 
         if (originalGui != null && this.getOpenContext() != null) {
-            NetworkHandler.instance
-                    .sendTo(new PacketSwitchGuis(originalGui), (EntityPlayerMP) this.getInventoryPlayer().player);
+            NetworkHandler.instance.sendTo(new PacketSwitchGuis(), (EntityPlayerMP) this.getInventoryPlayer().player);
 
             final TileEntity te = this.getOpenContext().getTile();
             Platform.openGUI(this.getInventoryPlayer().player, te, this.getOpenContext().getSide(), originalGui);

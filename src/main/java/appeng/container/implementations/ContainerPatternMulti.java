@@ -10,8 +10,9 @@ import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.PlayerSource;
 import appeng.api.storage.ITerminalHost;
 import appeng.container.AEBaseContainer;
+import appeng.helpers.ISecondaryGUI;
 
-public class ContainerPatternMulti extends AEBaseContainer {
+public class ContainerPatternMulti extends AEBaseContainer implements ISecondaryGUI {
 
     public ContainerPatternMulti(final InventoryPlayer ip, final ITerminalHost te) {
         super(ip, te);

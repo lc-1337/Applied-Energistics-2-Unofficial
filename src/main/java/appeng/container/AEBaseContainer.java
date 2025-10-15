@@ -76,6 +76,7 @@ import appeng.container.slot.SlotPlayerHotBar;
 import appeng.container.slot.SlotPlayerInv;
 import appeng.core.AEConfig;
 import appeng.core.AELog;
+import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketHighlightBlockStorage;
 import appeng.core.sync.packets.PacketInventoryAction;
@@ -122,6 +123,7 @@ public abstract class AEBaseContainer extends Container {
     private boolean sentCustomName;
     private int ticksSinceCheck = 900;
     private IAEStack<?> clientRequestedTargetItem = null;
+    private PrimaryGui primaryGui;
 
     public AEBaseContainer(final InventoryPlayer ip, final TileEntity myTile, final IPart myPart) {
         this(ip, myTile, myPart, null);
@@ -1309,5 +1311,27 @@ public abstract class AEBaseContainer extends Container {
 
     public void setPowerSource(final IEnergySource powerSrc) {
         this.powerSrc = powerSrc;
+    }
+
+    // used for secondary gui for able handle tertiary, quaternary etc. gui
+    public void setPrimaryGui(PrimaryGui primaryGui) {
+        this.primaryGui = primaryGui;
+    }
+
+    private void createPrimaryGui() {
+        this.primaryGui = new PrimaryGui(
+                GuiBridge.getGuiByContainerClass(this.getClass()),
+                getThisItemStack(),
+                getTileEntity(),
+                getOpenContext().getSide());
+    }
+
+    public PrimaryGui getPrimaryGui() {
+        if (primaryGui == null) createPrimaryGui();
+        return primaryGui;
+    }
+
+    public ItemStack getThisItemStack() {
+        return AEApi.instance().definitions().parts().terminal().maybeStack(1).orNull();
     }
 }
