@@ -15,7 +15,10 @@ package appeng.api.storage.data;
 
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import appeng.api.config.FuzzyMode;
@@ -248,6 +251,9 @@ public interface IAEStack<StackType extends IAEStack> {
     void setTagCompound(NBTTagCompound tag);
 
     boolean hasTagCompound();
+
+    @Nullable
+    ItemStack getItemStackForNEI();
 
     @SideOnly(Side.CLIENT)
     void drawInGui(Minecraft mc, int x, int y);

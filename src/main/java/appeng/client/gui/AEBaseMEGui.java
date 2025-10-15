@@ -10,18 +10,14 @@
 
 package appeng.client.gui;
 
-import static appeng.util.Platform.stackConvertPacket;
-
 import java.util.List;
 
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 
 import appeng.api.storage.data.IAEFluidStack;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.gui.widgets.VirtualMESlot;
-import codechicken.nei.recipe.StackInfo;
 
 public abstract class AEBaseMEGui extends AEBaseGui implements IGuiTooltipHandler {
 
@@ -36,8 +32,7 @@ public abstract class AEBaseMEGui extends AEBaseGui implements IGuiTooltipHandle
         if (hoveredSlot == null) return currentToolTip;
 
         if (hoveredSlot.getAEStack() instanceof IAEFluidStack afs) {
-            currentToolTip.clear();
-            currentToolTip.add(afs.getDisplayName());
+            currentToolTip.set(0, afs.getDisplayName());
         }
 
         return currentToolTip;
@@ -51,12 +46,6 @@ public abstract class AEBaseMEGui extends AEBaseGui implements IGuiTooltipHandle
         IAEStack<?> hoveredAEStack = hoveredSlot.getAEStack();
         if (hoveredAEStack == null) return null;
 
-        if (hoveredAEStack instanceof IAEItemStack ais) {
-            return ais.getItemStack();
-        } else {
-            // Convert fluid into a proper item using the StackStringifyHandler registered with NEI
-            ItemStack stack = stackConvertPacket(hoveredAEStack).getItemStack();
-            return StackInfo.loadFromNBT(StackInfo.itemStackToNBT(stack));
-        }
+        return hoveredAEStack.getItemStackForNEI();
     }
 }

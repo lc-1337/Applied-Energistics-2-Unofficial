@@ -10,6 +10,8 @@
 
 package appeng.util.item;
 
+import static appeng.util.Platform.stackConvertPacket;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -18,10 +20,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -38,6 +42,7 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IAETagCompound;
 import appeng.util.Platform;
+import codechicken.nei.recipe.StackInfo;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
@@ -404,6 +409,13 @@ public final class AEFluidStack extends AEStack<IAEFluidStack> implements IAEFlu
 
     @Override
     public void setTagCompound(NBTTagCompound tagCompound) {}
+
+    @Nullable
+    @Override
+    public ItemStack getItemStackForNEI() {
+        ItemStack stack = stackConvertPacket(this).getItemStack();
+        return StackInfo.loadFromNBT(StackInfo.itemStackToNBT(stack), 0);
+    }
 
     @Override
     @SideOnly(Side.CLIENT)
