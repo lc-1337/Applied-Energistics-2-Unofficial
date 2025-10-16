@@ -19,14 +19,15 @@ import appeng.api.config.CraftingMode;
 import appeng.api.config.Settings;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
+import appeng.client.StorageName;
 import appeng.client.gui.widgets.GuiImgButton;
-import appeng.client.gui.widgets.IVirtualSlotHolder;
-import appeng.client.gui.widgets.VirtualMESlotSingle;
+import appeng.client.gui.slots.VirtualMESlotSingle;
 import appeng.container.implementations.ContainerCraftAmount;
 import appeng.core.localization.GuiColors;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketCraftRequest;
+import appeng.helpers.IVirtualSlotHolder;
 import appeng.helpers.Reflected;
 import appeng.util.Platform;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -125,7 +126,7 @@ public class GuiCraftAmount extends GuiAmount implements IVirtualSlotHolder {
     }
 
     @Override
-    public void receiveSlotStacks(Int2ObjectMap<IAEStack<?>> slotStacks) {
+    public void receiveSlotStacks(StorageName _invName, Int2ObjectMap<IAEStack<?>> slotStacks) {
         this.slot.setAEStack(slotStacks.get(0));
     }
 }

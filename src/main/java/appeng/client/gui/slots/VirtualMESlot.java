@@ -1,4 +1,4 @@
-package appeng.client.gui.widgets;
+package appeng.client.gui.slots;
 
 import static net.minecraft.client.gui.Gui.drawRect;
 

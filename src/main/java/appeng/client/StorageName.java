@@ -2,6 +2,7 @@ package appeng.client;
 
 public enum StorageName {
 
+    NONE(""),
     CRAFTING_INPUT("crafting"),
     CRAFTING_OUTPUT("output"),
     CRAFTING_PATTERN("pattern");

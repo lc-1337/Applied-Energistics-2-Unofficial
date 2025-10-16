@@ -673,6 +673,11 @@ public final class AEItemStack extends AEStack<IAEItemStack> implements IAEItemS
     }
 
     @Override
+    public ItemStack getItemStackForNEI() {
+        return this.getItemStack();
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public void drawInGui(Minecraft mc, int x, int y) {
         ItemStack itemStack = this.getItemStack();

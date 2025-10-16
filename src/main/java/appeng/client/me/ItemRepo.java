@@ -57,7 +57,7 @@ public class ItemRepo implements IDisplayRepo {
     private int rowSize = 9;
 
     private String searchString = "";
-    private Map<IAEItemStack, Boolean> searchCache = new WeakHashMap<>();
+    private Map<IAEStack<?>, Boolean> searchCache = new WeakHashMap<>();
     private IPartitionList<IAEItemStack> myPartitionList;
     private boolean hasPower;
     private boolean paused = false;
@@ -223,12 +223,15 @@ public class ItemRepo implements IDisplayRepo {
     private void addEntriesToView(Iterable<IAEStack<?>> entries) {
         final Enum viewMode = this.sortSrc.getSortDisplay();
         final Enum typeFilter = this.sortSrc.getTypeFilter();
-        Predicate<IAEItemStack> itemFilter = null;
+        Predicate<IAEStack<?>> itemFilter = null;
 
         if (!this.searchString.trim().isEmpty()) {
             if (NEI.searchField.existsSearchField()) {
                 final Predicate<ItemStack> neiFilter = NEI.searchField.getFilter(this.searchString);
-                itemFilter = is -> neiFilter.test(is.getItemStack());
+                itemFilter = is -> {
+                    ItemStack stack = is.getItemStackForNEI();
+                    return stack != null && neiFilter.test(stack);
+                };
             } else {
                 itemFilter = getFilter(this.searchString);
             }
@@ -260,8 +263,7 @@ public class ItemRepo implements IDisplayRepo {
                 }
             }
 
-            if (itemFilter == null
-                    || (!(is instanceof IAEItemStack ais) || this.searchCache.computeIfAbsent(ais, itemFilter::test))) {
+            if (itemFilter == null || this.searchCache.computeIfAbsent(is, itemFilter::test)) {
 
                 if (viewMode == ViewItems.CRAFTABLE) {
                     is = is.copy();
@@ -273,7 +275,7 @@ public class ItemRepo implements IDisplayRepo {
         }
     }
 
-    private Predicate<IAEItemStack> getFilter(String innerSearch) {
+    private Predicate<IAEStack<?>> getFilter(String innerSearch) {
 
         if (innerSearch.isEmpty()) {
             return stack -> true;
@@ -290,19 +292,22 @@ public class ItemRepo implements IDisplayRepo {
         } else if ("@".equals(prefix)) {
             final Pattern pattern = getPattern(innerSearch.substring(1));
             return stack -> {
-                String mod = Platform.getModId(stack);
+                String mod = stack.getModId();
                 return pattern.matcher(mod).find();
             };
         } else if ("$".equals(prefix)) {
             final Pattern pattern = getPattern(innerSearch.substring(1));
             return stack -> {
-                OreReference ores = OreHelper.INSTANCE.isOre(stack.getItemStack());
-                return ores != null && pattern.matcher(String.join("\n", ores.getEquivalents())).find();
+                if (stack instanceof IAEItemStack ais) {
+                    OreReference ores = OreHelper.INSTANCE.isOre(ais.getItemStack());
+                    return ores != null && pattern.matcher(String.join("\n", ores.getEquivalents())).find();
+                }
+                return false;
             };
         } else {
             final Pattern pattern = getPattern(innerSearch);
             return stack -> {
-                String name = Platform.getItemDisplayName(stack);
+                String name = stack.getDisplayName();
 
                 if (pattern.matcher(name).find()) {
                     return true;

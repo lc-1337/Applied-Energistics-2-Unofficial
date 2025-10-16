@@ -5,9 +5,8 @@ import static appeng.util.Platform.writeStackByte;
 
 import java.io.IOException;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 
 import appeng.api.storage.data.IAEStack;
@@ -96,7 +95,7 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
             final PrimaryGui pg = bc.getPrimaryGui();
 
             if (container instanceof IVirtualMESlotHandler vsh) {
-                vsh.setVirtualSlot(invName, slotId, slotItem);
+                vsh.updateVirtualSlot(invName, slotId, slotItem);
             }
 
             if (player.openContainer instanceof IContainerSubGui sg) {

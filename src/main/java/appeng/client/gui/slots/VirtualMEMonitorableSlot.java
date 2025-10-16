@@ -1,15 +1,15 @@
-package appeng.client.gui.widgets;
+package appeng.client.gui.slots;
 
 import javax.annotation.Nullable;
 
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IDisplayRepo;
 
-public class VirtualMonitorableSlot extends VirtualMESlot {
+public class VirtualMEMonitorableSlot extends VirtualMESlot {
 
     protected final IDisplayRepo repo;
 
-    public VirtualMonitorableSlot(int x, int y, IDisplayRepo repo, int slotIndex) {
+    public VirtualMEMonitorableSlot(int x, int y, IDisplayRepo repo, int slotIndex) {
         super(x, y, slotIndex);
         this.repo = repo;
     }

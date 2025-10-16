@@ -56,9 +56,9 @@ import appeng.client.gui.widgets.GuiTabButton;
 import appeng.client.gui.widgets.IDropToFillTextField;
 import appeng.client.gui.widgets.ISortSource;
 import appeng.client.gui.widgets.MEGuiTextField;
-import appeng.client.gui.widgets.VirtualMESlot;
-import appeng.client.gui.widgets.VirtualMonitorableSlot;
-import appeng.client.gui.widgets.VirtualPinSlot;
+import appeng.client.gui.slots.VirtualMESlot;
+import appeng.client.gui.slots.VirtualMEMonitorableSlot;
+import appeng.client.gui.slots.VirtualMEPinSlot;
 import appeng.client.me.ItemRepo;
 import appeng.client.me.SlotME;
 import appeng.container.AEBaseContainer;
@@ -67,7 +67,7 @@ import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.SlotCraftingMatrix;
 import appeng.container.slot.SlotFakeCraftingMatrix;
 import appeng.container.slot.SlotRestrictedInput;
-import appeng.container.slot.VirtualMESlotPattern;
+import appeng.client.gui.slots.VirtualMEPatternSlot;
 import appeng.core.AEConfig;
 import appeng.core.AELog;
 import appeng.core.CommonHelper;
@@ -131,8 +131,8 @@ public class GuiMEMonitorable extends AEBaseMEGui
     private PinsState pinsState;
     public final boolean hasPinHost;
 
-    protected VirtualPinSlot[] pinSlots = null;
-    protected VirtualMonitorableSlot[] monitorableSlots = null;
+    protected VirtualMEPinSlot[] pinSlots = null;
+    protected VirtualMEMonitorableSlot[] monitorableSlots = null;
 
     private final ITerminalHost host;
 
@@ -278,10 +278,10 @@ public class GuiMEMonitorable extends AEBaseMEGui
         adjustPinsSize();
 
         int pinsRows = pinsState.ordinal();
-        this.pinSlots = new VirtualPinSlot[pinsRows * this.perRow];
+        this.pinSlots = new VirtualMEPinSlot[pinsRows * this.perRow];
         for (int y = 0; y < pinsRows; y++) {
             for (int x = 0; x < this.perRow; x++) {
-                this.pinSlots[y * this.perRow + x] = new VirtualPinSlot(
+                this.pinSlots[y * this.perRow + x] = new VirtualMEPinSlot(
                         this.offsetX + x * 18,
                         y * 18 + this.offsetY,
                         this.repo,
@@ -290,10 +290,10 @@ public class GuiMEMonitorable extends AEBaseMEGui
         }
 
         int normalSlotRows = this.rows - pinsRows;
-        this.monitorableSlots = new VirtualMonitorableSlot[normalSlotRows * this.perRow];
+        this.monitorableSlots = new VirtualMEMonitorableSlot[normalSlotRows * this.perRow];
         for (int y = 0; y < normalSlotRows; y++) {
             for (int x = 0; x < this.perRow; x++) {
-                this.monitorableSlots[y * this.perRow + x] = new VirtualMonitorableSlot(
+                this.monitorableSlots[y * this.perRow + x] = new VirtualMEMonitorableSlot(
                         this.offsetX + x * 18,
                         this.offsetY + y * 18 + pinsRows * 18,
                         this.repo,
@@ -482,7 +482,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
                 this.ySize - 96 + 3,
                 GuiColors.MEMonitorableInventory.getColor());
 
-        VirtualPinSlot.drawSlotsBackground(this.pinSlots, this.mc, this.zLevel);
+        VirtualMEPinSlot.drawSlotsBackground(this.pinSlots, this.mc, this.zLevel);
         this.drawVirtualSlots(this.pinSlots, mouseX, mouseY);
         this.drawVirtualSlots(this.monitorableSlots, mouseX, mouseY);
 
@@ -495,8 +495,8 @@ public class GuiMEMonitorable extends AEBaseMEGui
         super.handleItemTooltip(stack, mouseX, mouseY, currentToolTip);
         VirtualMESlot hoveredSlot = this.getVirtualMESlotUnderMouse();
 
-        final boolean isMonitorableSlot = hoveredSlot instanceof VirtualMonitorableSlot;
-        if (isMonitorableSlot || hoveredSlot instanceof VirtualMESlotPattern) {
+        final boolean isMonitorableSlot = hoveredSlot instanceof VirtualMEMonitorableSlot;
+        if (isMonitorableSlot || hoveredSlot instanceof VirtualMEPatternSlot) {
             IAEStack<?> aes = hoveredSlot.getAEStack();
             final int threshold = AEConfig.instance.getTerminalFontSize() == TerminalFontSize.SMALL ? 9999 : 999;
             if (aes != null && aes.getStackSize() > threshold) {
@@ -536,7 +536,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
     }
 
     private boolean handleMonitorableSlotClick(VirtualMESlot virtualSlot, final int mouseButton) {
-        if (!(virtualSlot instanceof VirtualMonitorableSlot slot)) return false;
+        if (!(virtualSlot instanceof VirtualMEMonitorableSlot slot)) return false;
         IAEItemStack slotStack = slot.getAEStack() instanceof IAEItemStack ais ? ais : null;
 
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
@@ -554,7 +554,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
         switch (mouseButton) {
             case 0 -> { // left click
-                if (slot instanceof VirtualPinSlot && player.inventory.getItemStack() != null) {
+                if (slot instanceof VirtualMEPinSlot && player.inventory.getItemStack() != null) {
                     this.sendAction(
                             isLControlDown ? MonitorableAction.SET_CONTAINER_PIN : MonitorableAction.SET_ITEM_PIN,
                             null,
@@ -584,7 +584,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
                 return true;
             }
             case 1 -> { // right click
-                if (slot instanceof VirtualPinSlot) {
+                if (slot instanceof VirtualMEPinSlot) {
                     if (isLShiftDown) {
                         this.sendAction(MonitorableAction.UNSET_PIN, null, slot.getSlotIndex());
                     } else {

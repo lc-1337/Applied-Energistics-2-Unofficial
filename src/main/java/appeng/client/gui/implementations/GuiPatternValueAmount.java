@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.InventoryPlayer;
 
 import appeng.api.storage.ITerminalHost;
+import appeng.client.gui.slots.VirtualMESlotSingle;
 import appeng.container.implementations.ContainerPatternValueAmount;
 import appeng.core.localization.GuiColors;
 import appeng.core.localization.GuiText;
@@ -13,24 +14,22 @@ import appeng.helpers.Reflected;
 
 public class GuiPatternValueAmount extends GuiAmount {
 
-    ContainerPatternValueAmount container;
+    private final ContainerPatternValueAmount container;
+    private final VirtualMESlotSingle slot;
 
     @Reflected
     public GuiPatternValueAmount(final InventoryPlayer inventoryPlayer, final ITerminalHost te) {
         super(new ContainerPatternValueAmount(inventoryPlayer, te));
-        container = (ContainerPatternValueAmount) inventorySlots;
-    }
+        this.container = (ContainerPatternValueAmount) this.inventorySlots;
 
-    public void update() {
-        this.amountTextField.setText(String.valueOf(container.getStack().getStackSize()));
-        this.amountTextField.setCursorPositionEnd();
-        this.amountTextField.setSelectionPos(0);
+        this.slot = new VirtualMESlotSingle(34, 53, 0, null);
     }
 
     @Override
     public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
         this.fontRendererObj
                 .drawString(GuiText.SelectAmount.getLocal(), 8, 6, GuiColors.CraftAmountSelectAmount.getColor());
+        this.drawSingleVirtualSlot(this.slot, mouseX, mouseY);
     }
 
     @Override
@@ -53,12 +52,12 @@ public class GuiPatternValueAmount extends GuiAmount {
         super.actionPerformed(btn);
 
         try {
-            if (btn == this.nextBtn && btn.enabled) {
+            if (btn == this.nextBtn && btn.enabled && slot.getAEStack() != null) {
                 NetworkHandler.instance.sendToServer(
                         new PacketPatternValueSet(
-                                container.getStack().setStackSize(getAmountLong()),
-                                container.getInvName(),
-                                container.getSlotsIndex()));
+                                this.container.getAEStack().setStackSize(getAmountLong()),
+                                this.container.getInvName(),
+                                this.container.getSlotIndex()));
             }
         } catch (final NumberFormatException e) {
             // nope..
@@ -68,5 +67,12 @@ public class GuiPatternValueAmount extends GuiAmount {
 
     protected String getBackground() {
         return "guis/craftAmt.png";
+    }
+
+    public void update() {
+        this.slot.setAEStack(this.container.getAEStack());
+        this.amountTextField.setText(String.valueOf(this.container.getAEStack().getStackSize()));
+        this.amountTextField.setCursorPositionEnd();
+        this.amountTextField.setSelectionPos(0);
     }
 }

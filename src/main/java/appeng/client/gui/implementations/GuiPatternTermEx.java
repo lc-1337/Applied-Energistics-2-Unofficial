@@ -13,7 +13,7 @@ import appeng.api.storage.ITerminalHost;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.container.implementations.ContainerPatternTermEx;
-import appeng.container.slot.VirtualMESlotPattern;
+import appeng.client.gui.slots.VirtualMEPatternSlot;
 import appeng.core.AELog;
 import appeng.core.AppEng;
 import appeng.core.localization.GuiColors;
@@ -192,7 +192,7 @@ public class GuiPatternTermEx extends GuiPatternTerm {
         for (int page = 0; page < container.getPatternInputPages(); page++) {
             for (int y = 0; y < inputSlotRow; y++) {
                 for (int x = 0; x < inputSlotPerRow; x++) {
-                    VirtualMESlotPattern slot = this.craftingSlots[x + y * inputSlotPerRow
+                    VirtualMEPatternSlot slot = this.craftingSlots[x + y * inputSlotPerRow
                             + page * (inputSlotPerRow * inputSlotRow)];
                     slot.setHidden(page != this.activePage);
                     slot.setX(getInputSlotOffsetX() + 18 * x);
@@ -205,7 +205,7 @@ public class GuiPatternTermEx extends GuiPatternTerm {
         for (int page = 0; page < container.getPatternOutputPages(); page++) {
             for (int y = 0; y < outputSlotRow; y++) {
                 for (int x = 0; x < outputSlotPerRow; x++) {
-                    VirtualMESlotPattern slot = this.outputSlots[x + y * outputSlotPerRow
+                    VirtualMEPatternSlot slot = this.outputSlots[x + y * outputSlotPerRow
                             + page * (outputSlotPerRow * outputSlotRow)];
                     slot.setHidden(page != this.activePage);
                     slot.setX(getOutputSlotOffsetX());
