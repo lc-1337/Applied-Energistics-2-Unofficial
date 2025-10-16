@@ -41,7 +41,6 @@ import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketInventoryAction;
 import appeng.core.sync.packets.PacketPatternTerminalSlotUpdate;
 import appeng.core.sync.packets.PacketValueConfig;
-import appeng.helpers.IVirtualMESlotHandler;
 import appeng.helpers.InventoryAction;
 import appeng.helpers.PatternTerminalAction;
 import appeng.tile.inventory.IAEStackInventory;
@@ -49,7 +48,7 @@ import appeng.util.FluidUtils;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 
-public class GuiPatternTerm extends GuiMEMonitorable implements IVirtualMESlotHandler {
+public class GuiPatternTerm extends GuiMEMonitorable {
 
     private static final String SUBSITUTION_DISABLE = "0";
     private static final String SUBSITUTION_ENABLE = "1";
@@ -410,10 +409,5 @@ public class GuiPatternTerm extends GuiMEMonitorable implements IVirtualMESlotHa
         } else {
             s.yDisplayPosition = s.getY() + this.ySize - 78 - 3;
         }
-    }
-
-    @Override
-    public void setVirtualSlot(StorageName name, int slotId, IAEStack<?> aes) {
-        this.container.setVirtualSlot(name, slotId, aes);
     }
 }

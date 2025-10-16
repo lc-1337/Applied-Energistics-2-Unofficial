@@ -20,6 +20,7 @@ import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
@@ -46,10 +47,12 @@ import appeng.container.guisync.GuiSync;
 import appeng.container.slot.IOptionalSlotHost;
 import appeng.container.slot.SlotPatternTerm;
 import appeng.container.slot.SlotRestrictedInput;
+import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketPatternSlot;
+import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.helpers.IContainerCraftingPacket;
 import appeng.helpers.IPatternTerminal;
-import appeng.helpers.IVirtualMESlotHandler;
+import appeng.helpers.IVirtualSlotHolder;
 import appeng.helpers.WirelessPatternTerminalGuiObject;
 import appeng.items.storage.ItemViewCell;
 import appeng.tile.inventory.AppEngInternalInventory;
@@ -60,9 +63,11 @@ import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
 import appeng.util.inv.AdaptorPlayerHand;
 import appeng.util.item.AEItemStack;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 public class ContainerPatternTerm extends ContainerMEMonitorable
-        implements IAEAppEngInventory, IOptionalSlotHost, IContainerCraftingPacket, IVirtualMESlotHandler {
+        implements IAEAppEngInventory, IOptionalSlotHost, IContainerCraftingPacket, IVirtualSlotHolder {
 
     public static final int MULTIPLE_OF_BUTTON_CLICK = 2;
     public static final int MULTIPLE_OF_BUTTON_CLICK_ON_SHIFT = 8;
@@ -80,6 +85,8 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
     private final SlotRestrictedInput patternSlotIN;
     private final SlotRestrictedInput patternSlotOUT;
     private final boolean craftingModeSupport;
+
+    boolean isFirstUpdate = true;
 
     @GuiSync(97)
     public boolean craftingMode = true;
@@ -158,6 +165,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         this.bindPlayerInventory(ip, 0, 0);
         this.updateOrderOfOutputSlots();
         refillBlankPatterns(patternSlotIN);
+
     }
 
     private void updateOrderOfOutputSlots() {
@@ -484,8 +492,13 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
             this.substitute = this.patternTerminal.isSubstitution();
             this.beSubstitute = this.patternTerminal.canBeSubstitution();
 
-            updateSlotsList(StorageName.CRAFTING_INPUT, this.inputs, craftingSlotsClient);
-            updateSlotsList(StorageName.CRAFTING_OUTPUT, this.outputs, outputSlotsClient);
+            if (this.isFirstUpdate) {
+                if (isServer()) {
+                    this.updateVirtualSlots(StorageName.CRAFTING_INPUT, this.inputs, craftingSlotsClient);
+                    this.updateVirtualSlots(StorageName.CRAFTING_OUTPUT, this.outputs, outputSlotsClient);
+                }
+                this.isFirstUpdate = false;
+            }
         }
     }
 
@@ -518,8 +531,9 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
             this.outputs.putAEStackInSlot(i, null);
         }
 
-        this.detectAndSendChanges();
         this.getAndUpdateOutput();
+        this.updateVirtualSlots(StorageName.CRAFTING_INPUT, this.inputs, craftingSlotsClient);
+        this.updateVirtualSlots(StorageName.CRAFTING_OUTPUT, this.outputs, outputSlotsClient);
     }
 
     protected void refillBlankPatterns(Slot slot) {
@@ -655,24 +669,15 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
             if (canMultiplyOrDivide(this.inputs, multi) && canMultiplyOrDivide(this.outputs, multi)) {
                 multiplyOrDivideStacksInternal(this.inputs, multi);
                 multiplyOrDivideStacksInternal(this.outputs, multi);
+
+                this.updateVirtualSlots(StorageName.CRAFTING_INPUT, this.inputs, craftingSlotsClient);
+                this.updateVirtualSlots(StorageName.CRAFTING_OUTPUT, this.outputs, outputSlotsClient);
             }
-            this.detectAndSendChanges();
         }
     }
 
     public boolean isAPatternTerminal() {
         return true;
-    }
-
-    public void setVirtualSlot(StorageName invName, int slotId, IAEStack<?> aes) {
-        switch (invName) {
-            case CRAFTING_INPUT -> {
-                this.inputs.putAEStackInSlot(slotId, aes);
-            }
-            case CRAFTING_OUTPUT -> {
-                this.outputs.putAEStackInSlot(slotId, aes);
-            }
-        }
     }
 
     public boolean getCraftingModeSupport() {
@@ -701,5 +706,56 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
     public int getPatternOutputPages() {
         return patternOutputPages;
+    }
+
+    public void updateVirtualSlot(StorageName invName, int slotId, IAEStack<?> aes) {
+        switch (invName) {
+            case CRAFTING_INPUT -> {
+                this.inputs.putAEStackInSlot(slotId, aes);
+                if (isServer()) {
+                    this.updateVirtualSlots(StorageName.CRAFTING_INPUT, this.inputs, craftingSlotsClient);
+                }
+            }
+            case CRAFTING_OUTPUT -> {
+                this.outputs.putAEStackInSlot(slotId, aes);
+                if (isServer()) {
+                    this.updateVirtualSlots(StorageName.CRAFTING_OUTPUT, this.outputs, outputSlotsClient);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void receiveSlotStacks(StorageName invName, Int2ObjectMap<IAEStack<?>> slotStacks) {
+        switch (invName) {
+            case CRAFTING_INPUT -> {
+                for (var entry : slotStacks.int2ObjectEntrySet()) {
+                    this.inputs.putAEStackInSlot(entry.getIntKey(), entry.getValue());
+                }
+                if (isServer()) {
+                    this.updateVirtualSlots(StorageName.CRAFTING_INPUT, this.inputs, craftingSlotsClient);
+                }
+            }
+            case CRAFTING_OUTPUT -> {
+                for (var entry : slotStacks.int2ObjectEntrySet()) {
+                    this.outputs.putAEStackInSlot(entry.getIntKey(), entry.getValue());
+                }
+                if (isServer()) {
+                    this.updateVirtualSlots(StorageName.CRAFTING_OUTPUT, this.outputs, outputSlotsClient);
+                }
+            }
+        }
+    }
+
+    private void updateVirtualSlots(StorageName invName, IAEStackInventory inventory, IAEStack<?>[] clientSlotsStacks) {
+        var list = new Int2ObjectOpenHashMap<IAEStack<?>>();
+        for (int i = 0; i < inventory.getSizeInventory(); ++i) {
+            IAEStack<?> aes = inventory.getAEStackInSlot(i);
+            list.put(i, aes);
+        }
+        for (ICrafting crafter : this.crafters) {
+            final EntityPlayerMP emp = (EntityPlayerMP) crafter;
+            NetworkHandler.instance.sendTo(new PacketVirtualSlot(invName, list), emp);
+        }
     }
 }

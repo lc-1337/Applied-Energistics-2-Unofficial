@@ -25,6 +25,7 @@ import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.PlayerSource;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
+import appeng.client.StorageName;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.container.AEBaseContainer;
 import appeng.container.guisync.GuiSync;
@@ -76,7 +77,7 @@ public class ContainerCraftAmount extends AEBaseContainer implements ISecondaryG
     public void setItemToCraft(@Nonnull final IAEStack<?> itemToCreate) {
         this.itemToCreate = itemToCreate;
 
-        final PacketVirtualSlot p = new PacketVirtualSlot(0, itemToCreate);
+        final PacketVirtualSlot p = new PacketVirtualSlot(StorageName.NONE, 0, itemToCreate);
         NetworkHandler.instance.sendTo(p, (EntityPlayerMP) this.getInventoryPlayer().player);
     }
 

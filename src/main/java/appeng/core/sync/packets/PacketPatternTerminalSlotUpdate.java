@@ -5,9 +5,8 @@ import static appeng.util.Platform.writeStackByte;
 
 import java.io.IOException;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
 
@@ -20,12 +19,13 @@ import appeng.container.PrimaryGui;
 import appeng.container.implementations.ContainerCraftingTerm;
 import appeng.container.implementations.ContainerPatternTerm;
 import appeng.container.implementations.ContainerPatternTermEx;
+import appeng.container.implementations.ContainerPatternValueAmount;
 import appeng.container.implementations.ContainerStorageBus;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.INetworkInfo;
+import appeng.core.sync.network.NetworkHandler;
 import appeng.helpers.ISecondaryGUI;
-import appeng.helpers.IVirtualMESlotHandler;
 import appeng.helpers.PatternTerminalAction;
 import appeng.util.Platform;
 import io.netty.buffer.ByteBuf;
@@ -109,15 +109,6 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
     }
 
     @Override
-    public void clientPacketData(final INetworkInfo network, final AppEngPacket packet, final EntityPlayer player) {
-        final GuiScreen gs = Minecraft.getMinecraft().currentScreen;
-
-        if (gs instanceof IVirtualMESlotHandler vsh) {
-            vsh.setVirtualSlot(this.invName, this.slotId, this.slotItem);
-        }
-    }
-
-    @Override
     public void serverPacketData(INetworkInfo manager, AppEngPacket packet, EntityPlayer player) {
         final Container container = player.openContainer;
 
@@ -126,7 +117,7 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
 
             if (container instanceof ContainerPatternTerm cpt) {
                 if (this.action == PatternTerminalAction.SET) {
-                    cpt.setVirtualSlot(invName, slotId, slotItem);
+                    cpt.updateVirtualSlot(invName, slotId, slotItem);
                 } else if (this.action == PatternTerminalAction.SET_PATTERN_VALUE) {
                     if (slotItem == null) return;
                     final Object target = cpt.getTarget();
@@ -142,6 +133,13 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
                         }
                     } else {
                         Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
+                    }
+                    if (player.openContainer instanceof ContainerPatternValueAmount) {
+                        final PacketVirtualSlot p = new PacketVirtualSlot(
+                                invName,
+                                slotId,
+                                cpt.getPatternTerminal().getAEInventoryByName(invName).getAEStackInSlot(slotId));
+                        NetworkHandler.instance.sendTo(p, (EntityPlayerMP) player);
                     }
                 } else if (this.action == PatternTerminalAction.SET_PATTERN_ITEM_NAME) {
                     if (slotItem == null || !slotItem.isItem()) return;
@@ -159,11 +157,14 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
                     } else {
                         Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_ITEM_RENAMER);
                     }
+                    if (player.openContainer instanceof ContainerPatternValueAmount) {
+                        final PacketVirtualSlot p = new PacketVirtualSlot(
+                                invName,
+                                slotId,
+                                cpt.getPatternTerminal().getAEInventoryByName(invName).getAEStackInSlot(slotId));
+                        NetworkHandler.instance.sendTo(p, (EntityPlayerMP) player);
+                    }
                 }
-            }
-
-            if (container instanceof IVirtualMESlotHandler vsh) {
-                vsh.setVirtualSlot(invName, slotId, slotItem);
             }
 
             if (player.openContainer instanceof ISecondaryGUI sg) {
