@@ -19,6 +19,7 @@ public abstract class VirtualMESlot {
     protected final int slotIndex;
 
     protected boolean showAmount = true;
+    protected boolean showAmountAlways = false;
     protected boolean showCraftableText = true;
     protected boolean showCraftableIcon = true;
 
@@ -72,6 +73,7 @@ public abstract class VirtualMESlot {
                     this.xPos,
                     this.yPos,
                     this.showAmount,
+                    this.showAmountAlways,
                     this.showCraftableText,
                     this.showCraftableIcon);
         }

@@ -200,8 +200,8 @@ public abstract class AEStack<StackType extends IAEStack<StackType>> implements 
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void drawOverlayInGui(Minecraft mc, int x, int y, boolean showAmount, boolean showCraftableText,
-            boolean showCraftableIcon) {
+    public void drawOverlayInGui(Minecraft mc, int x, int y, boolean showAmount, boolean showAmountAlways,
+            boolean showCraftableText, boolean showCraftableIcon) {
         final TerminalFontSize fontSize = AEConfig.instance.getTerminalFontSize();
 
         GL11.glTranslatef(0.0f, 0.0f, 200.0f);
@@ -233,7 +233,7 @@ public abstract class AEStack<StackType extends IAEStack<StackType>> implements 
             }
         }
 
-        if (showAmount && (this.stackSize > 0 || !this.isCraftable)) {
+        if (showAmount && (this.stackSize > 1 || (showAmountAlways && (!showCraftableText || !this.isCraftable)))) {
             GL11.glPushMatrix();
             StackSizeRenderer.drawStackSize(x, y, this.stackSize, mc.fontRenderer, fontSize);
             GL11.glPopMatrix();

@@ -259,6 +259,6 @@ public interface IAEStack<StackType extends IAEStack> {
     void drawInGui(Minecraft mc, int x, int y);
 
     @SideOnly(Side.CLIENT)
-    void drawOverlayInGui(Minecraft mc, int x, int y, boolean showAmount, boolean showCraftableText,
-            boolean showCraftableIcon);
+    void drawOverlayInGui(Minecraft mc, int x, int y, boolean showAmount, boolean showAmountAlways,
+            boolean showCraftableText, boolean showCraftableIcon);
 }

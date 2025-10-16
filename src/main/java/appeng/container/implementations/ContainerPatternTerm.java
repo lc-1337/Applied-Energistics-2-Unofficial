@@ -190,6 +190,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
                 this.craftingMatrix.setInventorySlotContents(i, null);
             }
         }
+        this.getAndUpdateOutput();
         this.updateVirtualSlots(StorageName.CRAFTING_INPUT, this.inputs, craftingSlotsClient);
     }
 
@@ -205,8 +206,11 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         this.getAndUpdateOutput();
     }
 
+    @Override
+    public void onCraftMatrixChanged(IInventory p_75130_1_) {}
+
     private ItemStack getAndUpdateOutput() {
-        if (!craftingModeSupport || !isCraftingMode()) return null;
+        if (!craftingModeSupport || !isCraftingMode() || !isServer()) return null;
         final InventoryCrafting ic = new InventoryCrafting(this, 3, 3);
 
         for (int x = 0; x < ic.getSizeInventory(); x++) {
@@ -215,6 +219,8 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
         final ItemStack is = CraftingManager.getInstance().findMatchingRecipe(ic, this.getPlayerInv().player.worldObj);
         this.cOut.setInventorySlotContents(0, is);
+        super.detectAndSendChanges();
+
         return is;
     }
 
@@ -494,10 +500,12 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
             this.beSubstitute = this.patternTerminal.canBeSubstitution();
 
             if (this.isFirstUpdate) {
-                if (isServer()) {
+                if (isCraftingMode()) {
+                    this.copyToMatrix();
+                } else {
                     this.updateVirtualSlots(StorageName.CRAFTING_INPUT, this.inputs, craftingSlotsClient);
-                    this.updateVirtualSlots(StorageName.CRAFTING_OUTPUT, this.outputs, outputSlotsClient);
                 }
+                this.updateVirtualSlots(StorageName.CRAFTING_OUTPUT, this.outputs, outputSlotsClient);
                 this.isFirstUpdate = false;
             }
         }
@@ -530,6 +538,9 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         }
         for (int i = 0; i < this.outputs.getSizeInventory(); ++i) {
             this.outputs.putAEStackInSlot(i, null);
+        }
+        for (int i = 0; i < this.craftingMatrix.getSizeInventory(); ++i) {
+            this.craftingMatrix.setInventorySlotContents(i, null);
         }
 
         this.getAndUpdateOutput();
@@ -662,7 +673,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
     /**
      * Multiply or divide a number
-     * 
+     *
      * @param multi Positive numbers are multiplied and negative numbers are divided
      */
     public void multiplyOrDivideStacks(int multi) {
@@ -712,9 +723,21 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
     public void updateVirtualSlot(StorageName invName, int slotId, IAEStack<?> aes) {
         switch (invName) {
             case CRAFTING_INPUT -> {
+                if (isCraftingMode() && aes != null) {
+                    aes.setStackSize(1);
+                }
                 this.inputs.putAEStackInSlot(slotId, aes);
                 if (isServer()) {
                     this.updateVirtualSlots(StorageName.CRAFTING_INPUT, this.inputs, craftingSlotsClient);
+                    if (isCraftingMode()) {
+                        if (aes != null) {
+                            IAEItemStack ais = ((IAEItemStack) aes);
+                            this.craftingMatrix.setInventorySlotContents(slotId, ais.getItemStack());
+                        } else {
+                            this.craftingMatrix.setInventorySlotContents(slotId, null);
+                        }
+                        this.getAndUpdateOutput();
+                    }
                 }
             }
             case CRAFTING_OUTPUT -> {
@@ -731,10 +754,22 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         switch (invName) {
             case CRAFTING_INPUT -> {
                 for (var entry : slotStacks.int2ObjectEntrySet()) {
-                    this.inputs.putAEStackInSlot(entry.getIntKey(), entry.getValue());
+                    IAEStack<?> aes = entry.getValue();
+                    if (isServer() && isCraftingMode() && aes != null) {
+                        aes.setStackSize(1);
+                    }
+                    this.inputs.putAEStackInSlot(entry.getIntKey(), aes);
+                    if (isServer() && isCraftingMode()) {
+                        this.craftingMatrix.setInventorySlotContents(
+                                entry.getIntKey(),
+                                aes != null ? ((IAEItemStack) aes).getItemStack() : null);
+                    }
                 }
                 if (isServer()) {
                     this.updateVirtualSlots(StorageName.CRAFTING_INPUT, this.inputs, craftingSlotsClient);
+                    if (isCraftingMode()) {
+                        this.getAndUpdateOutput();
+                    }
                 }
             }
             case CRAFTING_OUTPUT -> {

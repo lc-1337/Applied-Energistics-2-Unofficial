@@ -12,6 +12,7 @@ public class VirtualMEMonitorableSlot extends VirtualMESlot {
     public VirtualMEMonitorableSlot(int x, int y, IDisplayRepo repo, int slotIndex) {
         super(x, y, slotIndex);
         this.repo = repo;
+        this.showAmountAlways = true;
     }
 
     @Override
