@@ -21,6 +21,12 @@ public abstract class GuiSub extends AEBaseMEGui implements IGuiSub {
         this.container.setGuiLink(this);
     }
 
+    @Override
+    public void initGui() {
+        super.initGui();
+        if (container.getPrimaryGuiIcon() != null) initPrimaryGuiButton();
+    }
+
     public void initPrimaryGuiButton() {
         this.buttonList.add(
                 this.originalGuiBtn = new GuiTabButton(
