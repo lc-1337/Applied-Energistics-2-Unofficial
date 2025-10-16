@@ -27,5 +27,7 @@ public interface IGuiItem {
         return getGuiObject(is, world, null, x, y, z);
     }
 
-    IGuiItemObject getGuiObject(ItemStack is, World world, EntityPlayer player, int x, int y, int z);
+    default IGuiItemObject getGuiObject(ItemStack is, World world, EntityPlayer player, int x, int y, int z) {
+        return null;
+    }
 }
