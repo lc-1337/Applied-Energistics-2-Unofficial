@@ -16,15 +16,14 @@ import net.minecraft.entity.player.InventoryPlayer;
 import appeng.api.config.SecurityPermissions;
 import appeng.api.implementations.guiobjects.IGuiItemObject;
 import appeng.client.gui.widgets.MEGuiTextField;
-import appeng.container.AEBaseContainer;
+import appeng.container.ContainerSubGui;
 import appeng.container.guisync.GuiSync;
 import appeng.helpers.IPriorityHost;
-import appeng.helpers.ISecondaryGUI;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ContainerPriority extends AEBaseContainer implements ISecondaryGUI {
+public class ContainerPriority extends ContainerSubGui {
 
     private final IPriorityHost priHost;
 

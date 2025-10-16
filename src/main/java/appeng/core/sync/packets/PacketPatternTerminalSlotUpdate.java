@@ -9,25 +9,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.tileentity.TileEntity;
 
-import appeng.api.networking.IGridHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
 import appeng.container.AEBaseContainer;
-import appeng.container.ContainerOpenContext;
+import appeng.container.IContainerSubGui;
 import appeng.container.PrimaryGui;
-import appeng.container.implementations.ContainerCraftingTerm;
-import appeng.container.implementations.ContainerPatternTerm;
-import appeng.container.implementations.ContainerPatternTermEx;
-import appeng.container.implementations.ContainerStorageBus;
 import appeng.core.sync.AppEngPacket;
-import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.INetworkInfo;
-import appeng.helpers.ISecondaryGUI;
 import appeng.helpers.IVirtualMESlotHandler;
-import appeng.helpers.PatternTerminalAction;
-import appeng.util.Platform;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -39,8 +29,6 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
 
     public final StorageName invName;
 
-    public final PatternTerminalAction action;
-
     // automatic.
     public PacketPatternTerminalSlotUpdate(final ByteBuf stream) throws IOException {
         this.invName = StorageName.values()[stream.readInt()];
@@ -49,19 +37,16 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
 
         this.slotItem = this.readItem(stream);
 
-        this.action = PatternTerminalAction.values()[stream.readInt()];
     }
 
     // api
-    public PacketPatternTerminalSlotUpdate(final StorageName invName, final int slotId, final IAEStack<?> slotItem,
-            final PatternTerminalAction action) throws IOException {
+    public PacketPatternTerminalSlotUpdate(final StorageName invName, final int slotId, final IAEStack<?> slotItem)
+            throws IOException {
         this.invName = invName;
 
         this.slotItem = slotItem;
 
         this.slotId = slotId;
-
-        this.action = action;
 
         final ByteBuf data = Unpooled.buffer();
 
@@ -72,8 +57,6 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
         data.writeInt(slotId);
 
         this.writeItem(slotItem, data);
-
-        data.writeInt(action.ordinal());
 
         this.configureWrite(data);
     }
@@ -96,18 +79,6 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
         }
     }
 
-    private GuiBridge getOriginalGui(Container container) {
-        if (container instanceof ContainerPatternTermEx) {
-            return GuiBridge.GUI_PATTERN_TERMINAL_EX;
-        } else if (container instanceof ContainerPatternTerm) {
-            return GuiBridge.GUI_PATTERN_TERMINAL;
-        } else if (container instanceof ContainerCraftingTerm) {
-            return GuiBridge.GUI_CRAFTING_TERMINAL;
-        } else if (container instanceof ContainerStorageBus) {
-            return GuiBridge.GUI_STORAGEBUS;
-        } else return GuiBridge.GUI_ME;
-    }
-
     @Override
     public void clientPacketData(final INetworkInfo network, final AppEngPacket packet, final EntityPlayer player) {
         final GuiScreen gs = Minecraft.getMinecraft().currentScreen;
@@ -124,49 +95,11 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
         if (container instanceof AEBaseContainer bc) {
             final PrimaryGui pg = bc.getPrimaryGui();
 
-            if (container instanceof ContainerPatternTerm cpt) {
-                if (this.action == PatternTerminalAction.SET) {
-                    cpt.setVirtualSlot(invName, slotId, slotItem);
-                } else if (this.action == PatternTerminalAction.SET_PATTERN_VALUE) {
-                    if (slotItem == null) return;
-                    final Object target = cpt.getTarget();
-                    if (target instanceof IGridHost) {
-                        final ContainerOpenContext context = cpt.getOpenContext();
-                        if (context != null) {
-                            final TileEntity te = context.getTile();
-                            Platform.openGUI(
-                                    player,
-                                    te,
-                                    cpt.getOpenContext().getSide(),
-                                    GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
-                        }
-                    } else {
-                        Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_VALUE_AMOUNT);
-                    }
-                } else if (this.action == PatternTerminalAction.SET_PATTERN_ITEM_NAME) {
-                    if (slotItem == null || !slotItem.isItem()) return;
-                    final Object target = cpt.getTarget();
-                    if (target instanceof IGridHost) {
-                        final ContainerOpenContext context = cpt.getOpenContext();
-                        if (context != null) {
-                            final TileEntity te = context.getTile();
-                            Platform.openGUI(
-                                    player,
-                                    te,
-                                    cpt.getOpenContext().getSide(),
-                                    GuiBridge.GUI_PATTERN_ITEM_RENAMER);
-                        }
-                    } else {
-                        Platform.openGUI(player, null, null, GuiBridge.GUI_PATTERN_ITEM_RENAMER);
-                    }
-                }
-            }
-
             if (container instanceof IVirtualMESlotHandler vsh) {
                 vsh.setVirtualSlot(invName, slotId, slotItem);
             }
 
-            if (player.openContainer instanceof ISecondaryGUI sg) {
+            if (player.openContainer instanceof IContainerSubGui sg) {
                 sg.setPrimaryGui(pg);
             }
         }

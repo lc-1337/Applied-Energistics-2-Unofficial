@@ -12,16 +12,17 @@ package appeng.core.sync.packets;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
 import appeng.client.gui.AEBaseGui;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerOpenContext;
+import appeng.container.ContainerSubGui;
 import appeng.container.PrimaryGui;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.INetworkInfo;
-import appeng.helpers.ISecondaryGUI;
 import appeng.util.Platform;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -76,7 +77,8 @@ public class PacketSwitchGuis extends AppEngPacket {
     public void serverPacketData(final INetworkInfo manager, final AppEngPacket packet, final EntityPlayer player) {
         final Container c = player.openContainer;
         if (c instanceof AEBaseContainer bc) {
-            PrimaryGui pGui = bc.getPrimaryGui();
+            final PrimaryGui pGui = bc.getPrimaryGui();
+            final ItemStack pGuiIcon = bc.getThisItemStack();
             if (this.newGui == null) {
                 bc.getPrimaryGui().openOriginalGui(player);
             } else {
@@ -87,8 +89,9 @@ public class PacketSwitchGuis extends AppEngPacket {
                 }
             }
 
-            if (player.openContainer instanceof ISecondaryGUI sg) {
+            if (player.openContainer instanceof ContainerSubGui sg) {
                 sg.setPrimaryGui(pGui);
+                sg.setPrimaryGuiIcon(pGuiIcon);
             }
         }
     }

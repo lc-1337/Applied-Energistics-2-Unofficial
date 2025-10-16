@@ -25,7 +25,7 @@ import appeng.api.networking.security.IActionHost;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.IInterfaceViewable;
-import appeng.container.AEBaseContainer;
+import appeng.container.ContainerSubGui;
 import appeng.core.AELog;
 import appeng.core.features.registries.InterfaceTerminalRegistry;
 import appeng.core.sync.GuiBridge;
@@ -36,7 +36,6 @@ import appeng.crafting.v2.CraftingContext;
 import appeng.crafting.v2.CraftingJobV2;
 import appeng.crafting.v2.resolvers.CraftableItemResolver.CraftFromPatternTask;
 import appeng.crafting.v2.resolvers.CraftingTask;
-import appeng.helpers.ISecondaryGUI;
 import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.me.cache.CraftingGridCache;
 import appeng.parts.reporting.PartCraftingTerminal;
@@ -49,7 +48,7 @@ import appeng.util.Platform;
 import codechicken.nei.ItemStackMap;
 import codechicken.nei.ItemStackSet;
 
-public class ContainerOptimizePatterns extends AEBaseContainer implements ISecondaryGUI {
+public class ContainerOptimizePatterns extends ContainerSubGui {
 
     private ICraftingJob result;
 

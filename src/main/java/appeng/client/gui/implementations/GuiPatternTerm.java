@@ -37,13 +37,12 @@ import appeng.container.slot.VirtualMESlotPattern;
 import appeng.core.AELog;
 import appeng.core.localization.GuiColors;
 import appeng.core.localization.GuiText;
+import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
-import appeng.core.sync.packets.PacketInventoryAction;
 import appeng.core.sync.packets.PacketPatternTerminalSlotUpdate;
+import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.helpers.IVirtualMESlotHandler;
-import appeng.helpers.InventoryAction;
-import appeng.helpers.PatternTerminalAction;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.FluidUtils;
 import appeng.util.item.AEFluidStack;
@@ -89,10 +88,7 @@ public class GuiPatternTerm extends GuiMEMonitorable implements IVirtualMESlotHa
     protected void mouseClicked(final int xCoord, final int yCoord, final int btn) {
 
         if (btn == 2 && doubleBtn.mousePressed(this.mc, xCoord, yCoord)) { //
-            InventoryAction action = InventoryAction.SET_PATTERN_MULTI;
-
-            final PacketInventoryAction p = new PacketInventoryAction(action, 0, 0);
-            NetworkHandler.instance.sendToServer(p);
+            NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_MULTI));
         } else super.mouseClicked(xCoord, yCoord, btn);
 
     }
@@ -104,7 +100,6 @@ public class GuiPatternTerm extends GuiMEMonitorable implements IVirtualMESlotHa
             final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
             IAEStack<?> aes = slot.getAEStack();
             final ItemStack playerHand = player.inventory.getItemStack();
-            PatternTerminalAction action = PatternTerminalAction.SET;
 
             final boolean isLShiftDown = isShiftKeyDown();
             final boolean isLControlDown = isCtrlKeyDown();
@@ -136,26 +131,21 @@ public class GuiPatternTerm extends GuiMEMonitorable implements IVirtualMESlotHa
                 case 2 -> { // middle click
                     if (aes != null) {
                         if (isLControlDown) {
-                            action = PatternTerminalAction.SET_PATTERN_ITEM_NAME;
+                            NetworkHandler.instance
+                                    .sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_ITEM_RENAMER));
                         } else {
-                            action = PatternTerminalAction.SET_PATTERN_VALUE;
+                            NetworkHandler.instance
+                                    .sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_VALUE_AMOUNT));
                         }
                     }
                 }
-                default -> action = PatternTerminalAction.NOTHING;
             }
 
-            if (action != PatternTerminalAction.NOTHING) {
-                try {
-                    NetworkHandler.instance.sendToServer(
-                            new PacketPatternTerminalSlotUpdate(
-                                    slot.getStorageName(),
-                                    slot.getSlotIndex(),
-                                    aes,
-                                    action));
-                } catch (IOException e) {
-                    AELog.error(e);
-                }
+            try {
+                NetworkHandler.instance.sendToServer(
+                        new PacketPatternTerminalSlotUpdate(slot.getStorageName(), slot.getSlotIndex(), aes));
+            } catch (IOException e) {
+                AELog.error(e);
             }
         }
 

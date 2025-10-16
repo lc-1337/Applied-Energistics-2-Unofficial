@@ -86,7 +86,6 @@ import appeng.core.sync.packets.PacketValueConfig;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IPinsHandler;
 import appeng.helpers.InventoryAction;
-import appeng.helpers.PatternTerminalAction;
 import appeng.items.materials.ItemMultiMaterial;
 import appeng.me.Grid;
 import appeng.me.MachineSet;
@@ -428,9 +427,7 @@ public abstract class AEBaseContainer extends Container {
                 for (ICrafting crafter : this.crafters) {
                     final EntityPlayerMP emp = (EntityPlayerMP) crafter;
                     try {
-                        NetworkHandler.instance.sendTo(
-                                new PacketPatternTerminalSlotUpdate(invName, i, aes, PatternTerminalAction.NOTHING),
-                                emp);
+                        NetworkHandler.instance.sendTo(new PacketPatternTerminalSlotUpdate(invName, i, aes), emp);
                     } catch (IOException ignored) {}
                 }
             }
@@ -1322,7 +1319,7 @@ public abstract class AEBaseContainer extends Container {
         this.primaryGui = new PrimaryGui(
                 GuiBridge.getGuiByContainerClass(this.getClass()),
                 getThisItemStack(),
-                getTileEntity(),
+                getOpenContext().getTile(),
                 getOpenContext().getSide());
     }
 

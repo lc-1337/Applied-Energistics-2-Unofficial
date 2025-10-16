@@ -6,7 +6,6 @@ import net.minecraft.entity.player.InventoryPlayer;
 
 import org.lwjgl.input.Keyboard;
 
-import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.container.implementations.ContainerCellRestriction;
 import appeng.container.implementations.ContainerCellRestriction.CellData;
@@ -20,7 +19,7 @@ import appeng.helpers.ICellRestriction;
 import appeng.util.calculators.ArithHelper;
 import appeng.util.calculators.Calculator;
 
-public class GuiCellRestriction extends AEBaseGui {
+public class GuiCellRestriction extends GuiSub {
 
     private MEGuiTextField amountField;
     private MEGuiTextField typesField;

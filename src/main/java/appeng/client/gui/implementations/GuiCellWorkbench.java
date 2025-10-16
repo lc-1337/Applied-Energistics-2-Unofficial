@@ -29,6 +29,7 @@ import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiToggleButton;
 import appeng.container.implementations.ContainerCellWorkbench;
 import appeng.core.localization.GuiText;
+import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
@@ -217,7 +218,7 @@ public class GuiCellWorkbench extends GuiUpgradeable {
 
                 NetworkHandler.instance.sendToServer(new PacketValueConfig("CellWorkbench.Fuzzy", fz.name()));
             } else if (btn == this.cellRestriction) {
-                NetworkHandler.instance.sendToServer(new PacketSwitchGuis());
+                NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_CELL_RESTRICTION));
             } else {
                 super.actionPerformed(btn);
             }

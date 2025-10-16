@@ -21,7 +21,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ICrafting;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 
@@ -41,6 +40,7 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.container.AEBaseContainer;
+import appeng.container.ContainerSubGui;
 import appeng.container.guisync.GuiSync;
 import appeng.container.interfaces.ICraftingCPUSelectorContainer;
 import appeng.core.AELog;
@@ -48,21 +48,14 @@ import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketCraftingTreeData;
 import appeng.core.sync.packets.PacketMEInventoryUpdate;
-import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.crafting.MECraftingInventory;
 import appeng.crafting.v2.CraftingJobV2;
-import appeng.helpers.ISecondaryGUI;
-import appeng.helpers.WirelessTerminalGuiObject;
-import appeng.parts.reporting.PartCraftingTerminal;
-import appeng.parts.reporting.PartPatternTerminal;
-import appeng.parts.reporting.PartPatternTerminalEx;
-import appeng.parts.reporting.PartTerminal;
 import appeng.tile.misc.TilePatternOptimizationMatrix;
 import appeng.util.Platform;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public class ContainerCraftConfirm extends AEBaseContainer implements ICraftingCPUSelectorContainer, ISecondaryGUI {
+public class ContainerCraftConfirm extends ContainerSubGui implements ICraftingCPUSelectorContainer {
 
     private Future<ICraftingJob> job;
     protected ICraftingJob result;
@@ -324,35 +317,8 @@ public class ContainerCraftConfirm extends AEBaseContainer implements ICraftingC
     }
 
     public void switchToOriginalGUI() {
-        GuiBridge originalGui = null;
-
-        final IActionHost ah = this.getActionHost();
-        if (ah instanceof WirelessTerminalGuiObject) {
-            originalGui = GuiBridge.GUI_WIRELESS_TERM;
-        }
-
-        if (ah instanceof PartTerminal) {
-            originalGui = GuiBridge.GUI_ME;
-        }
-
-        if (ah instanceof PartCraftingTerminal) {
-            originalGui = GuiBridge.GUI_CRAFTING_TERMINAL;
-        }
-
-        if (ah instanceof PartPatternTerminal) {
-            originalGui = GuiBridge.GUI_PATTERN_TERMINAL;
-        }
-
-        if (ah instanceof PartPatternTerminalEx) {
-            originalGui = GuiBridge.GUI_PATTERN_TERMINAL_EX;
-        }
-
-        if (originalGui != null && this.getOpenContext() != null) {
-            NetworkHandler.instance.sendTo(new PacketSwitchGuis(), (EntityPlayerMP) this.getInventoryPlayer().player);
-
-            final TileEntity te = this.getOpenContext().getTile();
-            Platform.openGUI(this.getInventoryPlayer().player, te, this.getOpenContext().getSide(), originalGui);
-        }
+        if (this.getInventoryPlayer().player.openContainer instanceof AEBaseContainer bc)
+            bc.getPrimaryGui().openOriginalGui(this.getInventoryPlayer().player);
     }
 
     private BaseActionSource getActionSrc() {

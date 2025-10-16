@@ -42,7 +42,6 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
-import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.IGuiTooltipHandler;
 import appeng.client.gui.widgets.GuiAeButton;
 import appeng.client.gui.widgets.GuiCraftingCPUTable;
@@ -61,17 +60,11 @@ import appeng.core.AELog;
 import appeng.core.localization.ButtonToolTips;
 import appeng.core.localization.GuiColors;
 import appeng.core.localization.GuiText;
-import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.crafting.v2.CraftingJobV2;
-import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.integration.modules.NEI;
-import appeng.parts.reporting.PartCraftingTerminal;
-import appeng.parts.reporting.PartPatternTerminal;
-import appeng.parts.reporting.PartPatternTerminalEx;
-import appeng.parts.reporting.PartTerminal;
 import appeng.util.ColorPickHelper;
 import appeng.util.Platform;
 import appeng.util.ReadableNumberConverter;
@@ -79,7 +72,7 @@ import appeng.util.RoundHelper;
 import appeng.util.item.AEItemStack;
 import codechicken.nei.recipe.StackInfo;
 
-public class GuiCraftConfirm extends AEBaseGui implements ICraftingCPUTableHolder, IGuiTooltipHandler {
+public class GuiCraftConfirm extends GuiSub implements ICraftingCPUTableHolder, IGuiTooltipHandler {
 
     public static final int TREE_VIEW_TEXTURE_WIDTH = 238;
     public static final int TREE_VIEW_TEXTURE_HEIGHT = 238;
@@ -155,7 +148,6 @@ public class GuiCraftConfirm extends AEBaseGui implements ICraftingCPUTableHolde
     private CraftingSortOrder sortMode = CraftingSortOrder.NAME;
     private SortDir sortDir = SortDir.ASCENDING;
 
-    private GuiBridge OriginalGui;
     private GuiButton cancel;
     private GuiButton start;
     private GuiButton startWithFollow;
@@ -171,7 +163,7 @@ public class GuiCraftConfirm extends AEBaseGui implements ICraftingCPUTableHolde
     private MEGuiTextField searchField;
     private int tooltip = -1;
     private ItemStack hoveredStack;
-    private ArrayList<Integer> goToData = new ArrayList<>();
+    private final ArrayList<Integer> goToData = new ArrayList<>();
     private int searchGotoIndex = -1;
     private IAEItemStack needHighlight;
 
@@ -190,26 +182,6 @@ public class GuiCraftConfirm extends AEBaseGui implements ICraftingCPUTableHolde
                 this,
                 ((ContainerCraftConfirm) inventorySlots).cpuTable,
                 c -> this.ccc.cpuCraftingSameItem(c) && this.ccc.cpuMatches(c));
-
-        if (te instanceof WirelessTerminalGuiObject) {
-            this.OriginalGui = GuiBridge.GUI_WIRELESS_TERM;
-        }
-
-        if (te instanceof PartTerminal) {
-            this.OriginalGui = GuiBridge.GUI_ME;
-        }
-
-        if (te instanceof PartCraftingTerminal) {
-            this.OriginalGui = GuiBridge.GUI_CRAFTING_TERMINAL;
-        }
-
-        if (te instanceof PartPatternTerminal) {
-            this.OriginalGui = GuiBridge.GUI_PATTERN_TERMINAL;
-        }
-
-        if (te instanceof PartPatternTerminalEx) {
-            this.OriginalGui = GuiBridge.GUI_PATTERN_TERMINAL_EX;
-        }
     }
 
     @Override
@@ -997,7 +969,7 @@ public class GuiCraftConfirm extends AEBaseGui implements ICraftingCPUTableHolde
             cpuTable.cycleCPU(backwards);
         } else if (btn == this.cancel) {
             this.addMissingItemsToBookMark();
-            switchToOriginalGUI();
+            NetworkHandler.instance.sendToServer(new PacketSwitchGuis());
         } else if (btn == this.switchDisplayMode) {
             this.displayMode = this.displayMode.next();
             recalculateScreenSize();
@@ -1059,13 +1031,6 @@ public class GuiCraftConfirm extends AEBaseGui implements ICraftingCPUTableHolde
                 case LIST -> searchGoTo(false);
                 case TREE -> craftingTree.searchGoTo(false);
             }
-        }
-    }
-
-    public void switchToOriginalGUI() {
-        // null if terminal is not a native AE2 terminal
-        if (this.OriginalGui != null) {
-            NetworkHandler.instance.sendToServer(new PacketSwitchGuis(this.OriginalGui));
         }
     }
 

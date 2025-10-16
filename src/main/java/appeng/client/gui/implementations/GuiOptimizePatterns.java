@@ -25,7 +25,6 @@ import appeng.api.config.TerminalStyle;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.IGuiTooltipHandler;
 import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.container.implementations.ContainerOptimizePatterns;
@@ -33,21 +32,15 @@ import appeng.core.AEConfig;
 import appeng.core.AELog;
 import appeng.core.localization.GuiColors;
 import appeng.core.localization.GuiText;
-import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketOptimizePatterns;
 import appeng.core.sync.packets.PacketSwitchGuis;
-import appeng.helpers.WirelessTerminalGuiObject;
-import appeng.parts.reporting.PartCraftingTerminal;
-import appeng.parts.reporting.PartPatternTerminal;
-import appeng.parts.reporting.PartPatternTerminalEx;
-import appeng.parts.reporting.PartTerminal;
 import appeng.util.Platform;
 import appeng.util.ReadableNumberConverter;
 import appeng.util.calculators.ArithHelper;
 import appeng.util.calculators.Calculator;
 
-public class GuiOptimizePatterns extends AEBaseGui implements IGuiTooltipHandler {
+public class GuiOptimizePatterns extends GuiSub implements IGuiTooltipHandler {
 
     private GuiTextField amountToCraft;
     private int amountToCraftI = 1;
@@ -58,7 +51,6 @@ public class GuiOptimizePatterns extends AEBaseGui implements IGuiTooltipHandler
 
     final GuiScrollbar scrollbar;
 
-    private GuiBridge OriginalGui;
     private GuiButton cancel;
     private GuiButton optimize;
 
@@ -77,26 +69,6 @@ public class GuiOptimizePatterns extends AEBaseGui implements IGuiTooltipHandler
 
         scrollbar = new GuiScrollbar();
         this.setScrollBar(scrollbar);
-
-        if (te instanceof WirelessTerminalGuiObject) {
-            this.OriginalGui = GuiBridge.GUI_WIRELESS_TERM;
-        }
-
-        if (te instanceof PartTerminal) {
-            this.OriginalGui = GuiBridge.GUI_ME;
-        }
-
-        if (te instanceof PartCraftingTerminal) {
-            this.OriginalGui = GuiBridge.GUI_CRAFTING_TERMINAL;
-        }
-
-        if (te instanceof PartPatternTerminal) {
-            this.OriginalGui = GuiBridge.GUI_PATTERN_TERMINAL;
-        }
-
-        if (te instanceof PartPatternTerminalEx) {
-            this.OriginalGui = GuiBridge.GUI_PATTERN_TERMINAL_EX;
-        }
     }
 
     @Override
@@ -401,9 +373,7 @@ public class GuiOptimizePatterns extends AEBaseGui implements IGuiTooltipHandler
         super.actionPerformed(btn);
 
         if (btn == this.cancel) {
-            if (this.OriginalGui != null) {
-                NetworkHandler.instance.sendToServer(new PacketSwitchGuis(this.OriginalGui));
-            }
+            NetworkHandler.instance.sendToServer(new PacketSwitchGuis());
         } else if (btn == this.optimize && this.optimize.enabled) {
             try {
                 NetworkHandler.instance.sendToServer(new PacketOptimizePatterns(multiplierMap));

@@ -26,17 +26,16 @@ import appeng.api.networking.security.PlayerSource;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.gui.widgets.MEGuiTextField;
-import appeng.container.AEBaseContainer;
+import appeng.container.ContainerSubGui;
 import appeng.container.guisync.GuiSync;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketVirtualSlot;
-import appeng.helpers.ISecondaryGUI;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ContainerCraftAmount extends AEBaseContainer implements ISecondaryGUI {
+public class ContainerCraftAmount extends ContainerSubGui {
 
     @SideOnly(Side.CLIENT)
     private MEGuiTextField amountField;

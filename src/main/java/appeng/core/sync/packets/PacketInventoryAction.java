@@ -14,14 +14,15 @@ import java.io.IOException;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
 import appeng.api.storage.data.IAEItemStack;
 import appeng.client.ClientHelper;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerOpenContext;
+import appeng.container.PrimaryGui;
 import appeng.container.implementations.ContainerCraftAmount;
-import appeng.container.implementations.ContainerPatternMulti;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.INetworkInfo;
@@ -103,6 +104,8 @@ public class PacketInventoryAction extends AppEngPacket {
     public void serverPacketData(final INetworkInfo manager, final AppEngPacket packet, final EntityPlayer player) {
         final EntityPlayerMP sender = (EntityPlayerMP) player;
         if (sender.openContainer instanceof AEBaseContainer baseContainer) {
+            final PrimaryGui pg = baseContainer.getPrimaryGui();
+            final ItemStack pgIcon = baseContainer.getThisItemStack();
             if (this.action == InventoryAction.AUTO_CRAFT) {
                 final ContainerOpenContext context = baseContainer.getOpenContext();
                 if (context != null) {
@@ -114,22 +117,14 @@ public class PacketInventoryAction extends AppEngPacket {
                             GuiBridge.GUI_CRAFTING_AMOUNT);
 
                     if (sender.openContainer instanceof ContainerCraftAmount cca) {
-
+                        cca.setPrimaryGui(pg);
+                        cca.setPrimaryGuiIcon(pgIcon);
                         if (baseContainer.getTargetStack() != null) {
                             cca.setItemToCraft(baseContainer.getTargetStack());
                             cca.setInitialCraftAmount(this.id);
                         }
 
                         cca.detectAndSendChanges();
-                    }
-                }
-            } else if (this.action == InventoryAction.SET_PATTERN_MULTI) {
-                final ContainerOpenContext context = baseContainer.getOpenContext();
-                if (context != null) {
-                    final TileEntity te = context.getTile();
-                    Platform.openGUI(sender, te, baseContainer.getOpenContext().getSide(), GuiBridge.GUI_PATTERN_MULTI);
-                    if (sender.openContainer instanceof ContainerPatternMulti cpm) {
-                        cpm.detectAndSendChanges();
                     }
                 }
             } else {

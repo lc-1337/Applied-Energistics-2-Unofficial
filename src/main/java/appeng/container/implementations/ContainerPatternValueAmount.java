@@ -7,13 +7,12 @@ import net.minecraft.inventory.ICrafting;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
-import appeng.container.AEBaseContainer;
+import appeng.container.ContainerSubGui;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketPatternValueSet;
-import appeng.helpers.ISecondaryGUI;
 import appeng.helpers.IVirtualMESlotHandler;
 
-public class ContainerPatternValueAmount extends AEBaseContainer implements ISecondaryGUI, IVirtualMESlotHandler {
+public class ContainerPatternValueAmount extends ContainerSubGui implements IVirtualMESlotHandler {
 
     private IAEStack<?> aes;
     private int slotsIndex;

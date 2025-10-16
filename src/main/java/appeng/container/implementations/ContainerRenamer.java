@@ -1,19 +1,16 @@
 package appeng.container.implementations;
 
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.tileentity.TileEntity;
 
 import appeng.api.config.SecurityPermissions;
-import appeng.api.parts.IPart;
 import appeng.client.gui.widgets.MEGuiTextField;
-import appeng.container.AEBaseContainer;
+import appeng.container.ContainerSubGui;
 import appeng.helpers.ICustomNameObject;
-import appeng.helpers.ISecondaryGUI;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ContainerRenamer extends AEBaseContainer implements ISecondaryGUI {
+public class ContainerRenamer extends ContainerSubGui {
 
     private final ICustomNameObject namedObject;
 
@@ -21,7 +18,7 @@ public class ContainerRenamer extends AEBaseContainer implements ISecondaryGUI {
     private MEGuiTextField textField;
 
     public ContainerRenamer(InventoryPlayer ip, ICustomNameObject obj) {
-        super(ip, obj instanceof TileEntity ? (TileEntity) obj : null, obj instanceof IPart ? (IPart) obj : null);
+        super(ip, obj);
         namedObject = obj;
     }
 

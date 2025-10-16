@@ -8,7 +8,6 @@ import org.lwjgl.input.Keyboard;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.widgets.IDropToFillTextField;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.container.implementations.ContainerPatternValueAmount;
@@ -18,7 +17,7 @@ import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketPatternValueSet;
 import appeng.util.item.AEItemStack;
 
-public class GuiPatternItemRenamer extends AEBaseGui implements IDropToFillTextField {
+public class GuiPatternItemRenamer extends GuiSub implements IDropToFillTextField {
 
     private final MEGuiTextField textField;
     private final ContainerPatternValueAmount container;
