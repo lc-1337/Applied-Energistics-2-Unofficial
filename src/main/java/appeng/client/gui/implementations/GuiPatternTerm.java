@@ -39,9 +39,9 @@ import appeng.core.localization.GuiColors;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
-import appeng.core.sync.packets.PacketPatternTerminalSlotUpdate;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
+import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.FluidUtils;
 import appeng.util.item.AEFluidStack;
@@ -140,12 +140,8 @@ public class GuiPatternTerm extends GuiMEMonitorable {
                 }
             }
 
-            try {
-                NetworkHandler.instance.sendToServer(
-                        new PacketPatternTerminalSlotUpdate(slot.getStorageName(), slot.getSlotIndex(), aes));
-            } catch (IOException e) {
-                AELog.error(e);
-            }
+            NetworkHandler.instance
+                    .sendToServer(new PacketVirtualSlot(slot.getStorageName(), slot.getSlotIndex(), aes));
         }
 
         return super.handleSlotClick(mouseX, mouseY, mouseButton);

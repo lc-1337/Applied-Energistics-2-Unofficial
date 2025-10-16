@@ -17,6 +17,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import appeng.api.AEApi;
 import appeng.client.texture.CableBusTextures;
 import appeng.core.sync.GuiBridge;
 import appeng.helpers.ICraftingTerminal;
@@ -97,5 +98,10 @@ public class PartCraftingTerminal extends AbstractPartTerminal implements ICraft
     @Override
     public CableBusTextures getFrontDark() {
         return FRONT_DARK_ICON;
+    }
+
+    @Override
+    public ItemStack getPrimaryGuiIcon() {
+        return AEApi.instance().definitions().parts().craftingTerminal().maybeStack(1).orNull();
     }
 }

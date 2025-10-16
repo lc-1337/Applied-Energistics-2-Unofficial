@@ -2,7 +2,9 @@ package appeng.container.implementations;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ICrafting;
 
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
@@ -10,7 +12,10 @@ import appeng.client.StorageName;
 import appeng.client.gui.implementations.GuiPatternItemRenamer;
 import appeng.client.gui.implementations.GuiPatternValueAmount;
 import appeng.container.ContainerSubGui;
+import appeng.core.sync.network.NetworkHandler;
+import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.helpers.IVirtualSlotHolder;
+import appeng.util.Platform;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 
 public class ContainerPatternValueAmount extends ContainerSubGui implements IVirtualSlotHolder {
@@ -30,11 +35,18 @@ public class ContainerPatternValueAmount extends ContainerSubGui implements IVir
         this.aes = entry.getValue();
         this.slotIndex = entry.getIntKey();
 
-        final GuiScreen gs = Minecraft.getMinecraft().currentScreen;
-        if (gs instanceof GuiPatternValueAmount gpva) {
-            gpva.update();
-        } else if (gs instanceof GuiPatternItemRenamer gpir) {
-            gpir.update();
+        if (Platform.isServer()) {
+            for (ICrafting crafter : this.crafters) {
+                final EntityPlayerMP emp = (EntityPlayerMP) crafter;
+                NetworkHandler.instance.sendTo(new PacketVirtualSlot(invName, slotIndex, aes), emp);
+            }
+        } else {
+            final GuiScreen gs = Minecraft.getMinecraft().currentScreen;
+            if (gs instanceof GuiPatternValueAmount gpva) {
+                gpva.update();
+            } else if (gs instanceof GuiPatternItemRenamer gpir) {
+                gpir.update();
+            }
         }
     }
 

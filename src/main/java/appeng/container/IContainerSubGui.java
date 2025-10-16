@@ -8,8 +8,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public interface IContainerSubGui {
 
-    void setPrimaryGuiIcon(ItemStack pgi);
-
     void setPrimaryGui(PrimaryGui pg);
 
     @SideOnly(Side.CLIENT)

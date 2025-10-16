@@ -14,7 +14,6 @@ import java.io.IOException;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
 import appeng.api.storage.data.IAEItemStack;
@@ -105,7 +104,6 @@ public class PacketInventoryAction extends AppEngPacket {
         final EntityPlayerMP sender = (EntityPlayerMP) player;
         if (sender.openContainer instanceof AEBaseContainer baseContainer) {
             final PrimaryGui pg = baseContainer.getPrimaryGui();
-            final ItemStack pgIcon = baseContainer.getThisItemStack();
             if (this.action == InventoryAction.AUTO_CRAFT) {
                 final ContainerOpenContext context = baseContainer.getOpenContext();
                 if (context != null) {
@@ -118,7 +116,6 @@ public class PacketInventoryAction extends AppEngPacket {
 
                     if (sender.openContainer instanceof ContainerCraftAmount cca) {
                         cca.setPrimaryGui(pg);
-                        cca.setPrimaryGuiIcon(pgIcon);
                         if (baseContainer.getTargetStack() != null) {
                             cca.setItemToCraft(baseContainer.getTargetStack());
                             cca.setInitialCraftAmount(this.id);

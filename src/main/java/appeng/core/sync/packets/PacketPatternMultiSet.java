@@ -31,7 +31,7 @@ public class PacketPatternMultiSet extends AppEngPacket {
     @Override
     public void serverPacketData(INetworkInfo manager, AppEngPacket packet, EntityPlayer player) {
         if (player.openContainer instanceof ContainerPatternMulti cpv) {
-            cpv.getPrimaryGui().openOriginalGui(player);
+            cpv.getPrimaryGui().open(player);
             if (player.openContainer instanceof ContainerPatternTerm cpt) {
                 cpt.multiplyOrDivideStacks(multi);
             }

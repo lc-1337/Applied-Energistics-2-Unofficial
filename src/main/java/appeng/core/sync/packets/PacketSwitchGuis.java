@@ -12,7 +12,6 @@ package appeng.core.sync.packets;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
 import appeng.client.gui.AEBaseGui;
@@ -78,9 +77,8 @@ public class PacketSwitchGuis extends AppEngPacket {
         final Container c = player.openContainer;
         if (c instanceof AEBaseContainer bc) {
             final PrimaryGui pGui = bc.getPrimaryGui();
-            final ItemStack pGuiIcon = bc.getThisItemStack();
             if (this.newGui == null) {
-                bc.getPrimaryGui().openOriginalGui(player);
+                bc.getPrimaryGui().open(player);
             } else {
                 final ContainerOpenContext context = bc.getOpenContext();
                 if (context != null) {
@@ -91,7 +89,6 @@ public class PacketSwitchGuis extends AppEngPacket {
 
             if (player.openContainer instanceof ContainerSubGui sg) {
                 sg.setPrimaryGui(pGui);
-                sg.setPrimaryGuiIcon(pGuiIcon);
             }
         }
     }

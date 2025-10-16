@@ -16,7 +16,6 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 
-import appeng.api.AEApi;
 import appeng.api.storage.ITerminalHost;
 import appeng.container.ContainerNull;
 import appeng.container.slot.SlotCraftingMatrix;
@@ -105,10 +104,5 @@ public class ContainerCraftingTerm extends ContainerMEMonitorable
     @Override
     public boolean useRealItems() {
         return true;
-    }
-
-    @Override
-    public ItemStack getThisItemStack() {
-        return AEApi.instance().definitions().parts().craftingTerminal().maybeStack(1).orNull();
     }
 }

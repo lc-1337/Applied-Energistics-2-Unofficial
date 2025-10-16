@@ -318,7 +318,7 @@ public class ContainerCraftConfirm extends ContainerSubGui implements ICraftingC
 
     public void switchToOriginalGUI() {
         if (this.getInventoryPlayer().player.openContainer instanceof AEBaseContainer bc)
-            bc.getPrimaryGui().openOriginalGui(this.getInventoryPlayer().player);
+            bc.getPrimaryGui().open(this.getInventoryPlayer().player);
     }
 
     private BaseActionSource getActionSrc() {

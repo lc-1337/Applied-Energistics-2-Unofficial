@@ -17,6 +17,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import appeng.api.AEApi;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
 import appeng.client.texture.CableBusTextures;
@@ -216,5 +217,10 @@ public class PartPatternTerminal extends AbstractPartTerminal implements IIAESta
 
     protected int getPatternOutputPages() {
         return patternOutputPages;
+    }
+
+    @Override
+    public ItemStack getPrimaryGuiIcon() {
+        return AEApi.instance().definitions().parts().patternTerminal().maybeStack(1).orNull();
     }
 }

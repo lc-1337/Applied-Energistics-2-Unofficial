@@ -315,9 +315,4 @@ public class ContainerCellWorkbench extends ContainerUpgradeable {
             return ContainerCellWorkbench.this.getCellUpgradeInventory().isItemValidForSlot(i, itemstack);
         }
     }
-
-    @Override
-    public ItemStack getThisItemStack() {
-        return AEApi.instance().definitions().blocks().cellWorkbench().maybeStack(1).orNull();
-    }
 }

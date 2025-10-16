@@ -25,8 +25,9 @@ public class ContainerSubGui extends AEBaseContainer implements IContainerSubGui
     }
 
     @Override
-    public void setPrimaryGuiIcon(ItemStack pgi) {
-        this.primaryGuiButtonIcon.putStack(pgi);
+    public void setPrimaryGui(PrimaryGui primaryGui) {
+        super.setPrimaryGui(primaryGui);
+        this.primaryGuiButtonIcon.putStack(primaryGui.getIcon());
     }
 
     @SideOnly(Side.CLIENT)

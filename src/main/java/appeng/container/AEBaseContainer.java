@@ -81,6 +81,7 @@ import appeng.core.sync.packets.PacketPartialItem;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IPinsHandler;
+import appeng.helpers.IPrimaryGuiIconProvider;
 import appeng.helpers.InventoryAction;
 import appeng.items.materials.ItemMultiMaterial;
 import appeng.me.Grid;
@@ -119,10 +120,12 @@ public abstract class AEBaseContainer extends Container {
     private IAEStack<?> clientRequestedTargetItem = null;
     private PrimaryGui primaryGui;
 
+    @Deprecated
     public AEBaseContainer(final InventoryPlayer ip, final TileEntity myTile, final IPart myPart) {
         this(ip, myTile, myPart, null);
     }
 
+    @Deprecated
     public AEBaseContainer(final InventoryPlayer ip, final TileEntity myTile, final IPart myPart,
             final IGuiItemObject gio) {
         this.invPlayer = ip;
@@ -1294,9 +1297,11 @@ public abstract class AEBaseContainer extends Container {
 
     private void createPrimaryGui() {
         ContainerOpenContext context = getOpenContext();
+
         this.primaryGui = new PrimaryGui(
                 GuiBridge.getGuiByContainerClass(this.getClass()),
-                getThisItemStack(),
+                getTarget() instanceof IPrimaryGuiIconProvider ip ? ip.getPrimaryGuiIcon()
+                        : AEApi.instance().definitions().parts().terminal().maybeStack(1).orNull(),
                 context.getTile(),
                 context.getSide());
     }
@@ -1304,9 +1309,5 @@ public abstract class AEBaseContainer extends Container {
     public PrimaryGui getPrimaryGui() {
         if (primaryGui == null) createPrimaryGui();
         return primaryGui;
-    }
-
-    public ItemStack getThisItemStack() {
-        return AEApi.instance().definitions().parts().terminal().maybeStack(1).orNull();
     }
 }

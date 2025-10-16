@@ -11,11 +11,15 @@ import appeng.core.sync.GuiBridge;
 import appeng.util.Platform;
 
 @Desugar
-public record PrimaryGui(Object originalGui, ItemStack originalGuiIcon, TileEntity te, ForgeDirection side) {
+public record PrimaryGui(Object gui, ItemStack guiIcon, TileEntity te, ForgeDirection side) {
 
-    public void openOriginalGui(EntityPlayer p) {
-        if (originalGui instanceof GuiBridge gb) {
+    public void open(EntityPlayer p) {
+        if (gui instanceof GuiBridge gb) {
             Platform.openGUI(p, te, side, gb);
         }
+    }
+
+    public ItemStack getIcon() {
+        return guiIcon;
     }
 }

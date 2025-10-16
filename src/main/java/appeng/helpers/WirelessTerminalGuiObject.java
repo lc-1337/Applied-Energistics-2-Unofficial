@@ -51,8 +51,8 @@ import appeng.items.contents.PinsHolder;
 import appeng.items.contents.WirelessTerminalViewCells;
 import appeng.tile.networking.TileWireless;
 
-public class WirelessTerminalGuiObject
-        implements IPortableCell, IActionHost, IInventorySlotAware, IViewCellStorage, ITerminalPins {
+public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, IInventorySlotAware, IViewCellStorage,
+        ITerminalPins, IPrimaryGuiIconProvider {
 
     private final ItemStack effectiveItem;
     private final IWirelessTermHandler wth;
@@ -355,4 +355,9 @@ public class WirelessTerminalGuiObject
     public void writeInventory() {}
 
     public void readInventory() {}
+
+    @Override
+    public ItemStack getPrimaryGuiIcon() {
+        return this.effectiveItem.copy();
+    }
 }

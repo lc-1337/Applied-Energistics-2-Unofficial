@@ -794,9 +794,4 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
             NetworkHandler.instance.sendTo(new PacketVirtualSlot(invName, list), emp);
         }
     }
-
-    @Override
-    public ItemStack getThisItemStack() {
-        return AEApi.instance().definitions().items().wirelessTerminal().maybeStack(1).orNull();
-    }
 }

@@ -314,7 +314,7 @@ public enum GuiBridge implements IGuiHandler {
             final int z) {
         if (it != null) {
             if (it.getItem() instanceof IGuiItem) {
-                return ((IGuiItem) it.getItem()).getGuiObject(it, w, x, y, z);
+                return ((IGuiItem) it.getItem()).getGuiObject(it, w, player, x, y, z);
             }
 
             final IWirelessTermHandler wh = AEApi.instance().registries().wireless().getWirelessTerminalHandler(it);
@@ -490,7 +490,7 @@ public enum GuiBridge implements IGuiHandler {
             if (this.type.isItem()) {
                 final ItemStack it = player.inventory.getCurrentItem();
                 if (it != null && it.getItem() instanceof IGuiItem) {
-                    final Object myItem = ((IGuiItem) it.getItem()).getGuiObject(it, w, x, y, z);
+                    final Object myItem = ((IGuiItem) it.getItem()).getGuiObject(it, w, player, x, y, z);
                     if (this.CorrectTileOrPart(myItem)) {
                         return true;
                     }

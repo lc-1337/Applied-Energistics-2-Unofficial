@@ -32,7 +32,6 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -65,7 +64,6 @@ import appeng.api.networking.energy.IEnergySource;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.PlayerSource;
 import appeng.api.networking.storage.IBaseMonitor;
-import appeng.api.parts.IPart;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.IMEMonitorHandlerReceiver;
 import appeng.api.storage.ITerminalHost;
@@ -128,10 +126,7 @@ public class ContainerMEMonitorable extends AEBaseContainer
 
     protected ContainerMEMonitorable(final InventoryPlayer ip, final ITerminalHost monitorable,
             final boolean bindInventory) {
-        super(
-                ip,
-                monitorable instanceof TileEntity ? (TileEntity) monitorable : null,
-                monitorable instanceof IPart ? (IPart) monitorable : null);
+        super(ip, monitorable);
 
         this.host = monitorable;
         this.clientCM = new ConfigManager(this);

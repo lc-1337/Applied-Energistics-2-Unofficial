@@ -11,9 +11,7 @@
 package appeng.container.implementations;
 
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.ItemStack;
 
-import appeng.api.AEApi;
 import appeng.container.AEBaseContainer;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.tile.storage.TileDrive;
@@ -21,7 +19,7 @@ import appeng.tile.storage.TileDrive;
 public class ContainerDrive extends AEBaseContainer {
 
     public ContainerDrive(final InventoryPlayer ip, final TileDrive drive) {
-        super(ip, drive, null);
+        super(ip, drive);
 
         for (int y = 0; y < 5; y++) {
             for (int x = 0; x < 2; x++) {
@@ -37,10 +35,5 @@ public class ContainerDrive extends AEBaseContainer {
         }
 
         this.bindPlayerInventory(ip, 0, 199 - /* height of player inventory */ 82);
-    }
-
-    @Override
-    public ItemStack getThisItemStack() {
-        return AEApi.instance().definitions().blocks().drive().maybeStack(1).orNull();
     }
 }

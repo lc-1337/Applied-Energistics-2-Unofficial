@@ -75,6 +75,7 @@ import appeng.api.storage.data.IAEStack;
 import appeng.api.util.AEColor;
 import appeng.api.util.IConfigManager;
 import appeng.core.localization.GuiText;
+import appeng.helpers.IPrimaryGuiIconProvider;
 import appeng.helpers.IPriorityHost;
 import appeng.items.storage.ItemBasicStorageCell;
 import appeng.me.GridAccessException;
@@ -91,7 +92,7 @@ import appeng.util.item.AEFluidStack;
 import io.netty.buffer.ByteBuf;
 
 public class TileChest extends AENetworkPowerTile implements IMEChest, IFluidHandler, ITerminalHost, IPriorityHost,
-        IConfigManagerHost, IColorableTile, IGridTickable {
+        IConfigManagerHost, IColorableTile, IGridTickable, IPrimaryGuiIconProvider {
 
     private static final ChestNoHandler NO_HANDLER = new ChestNoHandler();
     private static final int[] SIDES = { 0 };
@@ -885,5 +886,10 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, IFluidHan
     @Override
     public GuiText getName() {
         return GuiText.Chest;
+    }
+
+    @Override
+    public ItemStack getPrimaryGuiIcon() {
+        return AEApi.instance().definitions().blocks().chest().maybeStack(1).orNull();
     }
 }

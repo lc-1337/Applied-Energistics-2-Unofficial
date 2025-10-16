@@ -3,6 +3,7 @@ package appeng.parts.reporting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import appeng.api.AEApi;
 import appeng.api.storage.data.IAEStack;
 import appeng.core.sync.GuiBridge;
 import appeng.helpers.Reflected;
@@ -115,5 +116,10 @@ public class PartPatternTerminalEx extends PartPatternTerminal {
     @Override
     protected int getPatternOutputPages() {
         return exPatternOutputPages;
+    }
+
+    @Override
+    public ItemStack getPrimaryGuiIcon() {
+        return AEApi.instance().definitions().parts().patternTerminalEx().maybeStack(1).orNull();
     }
 }

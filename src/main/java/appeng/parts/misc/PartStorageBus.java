@@ -65,6 +65,7 @@ import appeng.core.settings.TickRates;
 import appeng.core.stats.Achievements;
 import appeng.core.sync.GuiBridge;
 import appeng.helpers.IInterfaceHost;
+import appeng.helpers.IPrimaryGuiIconProvider;
 import appeng.helpers.IStorageBus;
 import appeng.helpers.Reflected;
 import appeng.integration.IntegrationType;
@@ -87,7 +88,7 @@ import buildcraft.api.transport.IPipeTile.PipeType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class PartStorageBus extends PartUpgradeable implements IStorageBus {
+public class PartStorageBus extends PartUpgradeable implements IStorageBus, IPrimaryGuiIconProvider {
 
     private final BaseActionSource mySrc;
     private final AppEngInternalAEInventory Config = new AppEngInternalAEInventory(this, 63);
@@ -745,5 +746,10 @@ public class PartStorageBus extends PartUpgradeable implements IStorageBus {
         oreFilterString = filter;
         previousOreFilterString = filter;
         resetCache(true);
+    }
+
+    @Override
+    public ItemStack getPrimaryGuiIcon() {
+        return AEApi.instance().definitions().parts().storageBus().maybeStack(1).orNull();
     }
 }

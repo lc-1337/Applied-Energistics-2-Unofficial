@@ -44,7 +44,7 @@ public class PacketPatternValueSet extends AppEngPacket {
     @Override
     public void serverPacketData(INetworkInfo manager, AppEngPacket packet, EntityPlayer player) {
         if (player.openContainer instanceof AEBaseContainer bc) {
-            bc.getPrimaryGui().openOriginalGui(player);
+            bc.getPrimaryGui().open(player);
             if (player.openContainer instanceof ContainerPatternTerm cpt) {
                 cpt.updateVirtualSlot(invName, slotIndex, aes);
             }

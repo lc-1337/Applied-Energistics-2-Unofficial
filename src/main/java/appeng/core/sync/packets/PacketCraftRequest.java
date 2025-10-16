@@ -120,7 +120,6 @@ public class PacketCraftRequest extends AppEngPacket {
                             ccc.setAutoStart(this.heldShift && !this.heldCtrl);
                             ccc.setAutoStartAndFollow(!this.heldShift && this.heldCtrl);
                             ccc.setJob(futureJob);
-                            ccc.setPrimaryGuiIcon(pgIcon);
                             ccc.setPrimaryGui(pg);
                             cca.detectAndSendChanges();
                         }
