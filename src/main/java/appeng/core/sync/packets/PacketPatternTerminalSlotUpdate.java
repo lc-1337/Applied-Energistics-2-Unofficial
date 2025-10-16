@@ -6,7 +6,6 @@ import static appeng.util.Platform.writeStackByte;
 import java.io.IOException;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 
 import appeng.api.storage.data.IAEStack;
@@ -14,9 +13,9 @@ import appeng.client.StorageName;
 import appeng.container.AEBaseContainer;
 import appeng.container.IContainerSubGui;
 import appeng.container.PrimaryGui;
+import appeng.container.implementations.ContainerPatternTerm;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.network.INetworkInfo;
-import appeng.helpers.IVirtualMESlotHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -79,23 +78,14 @@ public class PacketPatternTerminalSlotUpdate extends AppEngPacket {
     }
 
     @Override
-    public void clientPacketData(final INetworkInfo network, final AppEngPacket packet, final EntityPlayer player) {
-        final GuiScreen gs = Minecraft.getMinecraft().currentScreen;
-
-        if (gs instanceof IVirtualMESlotHandler vsh) {
-            vsh.setVirtualSlot(this.invName, this.slotId, this.slotItem);
-        }
-    }
-
-    @Override
     public void serverPacketData(INetworkInfo manager, AppEngPacket packet, EntityPlayer player) {
         final Container container = player.openContainer;
 
         if (container instanceof AEBaseContainer bc) {
             final PrimaryGui pg = bc.getPrimaryGui();
 
-            if (container instanceof IVirtualMESlotHandler vsh) {
-                vsh.updateVirtualSlot(invName, slotId, slotItem);
+            if (container instanceof ContainerPatternTerm cpt) {
+                cpt.updateVirtualSlot(invName, slotId, slotItem);
             }
 
             if (player.openContainer instanceof IContainerSubGui sg) {

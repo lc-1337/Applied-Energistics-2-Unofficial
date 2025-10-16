@@ -7,10 +7,9 @@ import net.minecraft.entity.player.InventoryPlayer;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
-import appeng.container.ContainerSubGui;
-
 import appeng.client.gui.implementations.GuiPatternItemRenamer;
 import appeng.client.gui.implementations.GuiPatternValueAmount;
+import appeng.container.ContainerSubGui;
 import appeng.helpers.IVirtualSlotHolder;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 
