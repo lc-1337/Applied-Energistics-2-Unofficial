@@ -4,7 +4,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.InventoryPlayer;
 
 import appeng.api.storage.ITerminalHost;
-import appeng.client.gui.widgets.VirtualMESlotSingle;
+import appeng.client.gui.slots.VirtualMESlotSingle;
 import appeng.container.implementations.ContainerPatternValueAmount;
 import appeng.core.localization.GuiColors;
 import appeng.core.localization.GuiText;

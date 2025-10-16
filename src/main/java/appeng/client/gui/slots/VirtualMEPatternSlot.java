@@ -1,17 +1,16 @@
-package appeng.container.slot;
+package appeng.client.gui.slots;
 
 import javax.annotation.Nullable;
 
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
-import appeng.client.gui.widgets.VirtualMESlot;
 import appeng.tile.inventory.IAEStackInventory;
 
-public class VirtualMESlotPattern extends VirtualMESlot {
+public class VirtualMEPatternSlot extends VirtualMESlot {
 
     private final IAEStackInventory inventory;
 
-    public VirtualMESlotPattern(int x, int y, IAEStackInventory inventory, int slotIndex) {
+    public VirtualMEPatternSlot(int x, int y, IAEStackInventory inventory, int slotIndex) {
         super(x, y, slotIndex);
         this.inventory = inventory;
     }

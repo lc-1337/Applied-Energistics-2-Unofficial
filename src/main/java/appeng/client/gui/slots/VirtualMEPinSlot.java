@@ -1,4 +1,4 @@
-package appeng.client.gui.widgets;
+package appeng.client.gui.slots;
 
 import javax.annotation.Nullable;
 
@@ -12,7 +12,7 @@ import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IDisplayRepo;
 import appeng.core.AppEng;
 
-public class VirtualPinSlot extends VirtualMonitorableSlot {
+public class VirtualMEPinSlot extends VirtualMEMonitorableSlot {
 
     private static final int PIN_ICON_INDEX = 5 * 16 + 14;
     private static final int UV_Y = (int) Math.floor((double) PIN_ICON_INDEX / 16);
@@ -21,7 +21,7 @@ public class VirtualPinSlot extends VirtualMonitorableSlot {
     private static final float PIN_ICON_OPACITY = 0.4f;
     private static final ResourceLocation TEXTURE = new ResourceLocation(AppEng.MOD_ID, "textures/guis/states.png");
 
-    public VirtualPinSlot(int x, int y, IDisplayRepo repo, int slotIndex) {
+    public VirtualMEPinSlot(int x, int y, IDisplayRepo repo, int slotIndex) {
         super(x, y, repo, slotIndex);
     }
 
@@ -30,7 +30,7 @@ public class VirtualPinSlot extends VirtualMonitorableSlot {
         return this.repo.getAEPin(this.slotIndex);
     }
 
-    public static void drawSlotsBackground(VirtualPinSlot[] slots, Minecraft mc, float z) {
+    public static void drawSlotsBackground(VirtualMEPinSlot[] slots, Minecraft mc, float z) {
         mc.getTextureManager().bindTexture(TEXTURE);
         final Tessellator tessellator = Tessellator.instance;
 
@@ -42,7 +42,7 @@ public class VirtualPinSlot extends VirtualMonitorableSlot {
 
         tessellator.startDrawingQuads();
         tessellator.setColorRGBA_F(1.0f, 1.0f, 1.0f, PIN_ICON_OPACITY);
-        for (VirtualPinSlot slot : slots) {
+        for (VirtualMEPinSlot slot : slots) {
             final float x = slot.getX();
             final float y = slot.getY();
             final float uvX = UV_X * 16;

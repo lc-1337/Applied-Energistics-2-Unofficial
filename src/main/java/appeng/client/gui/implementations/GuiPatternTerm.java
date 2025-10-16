@@ -33,7 +33,7 @@ import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.implementations.ContainerPatternTerm;
 import appeng.container.slot.AppEngSlot;
-import appeng.container.slot.VirtualMESlotPattern;
+import appeng.client.gui.slots.VirtualMEPatternSlot;
 import appeng.core.AELog;
 import appeng.core.localization.GuiColors;
 import appeng.core.localization.GuiText;
@@ -68,8 +68,8 @@ public class GuiPatternTerm extends GuiMEMonitorable {
     protected GuiImgButton clearBtn;
     protected GuiImgButton doubleBtn;
 
-    protected VirtualMESlotPattern[] craftingSlots;
-    protected VirtualMESlotPattern[] outputSlots;
+    protected VirtualMEPatternSlot[] craftingSlots;
+    protected VirtualMEPatternSlot[] outputSlots;
     private boolean cragtingMode;
 
     public GuiPatternTerm(final InventoryPlayer inventoryPlayer, final ITerminalHost te,
@@ -99,7 +99,7 @@ public class GuiPatternTerm extends GuiMEMonitorable {
     @Override
     protected boolean handleSlotClick(int mouseX, int mouseY, int mouseButton) {
         final var clickedSlot = this.getVirtualMESlotUnderMouse();
-        if (clickedSlot instanceof VirtualMESlotPattern slot) {
+        if (clickedSlot instanceof VirtualMEPatternSlot slot) {
             final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
             IAEStack<?> aes = slot.getAEStack();
             final ItemStack playerHand = player.inventory.getItemStack();
@@ -301,12 +301,12 @@ public class GuiPatternTerm extends GuiMEMonitorable {
         final int inputSlotRow = container.getPatternInputsHeigh();
         final int inputSlotPerRow = container.getPatternInputsWidth();
         final int inputPage = container.getPatternInputPages();
-        this.craftingSlots = new VirtualMESlotPattern[inputSlotPerRow * inputSlotRow * inputPage];
+        this.craftingSlots = new VirtualMEPatternSlot[inputSlotPerRow * inputSlotRow * inputPage];
         final IAEStackInventory inputInv = container.getPatternTerminal()
                 .getAEInventoryByName(StorageName.CRAFTING_INPUT);
         for (int y = 0; y < inputSlotRow * inputPage; y++) {
             for (int x = 0; x < inputSlotPerRow; x++) {
-                this.craftingSlots[x + y * inputSlotPerRow] = new VirtualMESlotPattern(
+                this.craftingSlots[x + y * inputSlotPerRow] = new VirtualMEPatternSlot(
                         getInputSlotOffsetX() + 18 * x,
                         this.rows * 18 + getInputSlotOffsetY() + 18 * (y % (inputSlotRow)),
                         inputInv,
@@ -317,12 +317,12 @@ public class GuiPatternTerm extends GuiMEMonitorable {
         final int outputSlotRow = container.getPatternOutputsHeigh();
         final int outputSlotPerRow = container.getPatternOutputsWidth();
         final int outputPage = container.getPatternOutputPages();
-        this.outputSlots = new VirtualMESlotPattern[outputSlotPerRow * outputSlotRow * outputPage];
+        this.outputSlots = new VirtualMEPatternSlot[outputSlotPerRow * outputSlotRow * outputPage];
         final IAEStackInventory outputInv = container.getPatternTerminal()
                 .getAEInventoryByName(StorageName.CRAFTING_OUTPUT);
         for (int y = 0; y < outputSlotRow * outputPage; y++) {
             for (int x = 0; x < outputSlotPerRow; x++) {
-                this.outputSlots[x + y * outputSlotPerRow] = new VirtualMESlotPattern(
+                this.outputSlots[x + y * outputSlotPerRow] = new VirtualMEPatternSlot(
                         getOutputSlotOffsetX(),
                         this.rows * 18 + getOutputSlotOffsetY() + 18 * (y % outputSlotRow),
                         outputInv,
@@ -334,11 +334,11 @@ public class GuiPatternTerm extends GuiMEMonitorable {
 
     protected void updateSlotVisibility() {
         if (this.cragtingMode) {
-            for (VirtualMESlotPattern outputSlot : outputSlots) {
+            for (VirtualMEPatternSlot outputSlot : outputSlots) {
                 outputSlot.setHidden(true);
             }
         } else {
-            for (VirtualMESlotPattern outputSlot : outputSlots) {
+            for (VirtualMEPatternSlot outputSlot : outputSlots) {
                 outputSlot.setHidden(false);
             }
         }

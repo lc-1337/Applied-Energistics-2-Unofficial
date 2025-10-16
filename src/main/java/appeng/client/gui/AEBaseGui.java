@@ -53,7 +53,7 @@ import appeng.client.ActionKey;
 import appeng.client.ClientHelper;
 import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.client.gui.widgets.ITooltip;
-import appeng.client.gui.widgets.VirtualMESlot;
+import appeng.client.gui.slots.VirtualMESlot;
 import appeng.client.me.InternalSlotME;
 import appeng.client.me.SlotDisconnected;
 import appeng.client.me.SlotME;

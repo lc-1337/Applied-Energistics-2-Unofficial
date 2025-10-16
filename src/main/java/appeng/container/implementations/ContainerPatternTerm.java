@@ -190,6 +190,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
                 this.craftingMatrix.setInventorySlotContents(i, null);
             }
         }
+        this.updateVirtualSlots(StorageName.CRAFTING_INPUT, this.inputs, craftingSlotsClient);
     }
 
     @Override

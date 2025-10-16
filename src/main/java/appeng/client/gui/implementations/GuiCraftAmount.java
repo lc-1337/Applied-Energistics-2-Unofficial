@@ -21,7 +21,7 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
 import appeng.client.gui.widgets.GuiImgButton;
-import appeng.client.gui.widgets.VirtualMESlotSingle;
+import appeng.client.gui.slots.VirtualMESlotSingle;
 import appeng.container.implementations.ContainerCraftAmount;
 import appeng.core.localization.GuiColors;
 import appeng.core.localization.GuiText;

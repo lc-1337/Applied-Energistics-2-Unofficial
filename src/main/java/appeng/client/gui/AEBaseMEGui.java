@@ -17,7 +17,7 @@ import net.minecraft.item.ItemStack;
 
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.gui.widgets.VirtualMESlot;
+import appeng.client.gui.slots.VirtualMESlot;
 
 public abstract class AEBaseMEGui extends AEBaseGui implements IGuiTooltipHandler {
 
