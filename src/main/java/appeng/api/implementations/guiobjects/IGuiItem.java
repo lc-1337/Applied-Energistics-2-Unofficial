@@ -22,5 +22,10 @@ import net.minecraft.world.World;
  */
 public interface IGuiItem {
 
+    @Deprecated
+    default IGuiItemObject getGuiObject(ItemStack is, World world, int x, int y, int z) {
+        return getGuiObject(is, world, null, x, y, z);
+    }
+
     IGuiItemObject getGuiObject(ItemStack is, World world, EntityPlayer player, int x, int y, int z);
 }
