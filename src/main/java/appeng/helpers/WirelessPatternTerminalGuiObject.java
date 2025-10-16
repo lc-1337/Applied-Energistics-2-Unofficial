@@ -45,8 +45,8 @@ public class WirelessPatternTerminalGuiObject extends WirelessTerminalGuiObject
 
     @Override
     public void readInventory() {
-        crafting = new IAEStackInventory(this, craftingInvSize);
-        output = new IAEStackInventory(this, outputInvSize);
+        crafting = new IAEStackInventory(this, craftingInvSize, StorageName.CRAFTING_INPUT);
+        output = new IAEStackInventory(this, outputInvSize, StorageName.CRAFTING_OUTPUT);
 
         final NBTTagCompound tag = getItemStack().getTagCompound().getCompoundTag(this.nbtPrefix);
         this.craftingMode = tag.getBoolean("crafting");
