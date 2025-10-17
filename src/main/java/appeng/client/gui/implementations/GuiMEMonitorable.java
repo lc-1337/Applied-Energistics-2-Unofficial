@@ -277,15 +277,19 @@ public class GuiMEMonitorable extends AEBaseMEGui
         // make sure we have space at least for one row of normal slots, because pins not adjusted by scroll bar
         adjustPinsSize();
 
+        super.initGui();
+
         int pinsRows = pinsState.ordinal();
         this.pinSlots = new VirtualMEPinSlot[pinsRows * this.perRow];
         for (int y = 0; y < pinsRows; y++) {
             for (int x = 0; x < this.perRow; x++) {
-                this.pinSlots[y * this.perRow + x] = new VirtualMEPinSlot(
+                VirtualMEPinSlot slot = new VirtualMEPinSlot(
                         this.offsetX + x * 18,
                         y * 18 + this.offsetY,
                         this.repo,
                         y * this.perRow + x);
+                this.pinSlots[y * this.perRow + x] = slot;
+                this.registerVirtualSlots(slot);
             }
         }
 
@@ -293,11 +297,13 @@ public class GuiMEMonitorable extends AEBaseMEGui
         this.monitorableSlots = new VirtualMEMonitorableSlot[normalSlotRows * this.perRow];
         for (int y = 0; y < normalSlotRows; y++) {
             for (int x = 0; x < this.perRow; x++) {
-                this.monitorableSlots[y * this.perRow + x] = new VirtualMEMonitorableSlot(
+                VirtualMEMonitorableSlot slot = new VirtualMEMonitorableSlot(
                         this.offsetX + x * 18,
                         this.offsetY + y * 18 + pinsRows * 18,
                         this.repo,
                         y * this.perRow + x);
+                this.monitorableSlots[y * this.perRow + x] = slot;
+                this.registerVirtualSlots(slot);
             }
         }
 
@@ -307,7 +313,6 @@ public class GuiMEMonitorable extends AEBaseMEGui
             this.xSize = this.standardSize;
         }
 
-        super.initGui();
         // full size : 204
         // extra slots : 72
         // slot 18
@@ -483,8 +488,6 @@ public class GuiMEMonitorable extends AEBaseMEGui
                 GuiColors.MEMonitorableInventory.getColor());
 
         VirtualMEPinSlot.drawSlotsBackground(this.pinSlots, this.mc, this.zLevel);
-        this.drawVirtualSlots(this.pinSlots, mouseX, mouseY);
-        this.drawVirtualSlots(this.monitorableSlots, mouseX, mouseY);
 
         this.currentMouseX = mouseX;
         this.currentMouseY = mouseY;

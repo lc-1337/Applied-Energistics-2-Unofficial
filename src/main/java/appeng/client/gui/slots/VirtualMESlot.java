@@ -53,13 +53,13 @@ public abstract class VirtualMESlot {
     public abstract IAEStack<?> getAEStack();
 
     public boolean isHovered(int mouseX, int mouseY) {
-        return mouseX >= this.xPos && mouseX < this.xPos + 18 && mouseY >= this.yPos && mouseY < this.yPos + 18;
+        return !this.isHidden && mouseX >= this.xPos
+                && mouseX < this.xPos + 18
+                && mouseY >= this.yPos
+                && mouseY < this.yPos + 18;
     }
 
     /**
-     * Use {@link appeng.client.gui.AEBaseGui#drawVirtualSlots(VirtualMESlot[], int, int)} for drawing slots.<br>
-     * Use {@link appeng.client.gui.AEBaseGui#drawSingleVirtualSlot(VirtualMESlot, int, int)} for drawing single slot.
-     * 
      * @return ture if hovered
      */
     public boolean drawStackAndOverlay(Minecraft mc, int mouseX, int mouseY) {

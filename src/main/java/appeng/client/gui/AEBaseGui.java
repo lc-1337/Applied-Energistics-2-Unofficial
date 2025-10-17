@@ -148,6 +148,9 @@ public abstract class AEBaseGui extends GuiContainer {
     private Slot bl_clicked;
     private boolean subGui;
     private static int controlKey;
+
+    private final List<VirtualMESlot> virtualSlots = new ArrayList<>();
+    private final List<VirtualMESlot> draggedSlots = new ArrayList<>();
     private VirtualMESlot hoveredVirtualSlot = null;
 
     public AEBaseGui(final Container container) {
@@ -181,12 +184,17 @@ public abstract class AEBaseGui extends GuiContainer {
     public void initGui() {
         super.initGui();
 
+        this.virtualSlots.clear();
         final List<Slot> slots = this.getInventorySlots();
         slots.removeIf(SlotME.class::isInstance);
 
         for (final InternalSlotME me : this.meSlots) {
             slots.add(new SlotME(me));
         }
+    }
+
+    protected void registerVirtualSlots(VirtualMESlot slot) {
+        virtualSlots.add(slot);
     }
 
     @SuppressWarnings("unchecked")
@@ -320,9 +328,11 @@ public abstract class AEBaseGui extends GuiContainer {
         }
 
         this.currentToolTip.shift(ox, oy);
-        this.hoveredVirtualSlot = null;
         this.drawFG(ox, oy, x, y);
         this.currentToolTip.shift(0, 0);
+
+        this.hoveredVirtualSlot = null;
+        this.drawVirtualSlots(this.virtualSlots, x, y);
     }
 
     public abstract void drawFG(int offsetX, int offsetY, int mouseX, int mouseY);
@@ -368,6 +378,7 @@ public abstract class AEBaseGui extends GuiContainer {
     @Override
     protected void mouseClicked(final int xCoord, final int yCoord, final int btn) {
         this.drag_click.clear();
+        this.draggedSlots.clear();
 
         if (btn == 1) {
             for (final Object o : this.buttonList) {
@@ -386,8 +397,24 @@ public abstract class AEBaseGui extends GuiContainer {
         super.mouseClicked(xCoord, yCoord, btn);
     }
 
+    protected void handleDragVirtualSlot(VirtualMESlot slot, int mouseButton) {}
+
     @Override
     protected void mouseClickMove(final int x, final int y, final int c, final long d) {
+        if (c == 0 || c == 1) {
+            for (VirtualMESlot slot : virtualSlots) {
+                if (slot.isHovered(x - this.guiLeft + 1, y - this.guiTop + 1)) {
+                    this.hoveredVirtualSlot = slot;
+                    break;
+                }
+            }
+            if (this.mc.thePlayer.inventory.getItemStack() != null && this.hoveredVirtualSlot != null
+                    && !this.draggedSlots.contains(this.hoveredVirtualSlot)) {
+                this.draggedSlots.add(this.hoveredVirtualSlot);
+                this.handleDragVirtualSlot(this.hoveredVirtualSlot, c);
+            }
+        }
+
         final Slot slot = this.getSlot(x, y);
         final ItemStack itemstack = this.mc.thePlayer.inventory.getItemStack();
 
@@ -1106,13 +1133,15 @@ public abstract class AEBaseGui extends GuiContainer {
         return Keyboard.isKeyDown(controlKey);
     }
 
-    public void drawVirtualSlots(@Nonnull VirtualMESlot[] slots, int mouseX, int mouseY) {
+    private void drawVirtualSlots(@Nonnull List<VirtualMESlot> slots, int mouseX, int mouseY) {
+        final int x = mouseX - this.guiLeft + 1;
+        final int y = mouseY - this.guiTop + 1;
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
         RenderHelper.enableGUIStandardItemLighting();
         GL11.glEnable(GL11.GL_DEPTH_TEST);
 
         for (VirtualMESlot slot : slots) {
-            boolean isHovered = slot.drawStackAndOverlay(this.mc, mouseX - this.guiLeft + 1, mouseY - this.guiTop + 1);
+            boolean isHovered = slot.drawStackAndOverlay(this.mc, x, y);
             if (isHovered) {
                 this.hoveredVirtualSlot = slot;
             }
@@ -1120,21 +1149,6 @@ public abstract class AEBaseGui extends GuiContainer {
         GL11.glPopAttrib();
     }
 
-    public void drawSingleVirtualSlot(@Nonnull VirtualMESlot slot, int mouseX, int mouseY) {
-        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
-        RenderHelper.enableGUIStandardItemLighting();
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-
-        boolean isHovered = slot.drawStackAndOverlay(this.mc, mouseX - this.guiLeft + 1, mouseY - this.guiTop + 1);
-        if (isHovered) {
-            this.hoveredVirtualSlot = slot;
-        }
-        GL11.glPopAttrib();
-    }
-
-    /**
-     * Call after drawing slots with {@link AEBaseGui#drawVirtualSlots(VirtualMESlot[], int, int)}
-     */
     public @Nullable VirtualMESlot getVirtualMESlotUnderMouse() {
         return this.hoveredVirtualSlot;
     }

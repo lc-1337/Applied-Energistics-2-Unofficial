@@ -30,6 +30,7 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
 import appeng.client.gui.slots.VirtualMEPatternSlot;
+import appeng.client.gui.slots.VirtualMESlot;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.implementations.ContainerPatternTerm;
@@ -93,58 +94,67 @@ public class GuiPatternTerm extends GuiMEMonitorable {
     }
 
     @Override
+    protected void handleDragVirtualSlot(VirtualMESlot slot, int mouseButton) {
+        if (slot instanceof VirtualMEPatternSlot patternSlot) {
+            this.handleVirtualSlotInteraction(patternSlot, mouseButton);
+        }
+    }
+
+    @Override
     protected boolean handleSlotClick(int mouseX, int mouseY, int mouseButton) {
         final var clickedSlot = this.getVirtualMESlotUnderMouse();
         if (clickedSlot instanceof VirtualMEPatternSlot slot) {
-            final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-            IAEStack<?> aes = slot.getAEStack();
-            final ItemStack playerHand = player.inventory.getItemStack();
-
-            final boolean isLShiftDown = isShiftKeyDown();
-            final boolean isLControlDown = isCtrlKeyDown();
-
-            switch (mouseButton) {
-                case 0 -> { // left click
-                    if (playerHand != null) {
-                        if (isLControlDown) {
-                            aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(playerHand));
-                        } else {
-                            aes = AEItemStack.create(playerHand);
-                        }
-                    } else {
-                        aes = null;
-                    }
-                }
-                case 1 -> { // right click
-                    if (playerHand != null) {
-                        playerHand.stackSize = 1;
-                        if (isLControlDown) {
-                            aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(playerHand));
-                        } else {
-                            aes = AEItemStack.create(playerHand);
-                        }
-                    } else if (aes != null) {
-                        aes.decStackSize(1);
-                    }
-                }
-                case 2 -> { // middle click
-                    if (aes != null) {
-                        if (isLControlDown) {
-                            NetworkHandler.instance
-                                    .sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_ITEM_RENAMER));
-                        } else {
-                            NetworkHandler.instance
-                                    .sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_VALUE_AMOUNT));
-                        }
-                    }
-                }
-            }
-
-            NetworkHandler.instance
-                    .sendToServer(new PacketVirtualSlot(slot.getStorageName(), slot.getSlotIndex(), aes));
+            this.handleVirtualSlotInteraction(slot, mouseButton);
         }
 
         return super.handleSlotClick(mouseX, mouseY, mouseButton);
+    }
+
+    private void handleVirtualSlotInteraction(VirtualMEPatternSlot slot, int mouseButton) {
+        final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        IAEStack<?> aes = slot.getAEStack();
+        final ItemStack playerHand = player.inventory.getItemStack();
+
+        final boolean isLShiftDown = isShiftKeyDown();
+        final boolean isLControlDown = isCtrlKeyDown();
+
+        switch (mouseButton) {
+            case 0 -> { // left click
+                if (playerHand != null) {
+                    if (isLControlDown) {
+                        aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(playerHand));
+                    } else {
+                        aes = AEItemStack.create(playerHand);
+                    }
+                } else {
+                    aes = null;
+                }
+            }
+            case 1 -> { // right click
+                if (playerHand != null) {
+                    playerHand.stackSize = 1;
+                    if (isLControlDown) {
+                        aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(playerHand));
+                    } else {
+                        aes = AEItemStack.create(playerHand);
+                    }
+                } else if (aes != null) {
+                    aes.decStackSize(1);
+                }
+            }
+            case 2 -> { // middle click
+                if (aes != null) {
+                    if (isLControlDown) {
+                        NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_ITEM_RENAMER));
+                    } else {
+                        NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_VALUE_AMOUNT));
+                    }
+                }
+            }
+        }
+
+        NetworkHandler.instance.sendToServer(new PacketVirtualSlot(slot.getStorageName(), slot.getSlotIndex(), aes));
+
     }
 
     @Override
@@ -292,11 +302,13 @@ public class GuiPatternTerm extends GuiMEMonitorable {
                 .getAEInventoryByName(StorageName.CRAFTING_INPUT);
         for (int y = 0; y < inputSlotRow * inputPage; y++) {
             for (int x = 0; x < inputSlotPerRow; x++) {
-                this.craftingSlots[x + y * inputSlotPerRow] = new VirtualMEPatternSlot(
+                VirtualMEPatternSlot slot = new VirtualMEPatternSlot(
                         getInputSlotOffsetX() + 18 * x,
                         this.rows * 18 + getInputSlotOffsetY() + 18 * (y % (inputSlotRow)),
                         inputInv,
                         x + y * inputSlotPerRow);
+                this.craftingSlots[x + y * inputSlotPerRow] = slot;
+                this.registerVirtualSlots(slot);
             }
         }
 
@@ -308,11 +320,13 @@ public class GuiPatternTerm extends GuiMEMonitorable {
                 .getAEInventoryByName(StorageName.CRAFTING_OUTPUT);
         for (int y = 0; y < outputSlotRow * outputPage; y++) {
             for (int x = 0; x < outputSlotPerRow; x++) {
-                this.outputSlots[x + y * outputSlotPerRow] = new VirtualMEPatternSlot(
+                VirtualMEPatternSlot slot = new VirtualMEPatternSlot(
                         getOutputSlotOffsetX(),
                         this.rows * 18 + getOutputSlotOffsetY() + 18 * (y % outputSlotRow),
                         outputInv,
                         x + y * outputSlotPerRow);
+                this.outputSlots[x + y * outputSlotPerRow] = slot;
+                this.registerVirtualSlots(slot);
             }
         }
         updateSlotVisibility();
@@ -340,9 +354,6 @@ public class GuiPatternTerm extends GuiMEMonitorable {
         }
 
         super.drawFG(offsetX, offsetY, mouseX, mouseY);
-
-        drawVirtualSlots(this.craftingSlots, mouseX, mouseY);
-        drawVirtualSlots(this.outputSlots, mouseX, mouseY);
 
         drawTitle();
     }

@@ -26,10 +26,15 @@ public class GuiPatternValueAmount extends GuiAmount {
     }
 
     @Override
+    public void initGui() {
+        super.initGui();
+        this.registerVirtualSlots(this.slot);
+    }
+
+    @Override
     public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
         this.fontRendererObj
                 .drawString(GuiText.SelectAmount.getLocal(), 8, 6, GuiColors.CraftAmountSelectAmount.getColor());
-        this.drawSingleVirtualSlot(this.slot, mouseX, mouseY);
     }
 
     @Override
