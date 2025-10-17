@@ -353,7 +353,7 @@ public class Platform {
         }
 
         if ((type.getType().isItem() && tile == null) || type.hasPermissions(tile, x, y, z, side, p)) {
-            if (tile == null && type.getType() == GuiHostType.ITEM) {
+            if (tile == null && type.getType() != GuiHostType.WORLD) {
                 p.openGui(
                         AppEng.instance(),
                         type.ordinal() << 5 | (1 << 4),

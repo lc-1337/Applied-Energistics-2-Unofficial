@@ -39,9 +39,14 @@ public class WirelessCraftingTerminalGuiObject extends WirelessTerminalGuiObject
     @Override
     public void onChangeInventory(IInventory inv, int slot, InvOperation mc, ItemStack removedStack,
             ItemStack newStack) {
-        writeInventory();
+        if (mc != InvOperation.markDirty) writeInventory();
     }
 
     @Override
     public void updateSetting(IConfigManager manager, Enum settingName, Enum newValue) {}
+
+    @Override
+    public IInventory getInventoryByName(String name) {
+        return this.craftingGrid;
+    }
 }

@@ -62,6 +62,7 @@ import appeng.container.guisync.SyncData;
 import appeng.container.implementations.ContainerCellWorkbench;
 import appeng.container.implementations.ContainerUpgradeable;
 import appeng.container.implementations.ContainerWirelessTerm;
+import appeng.container.interfaces.IInventorySlotAware;
 import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.SlotCraftingMatrix;
 import appeng.container.slot.SlotCraftingTerm;
@@ -185,6 +186,11 @@ public abstract class AEBaseContainer extends Container {
 
         if (this.tileEntity == null && this.part == null && this.obj == null) {
             throw new IllegalArgumentException("Must have a valid anchor, instead " + anchor + " in " + ip);
+        }
+
+        if (obj instanceof IInventorySlotAware isa) {
+            final int slotIndex = isa.getInventorySlot();
+            this.lockPlayerInventorySlot(slotIndex);
         }
 
         this.mySrc = new PlayerSource(ip.player, this.getActionHost());
