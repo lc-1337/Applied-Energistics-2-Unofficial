@@ -539,8 +539,10 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         for (int i = 0; i < this.outputs.getSizeInventory(); ++i) {
             this.outputs.putAEStackInSlot(i, null);
         }
-        for (int i = 0; i < this.craftingMatrix.getSizeInventory(); ++i) {
-            this.craftingMatrix.setInventorySlotContents(i, null);
+        if (this.craftingMatrix != null) {
+            for (int i = 0; i < this.craftingMatrix.getSizeInventory(); ++i) {
+                this.craftingMatrix.setInventorySlotContents(i, null);
+            }
         }
 
         this.getAndUpdateOutput();
