@@ -1,5 +1,8 @@
 package appeng.helpers;
 
+import java.util.List;
+
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -12,8 +15,10 @@ import appeng.api.networking.IGridNode;
 import appeng.api.networking.events.MENetworkBootingStatusChange;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.util.AECableType;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
-public class WirelessInterfaceTerminalGuiObject implements IInterfaceTerminal, IGuiItemObject {
+public class WirelessInterfaceTerminalGuiObject implements IInterfaceTerminal, IGuiItemObject, ICustomButtonProvider {
 
     private boolean needsUpdate;
     private final IGridNode node;
@@ -35,6 +40,11 @@ public class WirelessInterfaceTerminalGuiObject implements IInterfaceTerminal, I
             this.node = gh.getGridNode(ForgeDirection.UNKNOWN);
         } else {
             this.node = null;
+        }
+
+        if (getItemStack().getItem() instanceof ICustomButtonSource icbs) {
+            customButtonDataObject = icbs.getCustomDataObject(this);
+            customButtonDataObject.readData(getItemStack().getTagCompound());
         }
     }
 
@@ -74,5 +84,40 @@ public class WirelessInterfaceTerminalGuiObject implements IInterfaceTerminal, I
     @Override
     public ItemStack getItemStack() {
         return this.is;
+    }
+
+    private ICustomButtonDataObject customButtonDataObject;
+
+    @Override
+    public void writeCustomButtonData() {
+        this.customButtonDataObject.writeData(this.getItemStack().getTagCompound());
+    }
+
+    @Override
+    public void readCustomButtonData() {
+        this.customButtonDataObject.readData(this.getItemStack().getTagCompound());
+    }
+
+    @Override
+    public void initCustomButtons(int guiLeft, int guiTop, int xSize, int ySize, int xOffset, int yOffset,
+            List<GuiButton> buttonList) {
+        if (customButtonDataObject != null)
+            customButtonDataObject.initCustomButtons(guiLeft, guiTop, xSize, ySize, xOffset, yOffset, buttonList);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean actionPerformedCustomButtons(final GuiButton btn) {
+        return customButtonDataObject != null && customButtonDataObject.actionPerformedCustomButtons(btn);
+    }
+
+    @Override
+    public ICustomButtonDataObject getDataObject() {
+        return customButtonDataObject;
+    }
+
+    @Override
+    public void setDataObject(ICustomButtonDataObject dataObject) {
+        customButtonDataObject = dataObject;
     }
 }

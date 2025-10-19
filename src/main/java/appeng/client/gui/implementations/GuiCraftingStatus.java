@@ -59,6 +59,7 @@ public class GuiCraftingStatus extends GuiCraftingCPU implements ICraftingCPUTab
         super(new ContainerCraftingStatus(inventoryPlayer, te));
 
         this.status = (ContainerCraftingStatus) this.inventorySlots;
+        this.status.setGuiLink(this);
         this.tallMode = AEConfig.instance.getConfigManager().getSetting(Settings.TERMINAL_STYLE) == TerminalStyle.TALL;
         recalculateScreenSize();
 
@@ -105,6 +106,8 @@ public class GuiCraftingStatus extends GuiCraftingCPU implements ICraftingCPUTab
         recalculateScreenSize();
         super.initGui();
         this.setScrollBar();
+
+        if (status.getPrimaryGuiIcon() != null) initPrimaryGuiButton();
 
         this.selectCPU = new GuiButton(
                 0,

@@ -2,7 +2,7 @@ package appeng.container;
 
 import net.minecraft.item.ItemStack;
 
-import appeng.client.gui.implementations.GuiSub;
+import appeng.client.gui.IGuiSub;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -14,5 +14,5 @@ public interface IContainerSubGui {
     ItemStack getPrimaryGuiIcon();
 
     @SideOnly(Side.CLIENT)
-    void setGuiLink(GuiSub gs);
+    void setGuiLink(IGuiSub gs);
 }

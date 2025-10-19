@@ -6,7 +6,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 
 import appeng.api.storage.ITerminalHost;
 import appeng.container.guisync.GuiSync;
-import appeng.parts.reporting.PartPatternTerminalEx;
+import appeng.helpers.IPatternTerminalEx;
 import appeng.util.Platform;
 
 public class ContainerPatternTermEx extends ContainerPatternTerm {
@@ -27,7 +27,7 @@ public class ContainerPatternTermEx extends ContainerPatternTerm {
         super.detectAndSendChanges();
 
         if (Platform.isServer()) {
-            final PartPatternTerminalEx temp = getExPatternTerminal();
+            final IPatternTerminalEx temp = getExPatternTerminal();
             substitute = temp.isSubstitution();
             beSubstitute = temp.canBeSubstitution();
             inverted = temp.isInverted();
@@ -35,8 +35,8 @@ public class ContainerPatternTermEx extends ContainerPatternTerm {
         }
     }
 
-    public PartPatternTerminalEx getExPatternTerminal() {
-        return (PartPatternTerminalEx) getPatternTerminal();
+    public IPatternTerminalEx getExPatternTerminal() {
+        return (IPatternTerminalEx) getPatternTerminal();
     }
 
     @Override

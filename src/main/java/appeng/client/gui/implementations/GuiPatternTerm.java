@@ -114,6 +114,7 @@ public class GuiPatternTerm extends GuiMEMonitorable {
         final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
         IAEStack<?> aes = slot.getAEStack();
         final ItemStack playerHand = player.inventory.getItemStack();
+        final ItemStack is = playerHand != null ? playerHand.copy() : null;
 
         final boolean isLShiftDown = isShiftKeyDown();
         final boolean isLControlDown = isCtrlKeyDown();
@@ -122,9 +123,9 @@ public class GuiPatternTerm extends GuiMEMonitorable {
             case 0 -> { // left click
                 if (playerHand != null) {
                     if (isLControlDown) {
-                        aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(playerHand));
+                        aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(is));
                     } else {
-                        aes = AEItemStack.create(playerHand);
+                        aes = AEItemStack.create(is);
                     }
                 } else {
                     aes = null;
@@ -132,11 +133,11 @@ public class GuiPatternTerm extends GuiMEMonitorable {
             }
             case 1 -> { // right click
                 if (playerHand != null) {
-                    playerHand.stackSize = 1;
+                    is.stackSize = 1;
                     if (isLControlDown) {
-                        aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(playerHand));
+                        aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(is));
                     } else {
-                        aes = AEItemStack.create(playerHand);
+                        aes = AEItemStack.create(is);
                     }
                 } else if (aes != null) {
                     aes.decStackSize(1);

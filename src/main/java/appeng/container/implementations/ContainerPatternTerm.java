@@ -53,6 +53,7 @@ import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.helpers.IContainerCraftingPacket;
 import appeng.helpers.IPatternTerminal;
 import appeng.helpers.IVirtualSlotHolder;
+import appeng.helpers.IVirtualSlotSource;
 import appeng.helpers.WirelessPatternTerminalGuiObject;
 import appeng.items.storage.ItemViewCell;
 import appeng.tile.inventory.AppEngInternalInventory;
@@ -66,8 +67,8 @@ import appeng.util.item.AEItemStack;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-public class ContainerPatternTerm extends ContainerMEMonitorable
-        implements IAEAppEngInventory, IOptionalSlotHost, IContainerCraftingPacket, IVirtualSlotHolder {
+public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEAppEngInventory, IOptionalSlotHost,
+        IContainerCraftingPacket, IVirtualSlotHolder, IVirtualSlotSource {
 
     public static final int MULTIPLE_OF_BUTTON_CLICK = 2;
     public static final int MULTIPLE_OF_BUTTON_CLICK_ON_SHIFT = 8;
@@ -103,7 +104,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
     public ContainerPatternTerm(final InventoryPlayer ip, final ITerminalHost monitorable,
             boolean craftingModeSupport) {
-        super(ip, monitorable, false);
+        super(ip, monitorable);
         this.patternTerminal = (IPatternTerminal) monitorable;
 
         if (monitorable instanceof WirelessPatternTerminalGuiObject wptgo) {
@@ -162,7 +163,6 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
 
         this.patternSlotOUT.setStackLimit(1);
 
-        this.bindPlayerInventory(ip, 0, 0);
         this.updateOrderOfOutputSlots();
         refillBlankPatterns(patternSlotIN);
 
@@ -722,6 +722,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable
         return patternOutputPages;
     }
 
+    @Override
     public void updateVirtualSlot(StorageName invName, int slotId, IAEStack<?> aes) {
         switch (invName) {
             case CRAFTING_INPUT -> {

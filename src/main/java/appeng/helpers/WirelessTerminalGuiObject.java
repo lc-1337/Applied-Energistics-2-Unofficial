@@ -10,8 +10,11 @@
 
 package appeng.helpers;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -50,9 +53,11 @@ import appeng.items.contents.PinsHandler;
 import appeng.items.contents.PinsHolder;
 import appeng.items.contents.WirelessTerminalViewCells;
 import appeng.tile.networking.TileWireless;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, IInventorySlotAware, IViewCellStorage,
-        ITerminalPins, IPrimaryGuiIconProvider {
+        ITerminalPins, IPrimaryGuiIconProvider, ICustomButtonProvider {
 
     private final ItemStack effectiveItem;
     private final IWirelessTermHandler wth;
@@ -67,10 +72,14 @@ public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, II
     private final int inventorySlot;
     private final WirelessTerminalViewCells viewCells;
     private final PinsHolder pinsInv;
+    private final boolean infinityRange;
+    private final boolean infinityEnergy;
 
     public WirelessTerminalGuiObject(final IWirelessTermHandler wh, final ItemStack is, final EntityPlayer ep,
             final World w, final int x, final int y, final int z) {
         this.encryptionKey = wh.getEncryptionKey(is);
+        this.infinityRange = wh.hasInfinityRange(is);
+        this.infinityEnergy = wh.hasInfinityPower(is);
         this.effectiveItem = is;
         this.myPlayer = ep;
         this.wth = wh;
@@ -98,6 +107,11 @@ public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, II
                     }
                 }
             }
+        }
+
+        if (getItemStack().getItem() instanceof ICustomButtonSource icbs) {
+            customButtonDataObject = icbs.getCustomDataObject(this);
+            customButtonDataObject.readData(getItemStack().getTagCompound());
         }
     }
 
@@ -231,6 +245,7 @@ public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, II
     @Override
     public double extractAEPower(final double amt, final Actionable mode, final PowerMultiplier usePowerMultiplier) {
         if (this.wth != null && this.effectiveItem != null) {
+            if (this.infinityEnergy) return amt;
             if (mode == Actionable.SIMULATE) {
                 return this.wth.hasPower(this.myPlayer, amt, this.effectiveItem) ? amt : 0;
             }
@@ -301,7 +316,7 @@ public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, II
     }
 
     private boolean testWap(final IWirelessAccessPoint wap) {
-        double rangeLimit = wap.getRange();
+        double rangeLimit = infinityRange ? Double.MAX_VALUE : wap.getRange();
         rangeLimit *= rangeLimit;
 
         final DimensionalCoord dc = wap.getLocation();
@@ -348,8 +363,8 @@ public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, II
         return GuiText.WirelessTerminal;
     }
 
-    public TerminalMode getMode() {
-        return TerminalMode.values()[this.getItemStack().getTagCompound().getInteger("terminal_mode")];
+    public int getMode() {
+        return this.getItemStack().getTagCompound().getInteger("mode");
     }
 
     public void writeInventory() {}
@@ -359,5 +374,40 @@ public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, II
     @Override
     public ItemStack getPrimaryGuiIcon() {
         return this.effectiveItem.copy();
+    }
+
+    private ICustomButtonDataObject customButtonDataObject;
+
+    @Override
+    public void writeCustomButtonData() {
+        this.customButtonDataObject.writeData(this.getItemStack().getTagCompound());
+    }
+
+    @Override
+    public void readCustomButtonData() {
+        this.customButtonDataObject.readData(this.getItemStack().getTagCompound());
+    }
+
+    @Override
+    public void initCustomButtons(int guiLeft, int guiTop, int xSize, int ySize, int xOffset, int yOffset,
+            List<GuiButton> buttonList) {
+        if (customButtonDataObject != null)
+            customButtonDataObject.initCustomButtons(guiLeft, guiTop, xSize, ySize, xOffset, yOffset, buttonList);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean actionPerformedCustomButtons(final GuiButton btn) {
+        return customButtonDataObject != null && customButtonDataObject.actionPerformedCustomButtons(btn);
+    }
+
+    @Override
+    public ICustomButtonDataObject getDataObject() {
+        return customButtonDataObject;
+    }
+
+    @Override
+    public void setDataObject(ICustomButtonDataObject dataObject) {
+        customButtonDataObject = dataObject;
     }
 }

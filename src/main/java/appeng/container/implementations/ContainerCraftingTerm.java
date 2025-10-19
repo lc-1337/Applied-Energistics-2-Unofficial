@@ -35,7 +35,7 @@ public class ContainerCraftingTerm extends ContainerMEMonitorable
     private final SlotCraftingTerm outputSlot;
 
     public ContainerCraftingTerm(final InventoryPlayer ip, final ITerminalHost monitorable) {
-        super(ip, monitorable, false);
+        super(ip, monitorable);
         this.ct = (ICraftingTerminal) monitorable;
 
         final IInventory crafting = this.ct.getInventoryByName("crafting");
@@ -64,8 +64,6 @@ public class ContainerCraftingTerm extends ContainerMEMonitorable
                         131,
                         -72 + 18,
                         this));
-
-        this.bindPlayerInventory(ip, 0, 0);
 
         this.onCraftMatrixChanged(crafting);
     }

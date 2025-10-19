@@ -80,6 +80,7 @@ import appeng.core.localization.GuiText;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketInventoryAction;
 import appeng.core.sync.packets.PacketSwapSlots;
+import appeng.helpers.ICustomButtonProvider;
 import appeng.helpers.InventoryAction;
 import appeng.integration.IntegrationRegistry;
 import appeng.integration.IntegrationType;
@@ -1151,5 +1152,23 @@ public abstract class AEBaseGui extends GuiContainer {
 
     public @Nullable VirtualMESlot getVirtualMESlotUnderMouse() {
         return this.hoveredVirtualSlot;
+    }
+
+    public void initCustomButtons(int xOffset, int yOffset) {
+        if (inventorySlots instanceof AEBaseContainer abc && abc.getTarget() instanceof ICustomButtonProvider icbp)
+            icbp.initCustomButtons(
+                    this.guiLeft,
+                    this.guiTop,
+                    this.xSize,
+                    this.ySize,
+                    xOffset,
+                    yOffset,
+                    this.buttonList);
+    }
+
+    public boolean actionPerformedCustomButtons(final GuiButton btn) {
+        if (inventorySlots instanceof AEBaseContainer abc && abc.getTarget() instanceof ICustomButtonProvider icbp)
+            return icbp.actionPerformedCustomButtons(btn);
+        return false;
     }
 }

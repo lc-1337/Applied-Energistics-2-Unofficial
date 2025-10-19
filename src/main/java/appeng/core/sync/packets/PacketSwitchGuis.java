@@ -17,7 +17,7 @@ import net.minecraft.tileentity.TileEntity;
 import appeng.client.gui.AEBaseGui;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerOpenContext;
-import appeng.container.ContainerSubGui;
+import appeng.container.IContainerSubGui;
 import appeng.container.PrimaryGui;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.GuiBridge;
@@ -87,7 +87,7 @@ public class PacketSwitchGuis extends AppEngPacket {
                 }
             }
 
-            if (player.openContainer instanceof ContainerSubGui sg) {
+            if (player.openContainer instanceof IContainerSubGui sg) {
                 sg.setPrimaryGui(pGui);
             }
         }

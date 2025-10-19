@@ -13,14 +13,8 @@
 
 package appeng.api.storage;
 
-import java.util.List;
-
-import net.minecraft.client.gui.GuiButton;
-
 import appeng.api.util.IConfigurableObject;
 import appeng.core.localization.GuiText;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public interface ITerminalHost extends IStorageMonitorable, IConfigurableObject {
 
@@ -28,11 +22,4 @@ public interface ITerminalHost extends IStorageMonitorable, IConfigurableObject 
         return GuiText.Terminal;
     }
 
-    @SideOnly(Side.CLIENT)
-    default void addCustomButtons(int offest, List<GuiButton> buttonList) {}
-
-    @SideOnly(Side.CLIENT)
-    default boolean customButtonsActionPerformed(final GuiButton btn) {
-        return false;
-    }
 }

@@ -4,7 +4,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-import appeng.client.gui.implementations.GuiSub;
+import appeng.client.gui.IGuiSub;
 import appeng.container.slot.SlotInaccessible;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.Platform;
@@ -16,7 +16,7 @@ public class ContainerSubGui extends AEBaseContainer implements IContainerSubGui
     private final Slot primaryGuiButtonIcon;
 
     @SideOnly(Side.CLIENT)
-    private GuiSub guiLink;
+    private IGuiSub guiLink;
 
     public ContainerSubGui(InventoryPlayer ip, Object anchor) {
         super(ip, anchor);
@@ -43,7 +43,7 @@ public class ContainerSubGui extends AEBaseContainer implements IContainerSubGui
     }
 
     @SideOnly(Side.CLIENT)
-    public void setGuiLink(GuiSub gs) {
+    public void setGuiLink(IGuiSub gs) {
         this.guiLink = gs;
     }
 }

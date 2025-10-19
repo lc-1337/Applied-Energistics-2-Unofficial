@@ -17,8 +17,9 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import appeng.api.storage.ITerminalHost;
-import appeng.client.gui.implementations.GuiSub;
+import appeng.client.gui.IGuiSub;
 import appeng.container.IContainerSubGui;
+import appeng.container.PrimaryGui;
 import appeng.container.guisync.GuiSync;
 import appeng.container.interfaces.ICraftingCPUSelectorContainer;
 import appeng.container.slot.SlotInaccessible;
@@ -36,7 +37,7 @@ public class ContainerCraftingStatus extends ContainerCraftingCPU
     private final Slot primaryGuiButtonIcon;
 
     @SideOnly(Side.CLIENT)
-    private GuiSub guiLink;
+    private IGuiSub guiLink;
 
     public ContainerCraftingStatus(final InventoryPlayer ip, final ITerminalHost te) {
         super(ip, te);
@@ -80,8 +81,14 @@ public class ContainerCraftingStatus extends ContainerCraftingCPU
         }
     }
 
+    @Override
+    public void setPrimaryGui(PrimaryGui primaryGui) {
+        super.setPrimaryGui(primaryGui);
+        this.primaryGuiButtonIcon.putStack(primaryGui.getIcon());
+    }
+
     @SideOnly(Side.CLIENT)
-    public void setGuiLink(GuiSub gs) {
+    public void setGuiLink(IGuiSub gs) {
         this.guiLink = gs;
     }
 }

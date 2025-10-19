@@ -2,6 +2,8 @@ package appeng.helpers;
 
 import static appeng.parts.reporting.PartPatternTerminal.*;
 
+import java.util.Objects;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -18,7 +20,7 @@ import appeng.tile.inventory.IIAEStackInventory;
 import appeng.tile.inventory.InvOperation;
 
 public class WirelessPatternTerminalGuiObject extends WirelessTerminalGuiObject
-        implements IIAEStackInventory, IPatternTerminal {
+        implements IIAEStackInventory, IPatternTerminalEx {
 
     int craftingInvSize;
     int outputInvSize;
@@ -32,10 +34,13 @@ public class WirelessPatternTerminalGuiObject extends WirelessTerminalGuiObject
     private boolean beSubstitute = false;
     private final String nbtPrefix;
 
+    private boolean inverted;
+    private int activePage;
+
     public WirelessPatternTerminalGuiObject(IWirelessTermHandler wh, ItemStack is, EntityPlayer ep, World w, int x,
             int y, int z) {
         super(wh, is, ep, w, x, y, z);
-        this.nbtPrefix = getMode() == TerminalMode.PATTERN_TERMINAL ? "pattern" : "pattern_ex";
+        this.nbtPrefix = getMode() == 2 ? "pattern" : "pattern_ex"; // ...
     }
 
     public void setInventorySize(int inputs, int outputs) {
@@ -52,6 +57,8 @@ public class WirelessPatternTerminalGuiObject extends WirelessTerminalGuiObject
         this.craftingMode = tag.getBoolean("crafting");
         this.substitute = tag.getBoolean("substitute");
         this.beSubstitute = tag.getBoolean("beSubstitute");
+        this.inverted = tag.getBoolean("inverted");
+        this.activePage = tag.getInteger("activePage");
         this.pattern.readFromNBT(tag, "pattern");
         this.output.readFromNBT(tag, "outputList");
         this.crafting.readFromNBT(tag, "craftingGrid");
@@ -63,12 +70,16 @@ public class WirelessPatternTerminalGuiObject extends WirelessTerminalGuiObject
         tag.setBoolean("crafting", this.craftingMode);
         tag.setBoolean("substitute", this.substitute);
         tag.setBoolean("beSubstitute", this.beSubstitute);
+
+        if (Objects.equals(this.nbtPrefix, "pattern_ex")) {
+            tag.setBoolean("inverted", this.inverted);
+            tag.setInteger("activePage", this.activePage);
+        }
+
         this.pattern.writeToNBT(tag, "pattern");
         this.output.writeToNBT(tag, "outputList");
         this.crafting.writeToNBT(tag, "craftingGrid");
-        final NBTTagCompound oldTag = getItemStack().getTagCompound();
-        oldTag.setTag(this.nbtPrefix, tag);
-        getItemStack().setTagCompound(oldTag);
+        getItemStack().getTagCompound().setTag(this.nbtPrefix, tag);
     }
 
     @Override
@@ -82,6 +93,26 @@ public class WirelessPatternTerminalGuiObject extends WirelessTerminalGuiObject
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean isInverted() {
+        return inverted;
+    }
+
+    @Override
+    public void setInverted(boolean inverted) {
+        this.inverted = inverted;
+    }
+
+    @Override
+    public int getActivePage() {
+        return this.activePage;
+    }
+
+    @Override
+    public void setActivePage(int activePage) {
+        this.activePage = activePage;
     }
 
     @Override

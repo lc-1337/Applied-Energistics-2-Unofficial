@@ -5,13 +5,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.github.bsideup.jabel.Desugar;
-
 import appeng.core.sync.GuiBridge;
 import appeng.util.Platform;
 
-@Desugar
-public record PrimaryGui(Object gui, ItemStack guiIcon, TileEntity te, ForgeDirection side) {
+public class PrimaryGui {
+
+    final protected Object gui;
+    final protected ItemStack guiIcon;
+    final protected TileEntity te;
+    final protected ForgeDirection side;
+
+    public PrimaryGui(Object gui, ItemStack guiIcon, TileEntity te, ForgeDirection side) {
+        this.gui = gui;
+        this.guiIcon = guiIcon;
+        this.te = te;
+        this.side = side;
+    }
 
     public void open(EntityPlayer p) {
         if (gui instanceof GuiBridge gb) {

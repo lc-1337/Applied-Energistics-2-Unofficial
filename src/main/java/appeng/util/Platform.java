@@ -113,6 +113,7 @@ import appeng.api.storage.data.IItemList;
 import appeng.api.util.AEColor;
 import appeng.api.util.DimensionalCoord;
 import appeng.client.me.SlotME;
+import appeng.container.AEBaseContainer;
 import appeng.container.slot.SlotFake;
 import appeng.core.AEConfig;
 import appeng.core.AELog;
@@ -359,7 +360,7 @@ public class Platform {
                         type.ordinal() << 5 | (1 << 4),
                         p.getEntityWorld(),
                         p.inventory.currentItem,
-                        0,
+                        p.openContainer instanceof AEBaseContainer abc ? abc.getSwitchAbleGuiNext() : -1,
                         0);
             } else if (tile == null || type.getType() == GuiHostType.ITEM) {
                 p.openGui(AppEng.instance(), type.ordinal() << 5 | (1 << 3), p.getEntityWorld(), x, y, z);

@@ -37,6 +37,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.config.PowerMultiplier;
 import appeng.api.config.SecurityPermissions;
 import appeng.api.implementations.guiobjects.IGuiItemObject;
 import appeng.api.networking.IGrid;
@@ -61,7 +62,6 @@ import appeng.container.guisync.GuiSync;
 import appeng.container.guisync.SyncData;
 import appeng.container.implementations.ContainerCellWorkbench;
 import appeng.container.implementations.ContainerUpgradeable;
-import appeng.container.implementations.ContainerWirelessTerm;
 import appeng.container.interfaces.IInventorySlotAware;
 import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.SlotCraftingMatrix;
@@ -74,6 +74,7 @@ import appeng.container.slot.SlotPlayerHotBar;
 import appeng.container.slot.SlotPlayerInv;
 import appeng.core.AEConfig;
 import appeng.core.AELog;
+import appeng.core.localization.PlayerMessages;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketHighlightBlockStorage;
@@ -84,11 +85,11 @@ import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IPinsHandler;
 import appeng.helpers.IPrimaryGuiIconProvider;
 import appeng.helpers.InventoryAction;
+import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.items.materials.ItemMultiMaterial;
 import appeng.me.Grid;
 import appeng.me.MachineSet;
 import appeng.me.NetworkList;
-import appeng.me.cache.NetworkMonitor;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.parts.automation.UpgradeInventory;
 import appeng.parts.misc.PartStorageBus;
@@ -416,6 +417,8 @@ public abstract class AEBaseContainer extends Container {
                 }
             }
         }
+
+        portableSourceTick();
 
         super.detectAndSendChanges();
     }
@@ -978,17 +981,12 @@ public abstract class AEBaseContainer extends Container {
 
                 IGrid g = null;
                 // Pull grid
-                if (this instanceof ContainerWirelessTerm wirelessTerm
-                        && wirelessTerm.getMonitor() instanceof NetworkMonitor<?>networkMonitor) {
-                    g = networkMonitor.getGrid();
-                } else {
-                    final IActionHost host = this.getActionHost();
-                    if (host == null) return;
+                final IActionHost host = this.getActionHost();
+                if (host == null) return;
 
-                    final IGridNode gn = host.getActionableNode();
-                    if (gn != null) {
-                        g = gn.getGrid();
-                    }
+                final IGridNode gn = host.getActionableNode();
+                if (gn != null) {
+                    g = gn.getGrid();
                 }
 
                 if (g == null) return;
@@ -1315,5 +1313,67 @@ public abstract class AEBaseContainer extends Container {
     public PrimaryGui getPrimaryGui() {
         if (primaryGui == null) createPrimaryGui();
         return primaryGui;
+    }
+
+    private int ticks = 0;
+    private double powerMultiplier = 0.5;
+
+    private double getPowerMultiplier() {
+        return this.powerMultiplier;
+    }
+
+    protected void setPowerMultiplier(final double powerMultiplier) {
+        this.powerMultiplier = powerMultiplier;
+    }
+
+    private void portableSourceTick() {
+        final Object obj = this.getTarget();
+        if (obj instanceof WirelessTerminalGuiObject wtgo) {
+            if (!wtgo.rangeCheck()) {
+                if (Platform.isServer() && this.isValidContainer()) {
+                    this.getPlayerInv().player.addChatMessage(PlayerMessages.OutOfRange.toChat());
+                }
+
+                this.setValidContainer(false);
+            } else {
+                this.setPowerMultiplier(AEConfig.instance.wireless_getDrainRate(wtgo.getRange()));
+            }
+
+            final ItemStack currentItem = wtgo.getInventorySlot() < 0 ? this.getPlayerInv().getCurrentItem()
+                    : this.getPlayerInv().getStackInSlot(wtgo.getInventorySlot());
+
+            if (currentItem != wtgo.getItemStack()) {
+                if (currentItem != null) {
+                    if (Platform.isSameItem(wtgo.getItemStack(), currentItem)) {
+                        this.getPlayerInv()
+                                .setInventorySlotContents(this.getPlayerInv().currentItem, wtgo.getItemStack());
+                    } else {
+                        this.setValidContainer(false);
+                    }
+                } else {
+                    this.setValidContainer(false);
+                }
+            }
+        }
+
+        if (obj instanceof IEnergySource ies) {
+            // drain 1 ae t
+            this.ticks++;
+            if (this.ticks > 10) {
+                ies.extractAEPower(this.getPowerMultiplier() * this.ticks, Actionable.MODULATE, PowerMultiplier.CONFIG);
+                this.ticks = 0;
+            }
+        }
+    }
+
+    // need for universal terminal, because getMode(ItemStack terminal) always have outdated mode
+    private int switchAbleGuiItemNext = -1;
+
+    public int getSwitchAbleGuiNext() {
+        return this.switchAbleGuiItemNext;
+    }
+
+    public void setSwitchAbleGuiNext(int n) {
+        this.switchAbleGuiItemNext = n;
     }
 }

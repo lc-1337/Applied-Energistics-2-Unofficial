@@ -200,7 +200,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
 
     @Override
     protected void actionPerformed(final GuiButton btn) {
-        if (host.customButtonsActionPerformed(btn)) return;
+        if (actionPerformedCustomButtons(btn)) return;
 
         if (btn == this.craftingStatusBtn || btn == this.craftingStatusImgBtn) {
             NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_CRAFTING_STATUS));
@@ -335,7 +335,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
             offset += 20;
         }
 
-        if (this.viewCell || this instanceof GuiWirelessTerm) {
+        if (this.viewCell) {
             this.buttonList.add(
                     this.ViewBox = new GuiImgButton(
                             this.guiLeft - 18,
@@ -378,7 +378,7 @@ public class GuiMEMonitorable extends AEBaseMEGui
                         AEConfig.instance.preserveSearchBar ? YesNo.YES : YesNo.NO));
         offset += 20;
 
-        if (!(this instanceof GuiMEPortableCell) || this instanceof GuiWirelessTerm) {
+        if (!(this instanceof GuiMEPortableCell)) {
             this.buttonList.add(
                     this.terminalStyleBox = new GuiImgButton(
                             this.guiLeft - 18,
@@ -388,9 +388,9 @@ public class GuiMEMonitorable extends AEBaseMEGui
             offset += 20;
         }
 
-        this.host.addCustomButtons(offset, this.buttonList);
+        initCustomButtons(this.guiLeft - 18, offset);
 
-        if (this.viewCell || this instanceof GuiWirelessTerm) {
+        if (this.viewCell) {
             if (AEConfig.instance.getConfigManager().getSetting(Settings.CRAFTING_STATUS)
                     .equals(CraftingStatus.BUTTON)) {
                 this.buttonList.add(

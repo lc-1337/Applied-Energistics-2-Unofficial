@@ -88,7 +88,6 @@ import appeng.container.implementations.ContainerStorageBus;
 import appeng.container.implementations.ContainerUpgradeable;
 import appeng.container.implementations.ContainerVibrationChamber;
 import appeng.container.implementations.ContainerWireless;
-import appeng.container.implementations.ContainerWirelessTerm;
 import appeng.core.stats.Achievements;
 import appeng.helpers.ICellRestriction;
 import appeng.helpers.ICellWorkbench;
@@ -99,6 +98,7 @@ import appeng.helpers.IInterfaceTerminal;
 import appeng.helpers.ILevelEmitter;
 import appeng.helpers.IOreFilterable;
 import appeng.helpers.IPatternTerminal;
+import appeng.helpers.IPatternTerminalEx;
 import appeng.helpers.IPriorityHost;
 import appeng.helpers.IStorageBus;
 import appeng.helpers.WirelessTerminalGuiObject;
@@ -131,16 +131,13 @@ public enum GuiBridge implements IGuiHandler {
 
     GUI_ME(ContainerMEMonitorable.class, ITerminalHost.class, GuiHostType.ITEM_OR_WORLD, null),
 
-    GUI_WIRELESS_TERM(ContainerWirelessTerm.class, WirelessTerminalGuiObject.class, GuiHostType.ITEM, null), // remove
-                                                                                                             // then
-
     GUI_CRAFTING_TERMINAL(ContainerCraftingTerm.class, ICraftingTerminal.class, GuiHostType.ITEM_OR_WORLD,
             SecurityPermissions.CRAFT),
 
     GUI_PATTERN_TERMINAL(ContainerPatternTerm.class, IPatternTerminal.class, GuiHostType.ITEM_OR_WORLD,
             SecurityPermissions.CRAFT),
 
-    GUI_PATTERN_TERMINAL_EX(ContainerPatternTermEx.class, IPatternTerminal.class, GuiHostType.ITEM_OR_WORLD,
+    GUI_PATTERN_TERMINAL_EX(ContainerPatternTermEx.class, IPatternTerminalEx.class, GuiHostType.ITEM_OR_WORLD,
             SecurityPermissions.CRAFT),
 
     GUI_INTERFACE_TERMINAL(ContainerInterfaceTerminal.class, IInterfaceTerminal.class, GuiHostType.ITEM_OR_WORLD,
@@ -313,8 +310,8 @@ public enum GuiBridge implements IGuiHandler {
     private Object getGuiObject(final ItemStack it, final EntityPlayer player, final World w, final int x, final int y,
             final int z) {
         if (it != null) {
-            if (it.getItem() instanceof IGuiItem) {
-                return ((IGuiItem) it.getItem()).getGuiObject(it, w, player, x, y, z);
+            if (it.getItem() instanceof IGuiItem igi) {
+                return igi.getGuiObject(it, w, player, x, y, z);
             }
 
             final IWirelessTermHandler wh = AEApi.instance().registries().wireless().getWirelessTerminalHandler(it);

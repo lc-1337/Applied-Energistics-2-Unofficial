@@ -19,6 +19,7 @@ public class WirelessCraftingTerminalGuiObject extends WirelessTerminalGuiObject
     public WirelessCraftingTerminalGuiObject(IWirelessTermHandler wh, ItemStack is, EntityPlayer ep, World w, int x,
             int y, int z) {
         super(wh, is, ep, w, x, y, z);
+        readInventory();
     }
 
     @Override
@@ -39,7 +40,7 @@ public class WirelessCraftingTerminalGuiObject extends WirelessTerminalGuiObject
     @Override
     public void onChangeInventory(IInventory inv, int slot, InvOperation mc, ItemStack removedStack,
             ItemStack newStack) {
-        if (mc != InvOperation.markDirty) writeInventory();
+        if (mc != InvOperation.markDirty) writeInventory(); // couz spam
     }
 
     @Override
