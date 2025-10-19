@@ -272,7 +272,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
         if (this.waitingToSend != null) {
 
             for (final IAEStack<?> is : this.waitingToSend) {
-                waitingToSend.appendTag(writeStackNBT(is, new NBTTagCompound()));
+                waitingToSend.appendTag(writeStackNBT(is, new NBTTagCompound(), true));
             }
         }
         data.setTag("waitingToSend", waitingToSend);
@@ -285,7 +285,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
             for (int x = 0; x < waitingList.tagCount(); x++) {
                 final NBTTagCompound c = waitingList.getCompoundTagAt(x);
                 if (c != null) {
-                    final IAEStack<?> is = readStackNBT(c);
+                    final IAEStack<?> is = readStackNBT(c, true);
                     if (is == null) {
                         continue;
                     }
@@ -1087,7 +1087,8 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
 
         final List<IAEStack<?>> stacksToPush = new ArrayList<>(table.getSizeInventory());
         for (int x = 0; x < table.getSizeInventory(); x++) {
-            stacksToPush.add(((MEInventoryCrafting) table).getAEStackInSlot(x));
+            IAEStack<?> aes = ((MEInventoryCrafting) table).getAEStackInSlot(x);
+            stacksToPush.add(isFluidInterface ? aes : stackConvertPacket(aes));
         }
 
         for (final ForgeDirection s : possibleDirections) {
@@ -1143,8 +1144,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
                     }
 
                     long amountToPush = aes.getStackSize();
-                    IAEStack<?> leftover = ad
-                            .addStack(isFluidInterface ? aes : stackConvertPacket(aes), getInsertionMode());
+                    IAEStack<?> leftover = ad.addStack(aes, getInsertionMode());
                     if (leftover != null && leftover.getStackSize() == amountToPush) {
                         continue;
                     }
