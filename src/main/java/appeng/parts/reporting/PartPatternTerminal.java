@@ -134,6 +134,7 @@ public class PartPatternTerminal extends AbstractPartTerminal implements IIAESta
 
     public void exPatternTerminalCall(IAEStack<?>[] in, IAEStack<?>[] out) {}
 
+    @Override
     public boolean isCraftingRecipe() {
         return this.craftingMode;
     }
