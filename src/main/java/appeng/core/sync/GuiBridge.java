@@ -189,7 +189,8 @@ public enum GuiBridge implements IGuiHandler {
     GUI_SECURITY(ContainerSecurity.class, TileSecurity.class, GuiHostType.WORLD, SecurityPermissions.SECURITY),
 
     // extends (Container/Gui) + Bus
-    GUI_LEVEL_EMITTER(ContainerLevelEmitter.class, ILevelEmitter.class, GuiHostType.WORLD, SecurityPermissions.BUILD),
+    GUI_LEVEL_EMITTER(ContainerLevelEmitter.class, ILevelEmitter.class, GuiHostType.ITEM_OR_WORLD,
+            SecurityPermissions.BUILD),
 
     GUI_SPATIAL_IO_PORT(ContainerSpatialIOPort.class, TileSpatialIOPort.class, GuiHostType.WORLD,
             SecurityPermissions.BUILD),

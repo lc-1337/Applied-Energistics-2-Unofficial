@@ -10,6 +10,8 @@
 
 package appeng.container;
 
+import static appeng.util.Platform.isStacksIdentical;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -56,6 +58,7 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.ItemSearchDTO;
+import appeng.client.StorageName;
 import appeng.client.me.InternalSlotME;
 import appeng.client.me.SlotME;
 import appeng.container.guisync.GuiSync;
@@ -81,6 +84,7 @@ import appeng.core.sync.packets.PacketHighlightBlockStorage;
 import appeng.core.sync.packets.PacketInventoryAction;
 import appeng.core.sync.packets.PacketPartialItem;
 import appeng.core.sync.packets.PacketValueConfig;
+import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IPinsHandler;
 import appeng.helpers.IPrimaryGuiIconProvider;
@@ -93,6 +97,7 @@ import appeng.me.NetworkList;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.parts.automation.UpgradeInventory;
 import appeng.parts.misc.PartStorageBus;
+import appeng.tile.inventory.IAEStackInventory;
 import appeng.tile.storage.TileChest;
 import appeng.tile.storage.TileDrive;
 import appeng.util.InventoryAdaptor;
@@ -100,6 +105,7 @@ import appeng.util.IterationCounter;
 import appeng.util.Platform;
 import appeng.util.inv.AdaptorPlayerHand;
 import appeng.util.item.AEItemStack;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 public abstract class AEBaseContainer extends Container {
 
@@ -1375,5 +1381,20 @@ public abstract class AEBaseContainer extends Container {
 
     public void setSwitchAbleGuiNext(int n) {
         this.switchAbleGuiItemNext = n;
+    }
+
+    protected void updateVirtualSlots(StorageName invName, IAEStackInventory inventory,
+            IAEStack<?>[] clientSlotsStacks) {
+        var list = new Int2ObjectOpenHashMap<IAEStack<?>>();
+        for (int i = 0; i < inventory.getSizeInventory(); ++i) {
+            IAEStack<?> aes = inventory.getAEStackInSlot(i);
+            IAEStack<?> aesClient = clientSlotsStacks[i];
+
+            if (!isStacksIdentical(aes, aesClient)) list.put(i, aes);
+        }
+        for (ICrafting crafter : this.crafters) {
+            final EntityPlayerMP emp = (EntityPlayerMP) crafter;
+            NetworkHandler.instance.sendTo(new PacketVirtualSlot(invName, list), emp);
+        }
     }
 }

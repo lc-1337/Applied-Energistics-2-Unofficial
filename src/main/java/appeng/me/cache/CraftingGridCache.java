@@ -368,6 +368,11 @@ public class CraftingGridCache
     }
 
     @Override
+    public void setEmitable(final IAEStack<?> someItem) {
+        this.emitableItems.add(someItem.copy());
+    }
+
+    @Override
     public List<IMEInventoryHandler> getCellArray(final StorageChannel channel) {
         return Arrays.asList(this);
     }

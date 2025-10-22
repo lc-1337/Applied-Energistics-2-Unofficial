@@ -20,7 +20,6 @@ import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
@@ -47,9 +46,7 @@ import appeng.container.guisync.GuiSync;
 import appeng.container.slot.IOptionalSlotHost;
 import appeng.container.slot.SlotPatternTerm;
 import appeng.container.slot.SlotRestrictedInput;
-import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketPatternSlot;
-import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.helpers.IContainerCraftingPacket;
 import appeng.helpers.IPatternTerminal;
 import appeng.helpers.IVirtualSlotHolder;
@@ -65,7 +62,6 @@ import appeng.util.Platform;
 import appeng.util.inv.AdaptorPlayerHand;
 import appeng.util.item.AEItemStack;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEAppEngInventory, IOptionalSlotHost,
         IContainerCraftingPacket, IVirtualSlotHolder, IVirtualSlotSource {
@@ -783,18 +779,6 @@ public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEA
                     this.updateVirtualSlots(StorageName.CRAFTING_OUTPUT, this.outputs, outputSlotsClient);
                 }
             }
-        }
-    }
-
-    private void updateVirtualSlots(StorageName invName, IAEStackInventory inventory, IAEStack<?>[] clientSlotsStacks) {
-        var list = new Int2ObjectOpenHashMap<IAEStack<?>>();
-        for (int i = 0; i < inventory.getSizeInventory(); ++i) {
-            IAEStack<?> aes = inventory.getAEStackInSlot(i);
-            list.put(i, aes);
-        }
-        for (ICrafting crafter : this.crafters) {
-            final EntityPlayerMP emp = (EntityPlayerMP) crafter;
-            NetworkHandler.instance.sendTo(new PacketVirtualSlot(invName, list), emp);
         }
     }
 }

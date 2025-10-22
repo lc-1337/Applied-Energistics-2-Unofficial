@@ -16,7 +16,6 @@ import java.util.Random;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,6 +25,9 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+
+import com.glodblock.github.api.registries.LevelItemInfo;
+import com.glodblock.github.api.registries.LevelState;
 
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.LevelType;
@@ -53,11 +55,13 @@ import appeng.api.parts.IPartCollisionHelper;
 import appeng.api.parts.IPartRenderHelper;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.StorageChannel;
+import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.api.util.AECableType;
 import appeng.api.util.IConfigManager;
+import appeng.client.StorageName;
 import appeng.client.texture.CableBusTextures;
 import appeng.core.AEConfig;
 import appeng.core.AELog;
@@ -65,8 +69,7 @@ import appeng.core.sync.GuiBridge;
 import appeng.helpers.ILevelEmitter;
 import appeng.helpers.Reflected;
 import appeng.me.GridAccessException;
-import appeng.tile.inventory.AppEngInternalAEInventory;
-import appeng.tile.inventory.InvOperation;
+import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -75,7 +78,7 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
 
     private static final int FLAG_ON = 8;
 
-    private final AppEngInternalAEInventory config = new AppEngInternalAEInventory(this, 1);
+    private final IAEStackInventory config = new IAEStackInventory(this, 1);
 
     private boolean prevState = false;
 
@@ -85,6 +88,7 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
     private IStackWatcher myWatcher;
     private IEnergyWatcher myEnergyWatcher;
     private ICraftingWatcher myCraftingWatcher;
+
     private double centerX;
     private double centerY;
     private double centerZ;
@@ -194,7 +198,7 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
 
     // update the system...
     private void configureWatchers() {
-        final IAEItemStack myStack = this.config.getAEStackInSlot(0);
+        final IAEStack<?> myStack = this.config.getAEStackInSlot(0);
 
         if (this.myWatcher != null) {
             this.myWatcher.clear();
@@ -234,6 +238,7 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
 
                 // no more item stuff..
                 this.getProxy().getStorage().getItemInventory().removeListener(this);
+                this.getProxy().getStorage().getFluidInventory().removeListener(this);
             } catch (final GridAccessException e) {
                 // :P
             }
@@ -246,35 +251,41 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
                 this.getProxy().getStorage().getItemInventory().addListener(this, this.getProxy().getGrid());
             } else {
                 this.getProxy().getStorage().getItemInventory().removeListener(this);
+                this.getProxy().getStorage().getFluidInventory().removeListener(this);
 
                 if (this.myWatcher != null) {
                     this.myWatcher.add(myStack);
                 }
             }
 
-            this.updateReportingValue(this.getProxy().getStorage().getItemInventory());
+            if (myStack instanceof IAEFluidStack) {
+                this.updateReportingValue(this.getProxy().getStorage().getFluidInventory());
+            } else {
+                this.updateReportingValue(this.getProxy().getStorage().getItemInventory());
+            }
+
         } catch (final GridAccessException e) {
             // >.>
         }
     }
 
-    private void updateReportingValue(final IMEMonitor<IAEItemStack> monitor) {
-        final IAEItemStack myStack = this.config.getAEStackInSlot(0);
+    private void updateReportingValue(final IMEMonitor monitor) {
+        final IAEStack<?> myStack = this.config.getAEStackInSlot(0);
 
         if (myStack == null) {
             this.lastReportedValue = 0;
-            for (final IAEItemStack st : monitor.getStorageList()) {
+            for (final IAEStack<?> st : ((IMEMonitor<IAEStack>) monitor).getStorageList()) {
                 this.lastReportedValue += st.getStackSize();
             }
-        } else if (this.getInstalledUpgrades(Upgrades.FUZZY) > 0) {
+        } else if (myStack instanceof IAEItemStack ais && this.getInstalledUpgrades(Upgrades.FUZZY) > 0) {
             this.lastReportedValue = 0;
             final FuzzyMode fzMode = (FuzzyMode) this.getConfigManager().getSetting(Settings.FUZZY_MODE);
-            final Collection<IAEItemStack> fuzzyList = monitor.getStorageList().findFuzzy(myStack, fzMode);
+            final Collection<IAEItemStack> fuzzyList = monitor.getStorageList().findFuzzy(ais, fzMode);
             for (final IAEItemStack st : fuzzyList) {
                 this.lastReportedValue += st.getStackSize();
             }
         } else {
-            final IAEItemStack r = monitor.getStorageList().findPrecise(myStack);
+            final IAEStack<?> r = monitor.getStorageList().findPrecise(myStack);
             if (r == null) {
                 this.lastReportedValue = 0;
             } else {
@@ -374,7 +385,9 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
     @Override
     public void onListUpdate() {
         try {
-            this.updateReportingValue(this.getProxy().getStorage().getItemInventory());
+            if (this.config.getAEStackInSlot(0) instanceof IAEFluidStack)
+                this.updateReportingValue(this.getProxy().getStorage().getFluidInventory());
+            else this.updateReportingValue(this.getProxy().getStorage().getItemInventory());
         } catch (final GridAccessException e) {
             // ;P
         }
@@ -669,16 +682,6 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
     }
 
     @Override
-    public void onChangeInventory(final IInventory inv, final int slot, final InvOperation mc,
-            final ItemStack removedStack, final ItemStack newStack) {
-        if (inv == this.config) {
-            this.configureWatchers();
-        }
-
-        super.onChangeInventory(inv, slot, mc, removedStack, newStack);
-    }
-
-    @Override
     public void upgradesChanged() {
         this.configureWatchers();
     }
@@ -707,15 +710,6 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
     }
 
     @Override
-    public IInventory getInventoryByName(final String name) {
-        if (name.equals("config")) {
-            return this.config;
-        }
-
-        return super.getInventoryByName(name);
-    }
-
-    @Override
     public boolean pushPattern(final ICraftingPatternDetails patternDetails, final InventoryCrafting table) {
         return false;
     }
@@ -729,11 +723,32 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
     public void provideCrafting(final ICraftingProviderHelper craftingTracker) {
         if (this.getInstalledUpgrades(Upgrades.CRAFTING) > 0) {
             if (this.getConfigManager().getSetting(Settings.CRAFT_VIA_REDSTONE) == YesNo.YES) {
-                final IAEItemStack what = this.config.getAEStackInSlot(0);
+                final IAEStack<?> what = this.config.getAEStackInSlot(0);
                 if (what != null) {
                     craftingTracker.setEmitable(what);
                 }
             }
         }
+    }
+
+    @Override
+    public LevelItemInfo[] getLevelItemInfoList() {
+        IAEStack<?> stack = this.config.getAEStackInSlot(0);
+        if (stack == null) return new LevelItemInfo[] { null };
+        return new LevelItemInfo[] { new LevelItemInfo(
+                null, // stack
+                this.getReportingValue(),
+                -1,
+                this.isProvidingStrongPower() > 0 ? LevelState.Craft : LevelState.Idle) };
+    }
+
+    @Override
+    public void saveAEStackInv() {
+        this.configureWatchers();
+    }
+
+    @Override
+    public IAEStackInventory getAEInventoryByName(StorageName name) {
+        return this.config;
     }
 }

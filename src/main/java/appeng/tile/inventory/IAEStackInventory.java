@@ -28,7 +28,7 @@ public class IAEStackInventory {
         this.aesInventory = te;
         this.size = size;
         this.inv = new IAEStack<?>[size];
-        this.storageName = null;
+        this.storageName = StorageName.NONE;
     }
 
     public boolean isEmpty() {
