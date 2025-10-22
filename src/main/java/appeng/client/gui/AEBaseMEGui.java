@@ -29,7 +29,8 @@ public abstract class AEBaseMEGui extends AEBaseGui implements IGuiTooltipHandle
     public List<String> handleItemTooltip(final ItemStack stack, final int mouseX, final int mouseY,
             final List<String> currentToolTip) {
         VirtualMESlot hoveredSlot = this.getVirtualMESlotUnderMouse();
-        if (hoveredSlot == null) return currentToolTip;
+        // TODO crash when hover on fluid
+        if (hoveredSlot == null || currentToolTip.isEmpty()) return currentToolTip;
 
         if (hoveredSlot.getAEStack() instanceof IAEFluidStack afs) {
             currentToolTip.set(0, afs.getDisplayName());
