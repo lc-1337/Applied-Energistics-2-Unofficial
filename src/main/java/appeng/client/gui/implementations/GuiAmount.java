@@ -5,6 +5,7 @@ import net.minecraft.inventory.Container;
 
 import org.lwjgl.input.Keyboard;
 
+import appeng.client.gui.GuiSub;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.core.AEConfig;
 import appeng.core.localization.GuiText;

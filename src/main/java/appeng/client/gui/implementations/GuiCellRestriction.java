@@ -6,6 +6,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 
 import org.lwjgl.input.Keyboard;
 
+import appeng.client.gui.GuiSub;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.container.implementations.ContainerCellRestriction;
 import appeng.container.implementations.ContainerCellRestriction.CellData;

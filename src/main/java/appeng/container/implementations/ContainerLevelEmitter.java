@@ -15,6 +15,8 @@ import static appeng.util.Platform.isServer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.LevelType;
@@ -24,17 +26,22 @@ import appeng.api.config.Settings;
 import appeng.api.config.YesNo;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
+import appeng.client.gui.IGuiSub;
 import appeng.client.gui.widgets.MEGuiTextField;
+import appeng.container.IContainerSubGui;
+import appeng.container.PrimaryGui;
 import appeng.container.guisync.GuiSync;
+import appeng.container.slot.SlotInaccessible;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.helpers.ILevelEmitter;
 import appeng.helpers.IVirtualSlotHolder;
+import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 
-public class ContainerLevelEmitter extends ContainerUpgradeable implements IVirtualSlotHolder {
+public class ContainerLevelEmitter extends ContainerUpgradeable implements IVirtualSlotHolder, IContainerSubGui {
 
     private final ILevelEmitter lvlEmitter;
 
@@ -55,6 +62,10 @@ public class ContainerLevelEmitter extends ContainerUpgradeable implements IVirt
     public ContainerLevelEmitter(final InventoryPlayer ip, final ILevelEmitter te) {
         super(ip, te);
         this.lvlEmitter = te;
+
+        // sub gui copy paste
+        this.primaryGuiButtonIcon = new SlotInaccessible(new AppEngInternalInventory(null, 1), 0, 0, -9000);
+        this.addSlotToContainer(this.primaryGuiButtonIcon);
     }
 
     @SideOnly(Side.CLIENT)
@@ -192,5 +203,35 @@ public class ContainerLevelEmitter extends ContainerUpgradeable implements IVirt
                     this.lvlEmitter.getAEInventoryByName(StorageName.NONE),
                     this.configClientSlot);
         }
+    }
+
+    // for level terminal
+    // sub gui copypaste
+    private final Slot primaryGuiButtonIcon;
+
+    @SideOnly(Side.CLIENT)
+    private IGuiSub guiLink;
+
+    @Override
+    public void onSlotChange(Slot s) {
+        if (Platform.isClient() && this.primaryGuiButtonIcon == s && this.primaryGuiButtonIcon.getHasStack()) {
+            this.guiLink.initPrimaryGuiButton();
+        }
+    }
+
+    @Override
+    public void setPrimaryGui(PrimaryGui primaryGui) {
+        super.setPrimaryGui(primaryGui);
+        this.primaryGuiButtonIcon.putStack(primaryGui.getIcon());
+    }
+
+    @SideOnly(Side.CLIENT)
+    public ItemStack getPrimaryGuiIcon() {
+        return this.primaryGuiButtonIcon.getStack();
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void setGuiLink(IGuiSub gs) {
+        this.guiLink = gs;
     }
 }

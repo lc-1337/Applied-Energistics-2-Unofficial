@@ -34,16 +34,13 @@ public class ContainerCraftingStatus extends ContainerCraftingCPU
     @GuiSync.Recurse(5)
     public ContainerCPUTable cpuTable;
 
-    private final Slot primaryGuiButtonIcon;
-
-    @SideOnly(Side.CLIENT)
-    private IGuiSub guiLink;
-
     public ContainerCraftingStatus(final InventoryPlayer ip, final ITerminalHost te) {
         super(ip, te);
+        cpuTable = new ContainerCPUTable(this, this::setCPU, true, c -> true);
+
+        // sub gui copy paste
         this.primaryGuiButtonIcon = new SlotInaccessible(new AppEngInternalInventory(null, 1), 0, 0, -9000);
         this.addSlotToContainer(this.primaryGuiButtonIcon);
-        cpuTable = new ContainerCPUTable(this, this::setCPU, true, c -> true);
     }
 
     public ContainerCPUTable getCPUTable() {
@@ -65,14 +62,11 @@ public class ContainerCraftingStatus extends ContainerCraftingCPU
         return cpuTable.getCPUs();
     }
 
-    public void setPrimaryGuiIcon(ItemStack pgi) {
-        this.primaryGuiButtonIcon.putStack(pgi);
-    }
+    // sub gui copy paste
+    private final Slot primaryGuiButtonIcon;
 
     @SideOnly(Side.CLIENT)
-    public ItemStack getPrimaryGuiIcon() {
-        return this.primaryGuiButtonIcon.getStack();
-    }
+    private IGuiSub guiLink;
 
     @Override
     public void onSlotChange(Slot s) {
@@ -85,6 +79,11 @@ public class ContainerCraftingStatus extends ContainerCraftingCPU
     public void setPrimaryGui(PrimaryGui primaryGui) {
         super.setPrimaryGui(primaryGui);
         this.primaryGuiButtonIcon.putStack(primaryGui.getIcon());
+    }
+
+    @SideOnly(Side.CLIENT)
+    public ItemStack getPrimaryGuiIcon() {
+        return this.primaryGuiButtonIcon.getStack();
     }
 
     @SideOnly(Side.CLIENT)

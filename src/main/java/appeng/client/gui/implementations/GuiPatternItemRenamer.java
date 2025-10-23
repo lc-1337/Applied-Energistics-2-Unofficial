@@ -8,6 +8,7 @@ import org.lwjgl.input.Keyboard;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
+import appeng.client.gui.GuiSub;
 import appeng.client.gui.widgets.IDropToFillTextField;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.container.implementations.ContainerPatternValueAmount;

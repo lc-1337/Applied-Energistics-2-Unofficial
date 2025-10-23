@@ -1,23 +1,21 @@
-package appeng.client.gui.implementations;
+package appeng.client.gui;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 
-import appeng.client.gui.AEBaseMEGui;
-import appeng.client.gui.IGuiSub;
 import appeng.client.gui.widgets.GuiTabButton;
-import appeng.container.ContainerSubGui;
+import appeng.container.IContainerSubGui;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketSwitchGuis;
 
 public abstract class GuiSub extends AEBaseMEGui implements IGuiSub {
 
-    protected final ContainerSubGui container;
+    protected final IContainerSubGui container;
     protected GuiTabButton originalGuiBtn;
 
     public GuiSub(Container container) {
         super(container);
-        this.container = (ContainerSubGui) container;
+        this.container = (IContainerSubGui) container;
         this.container.setGuiLink(this);
     }
 

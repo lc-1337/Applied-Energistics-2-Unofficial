@@ -25,6 +25,7 @@ import appeng.api.config.TerminalStyle;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
+import appeng.client.gui.GuiSub;
 import appeng.client.gui.IGuiTooltipHandler;
 import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.container.implementations.ContainerOptimizePatterns;
