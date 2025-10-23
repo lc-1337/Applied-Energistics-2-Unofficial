@@ -1390,11 +1390,17 @@ public abstract class AEBaseContainer extends Container {
             IAEStack<?> aes = inventory.getAEStackInSlot(i);
             IAEStack<?> aesClient = clientSlotsStacks[i];
 
-            if (!isStacksIdentical(aes, aesClient)) list.put(i, aes);
+            if (!isStacksIdentical(aes, aesClient)) {
+                list.put(i, aes);
+                clientSlotsStacks[i] = aes != null ? aes.copy() : null;
+            }
         }
-        for (ICrafting crafter : this.crafters) {
-            final EntityPlayerMP emp = (EntityPlayerMP) crafter;
-            NetworkHandler.instance.sendTo(new PacketVirtualSlot(invName, list), emp);
+
+        if (!list.isEmpty()) {
+            for (ICrafting crafter : this.crafters) {
+                final EntityPlayerMP emp = (EntityPlayerMP) crafter;
+                NetworkHandler.instance.sendTo(new PacketVirtualSlot(invName, list), emp);
+            }
         }
     }
 }

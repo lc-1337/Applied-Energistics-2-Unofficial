@@ -50,7 +50,7 @@ public class ContainerLevelEmitter extends ContainerUpgradeable implements IVirt
     @GuiSync(4)
     public YesNo cmType;
 
-    private IAEStack<?> configClientSlot;
+    private final IAEStack<?>[] configClientSlot = new IAEStack[1];
 
     public ContainerLevelEmitter(final InventoryPlayer ip, final ILevelEmitter te) {
         super(ip, te);
@@ -138,7 +138,7 @@ public class ContainerLevelEmitter extends ContainerUpgradeable implements IVirt
             this.updateVirtualSlots(
                     StorageName.NONE,
                     this.lvlEmitter.getAEInventoryByName(StorageName.NONE),
-                    new IAEStack[] { this.configClientSlot });
+                    this.configClientSlot);
         }
 
         this.standardDetectAndSendChanges();
@@ -190,7 +190,7 @@ public class ContainerLevelEmitter extends ContainerUpgradeable implements IVirt
             this.updateVirtualSlots(
                     StorageName.NONE,
                     this.lvlEmitter.getAEInventoryByName(StorageName.NONE),
-                    new IAEStack[] { this.configClientSlot });
+                    this.configClientSlot);
         }
     }
 }
