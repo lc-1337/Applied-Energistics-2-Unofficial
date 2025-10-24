@@ -12,8 +12,11 @@ package appeng.client.gui.implementations;
 
 import java.io.IOException;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 
 import org.lwjgl.input.Mouse;
 
@@ -22,6 +25,11 @@ import appeng.api.config.ActionItems;
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.Settings;
 import appeng.api.config.StorageFilter;
+import appeng.api.config.Upgrades;
+import appeng.api.storage.StorageChannel;
+import appeng.api.storage.data.IAEStack;
+import appeng.client.gui.slots.VirtualMEPatternSlot;
+import appeng.client.gui.slots.VirtualMESlot;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.implementations.ContainerStorageBus;
@@ -33,7 +41,12 @@ import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketConfigButton;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
+import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.helpers.IStorageBus;
+import appeng.tile.inventory.IAEStackInventory;
+import appeng.util.FluidUtils;
+import appeng.util.item.AEFluidStack;
+import appeng.util.item.AEItemStack;
 
 public class GuiStorageBus extends GuiUpgradeable {
 
@@ -42,9 +55,12 @@ public class GuiStorageBus extends GuiUpgradeable {
     private GuiTabButton priority;
     private GuiImgButton partition;
     private GuiImgButton clear;
+    private VirtualMEPatternSlot[] craftingSlots;
+    private final ContainerStorageBus containerStorageBus;
 
     public GuiStorageBus(final InventoryPlayer inventoryPlayer, final IStorageBus te) {
         super(new ContainerStorageBus(inventoryPlayer, te));
+        this.containerStorageBus = (ContainerStorageBus) inventorySlots;
         this.ySize = 251;
     }
 
@@ -91,6 +107,12 @@ public class GuiStorageBus extends GuiUpgradeable {
     }
 
     @Override
+    public void initGui() {
+        super.initGui();
+        initVirtualSlots();
+    }
+
+    @Override
     public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
         this.fontRendererObj.drawString(
                 this.getGuiDisplayName(GuiText.StorageBus.getLocal()),
@@ -117,6 +139,8 @@ public class GuiStorageBus extends GuiUpgradeable {
                 this.partition.set(csb.getPartitionMode());
             }
         }
+
+        updateSlotVisibility();
     }
 
     @Override
@@ -146,6 +170,60 @@ public class GuiStorageBus extends GuiUpgradeable {
             }
         } catch (final IOException e) {
             AELog.debug(e);
+        }
+    }
+
+    private void initVirtualSlots() {
+        this.craftingSlots = new VirtualMEPatternSlot[63];
+        final IAEStackInventory inputInv = this.containerStorageBus.getConfig();
+        final int xo = 8;
+        final int yo = -133;
+
+        for (int y = 0; y < 7; y++) {
+            for (int x = 0; x < 9; x++) {
+                VirtualMEPatternSlot slot = new VirtualMEPatternSlot(
+                        xo + x * 18,
+                        yo + y * 18 + 9 * 18,
+                        inputInv,
+                        x + y * 9);
+                this.craftingSlots[x + y * 9] = slot;
+                this.registerVirtualSlots(slot);
+            }
+        }
+    }
+
+    protected void updateSlotVisibility() {
+        for (VirtualMEPatternSlot slot : this.craftingSlots) {
+            slot.setHidden(
+                    slot.getSlotIndex()
+                            <= 2 * this.containerStorageBus.getUpgradeable().getInstalledUpgrades(Upgrades.CAPACITY));
+        }
+    }
+
+    @Override
+    protected void mouseClicked(int xCoord, int yCoord, int btn) {
+        final VirtualMESlot slot = getVirtualMESlotUnderMouse();
+
+        if (slot == null) super.mouseClicked(xCoord, yCoord, btn);
+        else if (slot instanceof VirtualMEPatternSlot slotConfig) {
+            final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+            final IAEStack<?> aes;
+            final ItemStack playerHand = player.inventory.getItemStack();
+            final ItemStack is = playerHand != null ? playerHand.copy() : null;
+
+            if (playerHand != null) {
+                is.stackSize = 1;
+                if (containerStorageBus.getStorageChannel() == StorageChannel.FLUIDS) {
+                    aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(is));
+                } else {
+                    aes = AEItemStack.create(is);
+                }
+            } else {
+                aes = null;
+            }
+
+            NetworkHandler.instance
+                    .sendToServer(new PacketVirtualSlot(slotConfig.getStorageName(), slot.getSlotIndex(), aes));
         }
     }
 }
