@@ -60,7 +60,6 @@ import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.networking.crafting.ICraftingGrid;
 import appeng.api.networking.energy.IEnergyGrid;
-import appeng.api.networking.energy.IEnergySource;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.networking.security.PlayerSource;
 import appeng.api.networking.storage.IBaseMonitor;
@@ -138,9 +137,8 @@ public class ContainerMEMonitorable extends AEBaseContainer
         this.clientCM.registerSetting(Settings.PINS_STATE, PinsState.DISABLED); // use for GUI
 
         if (Platform.isServer()) {
-
             if (monitorable instanceof ITerminalPins t) {
-                pinsHandler = t.getPinsHandler(ip.player);
+                this.pinsHandler = t.getPinsHandler(ip.player);
             }
 
             this.serverCM = monitorable.getConfigManager();
@@ -157,23 +155,24 @@ public class ContainerMEMonitorable extends AEBaseContainer
                 this.setCellFluidInventory(this.monitorFluids);
             }
 
-            if (this.monitorItems != null) {
-                if (monitorable instanceof IPortableCell) {
-                    this.setPowerSource((IEnergySource) monitorable);
-                } else if (monitorable instanceof IMEChest) {
-                    this.setPowerSource((IEnergySource) monitorable);
-                } else if (monitorable instanceof IGridHost) {
-                    final IGridNode node = ((IGridHost) monitorable).getGridNode(ForgeDirection.UNKNOWN);
-                    if (node != null) {
-                        this.networkNode = node;
-                        final IGrid g = node.getGrid();
-                        if (g != null) {
-                            this.setPowerSource(new ChannelPowerSrc(this.networkNode, g.getCache(IEnergyGrid.class)));
-                        }
+            if (this.monitorItems == null && this.monitorFluids == null) {
+                this.setValidContainer(false);
+                return;
+            }
+
+            if (monitorable instanceof IPortableCell pc) {
+                this.setPowerSource(pc);
+            } else if (monitorable instanceof IMEChest imc) {
+                this.setPowerSource(imc);
+            } else if (monitorable instanceof IGridHost igh) {
+                final IGridNode node = igh.getGridNode(ForgeDirection.UNKNOWN);
+                if (node != null) {
+                    this.networkNode = node;
+                    final IGrid g = node.getGrid();
+                    if (g != null) {
+                        this.setPowerSource(new ChannelPowerSrc(this.networkNode, g.getCache(IEnergyGrid.class)));
                     }
                 }
-            } else {
-                this.setValidContainer(false);
             }
         } else {
             this.monitorItems = null;
@@ -181,11 +180,11 @@ public class ContainerMEMonitorable extends AEBaseContainer
         }
 
         this.canAccessViewCells = false;
-        if (monitorable instanceof IViewCellStorage) {
+        if (monitorable instanceof IViewCellStorage vcs) {
             for (int y = 0; y < 5; y++) {
                 this.cellView[y] = new SlotRestrictedInput(
                         SlotRestrictedInput.PlacableItemType.VIEW_CELL,
-                        ((IViewCellStorage) monitorable).getViewCellStorage(),
+                        vcs.getViewCellStorage(),
                         y,
                         206,
                         y * 18 + 8,
@@ -239,47 +238,24 @@ public class ContainerMEMonitorable extends AEBaseContainer
                 }
             }
 
-            if (!this.items.isEmpty() || !this.fluids.isEmpty()) {
-                try {
-                    final IItemList<IAEItemStack> monitorItemCache = this.monitorItems.getStorageList();
-                    final IItemList<IAEFluidStack> monitorFluidCache = this.monitorFluids.getStorageList();
+            try {
+                final PacketMEInventoryUpdate piu = new PacketMEInventoryUpdate();
 
-                    final PacketMEInventoryUpdate piu = new PacketMEInventoryUpdate();
+                if (this.monitorItems != null) updateList(piu, this.monitorItems.getStorageList(), this.items);
 
-                    for (final IAEItemStack is : this.items) {
-                        final IAEItemStack send = monitorItemCache.findPrecise(is);
-                        if (send == null) {
-                            is.setStackSize(0);
-                            piu.appendItem(is);
-                        } else {
-                            piu.appendItem(send);
+                if (this.monitorFluids != null) updateList(piu, this.monitorFluids.getStorageList(), this.fluids);
+
+                if (!piu.isEmpty()) {
+                    this.items.resetStatus();
+                    this.fluids.resetStatus();
+
+                    for (final Object c : this.crafters) {
+                        if (c instanceof EntityPlayer) {
+                            NetworkHandler.instance.sendTo(piu, (EntityPlayerMP) c);
                         }
                     }
-
-                    for (final IAEFluidStack is : this.fluids) {
-                        final IAEFluidStack send = monitorFluidCache.findPrecise(is);
-                        if (send == null) {
-                            is.setStackSize(0);
-                            piu.appendItem(is);
-                        } else {
-                            piu.appendItem(send);
-                        }
-                    }
-
-                    if (!piu.isEmpty()) {
-                        this.items.resetStatus();
-                        this.fluids.resetStatus();
-
-                        for (final Object c : this.crafters) {
-                            if (c instanceof EntityPlayer) {
-                                NetworkHandler.instance.sendTo(piu, (EntityPlayerMP) c);
-                            }
-                        }
-                    }
-                } catch (final IOException e) {
-                    AELog.debug(e);
                 }
-            }
+            } catch (Exception ignored) {}
 
             this.updatePowerStatus();
 
@@ -295,6 +271,24 @@ public class ContainerMEMonitorable extends AEBaseContainer
             }
 
             super.detectAndSendChanges();
+        }
+    }
+
+    private void updateList(PacketMEInventoryUpdate piu, IItemList monitorCache, IItemList<?> list) {
+        if (!list.isEmpty()) {
+            try {
+                for (final IAEStack<?> aes : list) {
+                    final IAEStack<?> send = monitorCache.findPrecise(aes);
+                    if (send == null) {
+                        aes.setStackSize(0);
+                        piu.appendItem(aes);
+                    } else {
+                        piu.appendItem(send);
+                    }
+                }
+            } catch (final IOException e) {
+                AELog.debug(e);
+            }
         }
     }
 
@@ -333,41 +327,34 @@ public class ContainerMEMonitorable extends AEBaseContainer
     }
 
     private void queueInventory(final ICrafting c) {
-        if (Platform.isServer() && c instanceof EntityPlayer
-                && this.monitorItems != null
-                && this.monitorFluids != null) {
+        if (Platform.isServer() && c instanceof EntityPlayerMP pmp) {
             try {
                 PacketMEInventoryUpdate piu = new PacketMEInventoryUpdate();
-                final IItemList<IAEItemStack> monitorItemCache = this.monitorItems.getStorageList();
-                final IItemList<IAEFluidStack> monitorFluidCache = this.monitorFluids.getStorageList();
 
-                for (final IAEItemStack send : monitorItemCache) {
-                    try {
-                        piu.appendItem(send);
-                    } catch (final BufferOverflowException boe) {
-                        NetworkHandler.instance.sendTo(piu, (EntityPlayerMP) c);
+                if (this.monitorItems != null) queueInventoryList(piu, this.monitorItems.getStorageList(), pmp);
 
-                        piu = new PacketMEInventoryUpdate();
-                        piu.appendItem(send);
-                    }
-                }
+                if (this.monitorFluids != null) queueInventoryList(piu, this.monitorFluids.getStorageList(), pmp);
 
-                for (final IAEFluidStack send : monitorFluidCache) {
-                    try {
-                        piu.appendItem(send);
-                    } catch (final BufferOverflowException boe) {
-                        NetworkHandler.instance.sendTo(piu, (EntityPlayerMP) c);
-
-                        piu = new PacketMEInventoryUpdate();
-                        piu.appendItem(send);
-                    }
-                }
-
-                NetworkHandler.instance.sendTo(piu, (EntityPlayerMP) c);
+                NetworkHandler.instance.sendTo(piu, pmp);
             } catch (final IOException e) {
                 AELog.debug(e);
             }
         }
+    }
+
+    private void queueInventoryList(PacketMEInventoryUpdate piu, IItemList monitorCache, EntityPlayerMP c) {
+        try {
+            for (final IAEStack<?> send : (IItemList<?>) monitorCache) {
+                try {
+                    piu.appendItem(send);
+                } catch (final BufferOverflowException boe) {
+                    NetworkHandler.instance.sendTo(piu, c);
+
+                    piu = new PacketMEInventoryUpdate();
+                    piu.appendItem(send);
+                }
+            }
+        } catch (Exception ignored) {}
     }
 
     @Override

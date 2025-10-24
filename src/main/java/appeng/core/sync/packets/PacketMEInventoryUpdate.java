@@ -185,6 +185,10 @@ public class PacketMEInventoryUpdate extends AppEngPacket {
         return this.data.readableBytes();
     }
 
+    public int getSize() {
+        return this.list.size();
+    }
+
     public boolean isEmpty() {
         return this.empty;
     }

@@ -19,6 +19,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.ActionItems;
@@ -144,6 +145,26 @@ public class GuiStorageBus extends GuiUpgradeable {
     }
 
     @Override
+    public void drawBG(int offsetX, int offsetY, int mouseX, int mouseY) {
+        super.drawBG(offsetX, offsetY, mouseX, mouseY);
+
+        for (int i = 0; i < 5; i++) {
+            if (i >= this.containerStorageBus.getUpgradeable().getInstalledUpgrades(Upgrades.CAPACITY)) {
+                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+                GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.4F);
+                GL11.glEnable(GL11.GL_BLEND);
+            }
+
+            this.drawTexturedModalRect(offsetX + 7, offsetY + 64 + (18 * i), 7, 28, 162, 18);
+
+            if (i >= this.containerStorageBus.getUpgradeable().getInstalledUpgrades(Upgrades.CAPACITY)) {
+                GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                GL11.glPopAttrib();
+            }
+        }
+    }
+
+    @Override
     protected String getBackground() {
         return "guis/storagebus.png";
     }
@@ -195,8 +216,8 @@ public class GuiStorageBus extends GuiUpgradeable {
     protected void updateSlotVisibility() {
         for (VirtualMEPatternSlot slot : this.craftingSlots) {
             slot.setHidden(
-                    slot.getSlotIndex()
-                            <= 2 * this.containerStorageBus.getUpgradeable().getInstalledUpgrades(Upgrades.CAPACITY));
+                    slot.getSlotIndex() > (18
+                            + (9 * this.containerStorageBus.getUpgradeable().getInstalledUpgrades(Upgrades.CAPACITY))));
         }
     }
 

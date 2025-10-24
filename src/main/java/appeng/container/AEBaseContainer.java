@@ -42,6 +42,7 @@ import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
 import appeng.api.config.SecurityPermissions;
 import appeng.api.implementations.guiobjects.IGuiItemObject;
+import appeng.api.implementations.guiobjects.IPortableCell;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
@@ -1346,15 +1347,16 @@ public abstract class AEBaseContainer extends Container {
             } else {
                 this.setPowerMultiplier(AEConfig.instance.wireless_getDrainRate(wtgo.getRange()));
             }
+        }
 
-            final ItemStack currentItem = wtgo.getInventorySlot() < 0 ? this.getPlayerInv().getCurrentItem()
-                    : this.getPlayerInv().getStackInSlot(wtgo.getInventorySlot());
-
-            if (currentItem != wtgo.getItemStack()) {
+        if (obj instanceof IPortableCell ipc) {
+            final ItemStack currentItem = ipc.getInventorySlot() < 0 ? this.getPlayerInv().getCurrentItem()
+                    : this.getPlayerInv().getStackInSlot(ipc.getInventorySlot());
+            final ItemStack is = ipc.getItemStack();
+            if (currentItem != is) {
                 if (currentItem != null) {
-                    if (Platform.isSameItem(wtgo.getItemStack(), currentItem)) {
-                        this.getPlayerInv()
-                                .setInventorySlotContents(this.getPlayerInv().currentItem, wtgo.getItemStack());
+                    if (Platform.isSameItem(is, currentItem)) {
+                        this.getPlayerInv().setInventorySlotContents(this.getPlayerInv().currentItem, is);
                     } else {
                         this.setValidContainer(false);
                     }
