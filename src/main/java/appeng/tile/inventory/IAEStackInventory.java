@@ -83,7 +83,7 @@ public class IAEStackInventory {
                 final NBTTagCompound c = target.getCompoundTag("#" + x);
 
                 if (c != null) {
-                    this.inv[x] = readStackNBT(c, true);
+                    this.inv[x] = readStackNBT(c, false);
                 }
             } catch (final Exception e) {
                 AELog.debug(e);

@@ -5,6 +5,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 
 import appeng.container.ContainerOpenContext;
+import appeng.container.PrimaryGui;
 import appeng.container.implementations.ContainerCraftAmount;
 import appeng.container.implementations.ContainerMEMonitorable;
 import appeng.core.sync.AppEngPacket;
@@ -44,14 +45,15 @@ public class PacketMonitorableAction extends AppEngPacket {
         if (!(player.openContainer instanceof ContainerMEMonitorable container)) return;
 
         if (action == MonitorableAction.AUTO_CRAFT) {
+            final PrimaryGui pGui = container.getPrimaryGui();
             final ContainerOpenContext context = container.getOpenContext();
             if (context != null) {
                 final TileEntity te = context.getTile();
                 Platform.openGUI(player, te, container.getOpenContext().getSide(), GuiBridge.GUI_CRAFTING_AMOUNT);
 
                 if (player.openContainer instanceof ContainerCraftAmount cca) {
-
                     if (container.getTargetStack() != null) {
+                        cca.setPrimaryGui(pGui);
                         cca.setItemToCraft(container.getTargetStack());
                         cca.setInitialCraftAmount(1);
                     }

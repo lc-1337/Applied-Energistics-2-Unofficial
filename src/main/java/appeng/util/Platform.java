@@ -1996,6 +1996,7 @@ public class Platform {
     }
 
     public static IAEStack<?> readStackNBT(NBTTagCompound tag, boolean convert) {
+        if (tag == null) return null;
         if (tag.hasKey("StackType", 1)) {
             // For old experimental compatibility
             final byte stackType = tag.getByte("StackType");

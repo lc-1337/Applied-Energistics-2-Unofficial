@@ -20,6 +20,7 @@ import appeng.api.storage.ICellWorkbenchItem;
 import appeng.core.features.AEFeature;
 import appeng.items.AEBaseItem;
 import appeng.items.contents.CellConfig;
+import appeng.tile.inventory.IAEStackInventory;
 
 public class ItemCreativeStorageCell extends AEBaseItem implements ICellWorkbenchItem {
 
@@ -39,7 +40,7 @@ public class ItemCreativeStorageCell extends AEBaseItem implements ICellWorkbenc
     }
 
     @Override
-    public IInventory getConfigInventory(final ItemStack is) {
+    public IAEStackInventory getConfigInventory(final ItemStack is) {
         return new CellConfig(is);
     }
 

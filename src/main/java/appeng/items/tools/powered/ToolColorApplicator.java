@@ -62,6 +62,7 @@ import appeng.items.contents.CellUpgrades;
 import appeng.items.misc.ItemPaintBall;
 import appeng.items.tools.powered.powersink.AEBasePoweredItem;
 import appeng.me.storage.CellInventoryHandler;
+import appeng.tile.inventory.IAEStackInventory;
 import appeng.tile.misc.TilePaint;
 import appeng.util.ItemSorters;
 import appeng.util.IterationCounter;
@@ -71,7 +72,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class ToolColorApplicator extends AEBasePoweredItem
-        implements IStorageCell, IItemGroup, IBlockTool, IMouseWheelItem {
+        implements IStorageCell<IAEItemStack>, IItemGroup, IBlockTool, IMouseWheelItem {
 
     private static final Map<Integer, AEColor> ORE_TO_COLOR = new HashMap<>();
 
@@ -388,7 +389,7 @@ public class ToolColorApplicator extends AEBasePoweredItem
                                 + ' '
                                 + GuiText.BytesUsed.getLocal());
                 lines.add(
-                        cd.getStoredItemTypes() + " "
+                        cd.getStoredTypes() + " "
                                 + GuiText.Of.getLocal()
                                 + ' '
                                 + cd.getTotalItemTypes()
@@ -419,7 +420,7 @@ public class ToolColorApplicator extends AEBasePoweredItem
     }
 
     @Override
-    public boolean isBlackListed(final ItemStack cellItem, final IAEItemStack requestedAddition) {
+    public boolean isBlackListed(final IAEItemStack requestedAddition) {
         if (requestedAddition != null) {
             final int[] id = OreDictionary.getOreIDs(requestedAddition.getItemStack());
 
@@ -469,7 +470,7 @@ public class ToolColorApplicator extends AEBasePoweredItem
     }
 
     @Override
-    public IInventory getConfigInventory(final ItemStack is) {
+    public IAEStackInventory getConfigInventory(final ItemStack is) {
         return new CellConfig(is);
     }
 
@@ -496,5 +497,10 @@ public class ToolColorApplicator extends AEBasePoweredItem
     @Override
     public void setOreFilter(ItemStack is, String filter) {
         Platform.openNbtData(is).setString("OreFilter", filter);
+    }
+
+    @Override
+    public StorageChannel getStorageChannel() {
+        return StorageChannel.ITEMS;
     }
 }

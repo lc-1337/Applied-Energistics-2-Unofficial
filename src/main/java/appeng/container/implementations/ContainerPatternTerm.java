@@ -256,10 +256,26 @@ public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEA
         }
 
         // first check the output slots, should either be null, or a pattern
-        if (output != null && !this.isPattern(output)) {
-            return;
+        if (output != null) {
+            final boolean isPattern = isPattern(output);
+            final boolean isUltimatePattern = isUltraPattern(output);
+
+            if (!isPattern && !isUltimatePattern) return;
+
+            if (isCraftingMode()) {
+                if (isUltimatePattern) {
+                    this.patternSlotIN
+                            .putStack(AEApi.instance().definitions().items().encodedPattern().maybeStack(1).orNull());
+                }
+            } else {
+                if (isPattern) {
+                    this.patternSlotIN.putStack(
+                            AEApi.instance().definitions().items().encodedUltimatePattern().maybeStack(1).orNull());
+                }
+            }
+
         } // if nothing is there we should snag a new pattern.
-        else if (output == null) {
+        else {
             output = this.patternSlotIN.getStack();
             if (!this.isPattern(output)) {
                 return; // no blanks.
@@ -366,10 +382,22 @@ public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEA
         final IDefinitions definitions = AEApi.instance().definitions();
 
         boolean isPattern = definitions.items().encodedPattern().isSameAs(output);
-        boolean isUltimatePattern = definitions.items().encodedUltimatePattern().isSameAs(output);
         isPattern |= definitions.materials().blankPattern().isSameAs(output);
 
-        return isPattern || isUltimatePattern;
+        return isPattern;
+    }
+
+    private boolean isUltraPattern(final ItemStack output) {
+        if (output == null) {
+            return false;
+        }
+
+        final IDefinitions definitions = AEApi.instance().definitions();
+
+        boolean isUltimatePattern = definitions.items().encodedUltimatePattern().isSameAs(output);
+        isUltimatePattern |= definitions.materials().blankPattern().isSameAs(output);
+
+        return isUltimatePattern;
     }
 
     @Override

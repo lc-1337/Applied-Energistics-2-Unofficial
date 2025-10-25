@@ -19,7 +19,7 @@ import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IItemList;
 import appeng.items.storage.ItemVoidStorageCell;
-import appeng.util.item.AEItemStack;
+import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.prioitylist.FuzzyPriorityList;
 import appeng.util.prioitylist.OreFilteredList;
 import appeng.util.prioitylist.PrecisePriorityList;
@@ -34,7 +34,7 @@ public class VoidCellInventory extends MEInventoryHandler<IAEItemStack> {
             throw new AppEngException("ItemStack was used as a void cell, but was not a void cell!");
         }
         final IInventory upgrades = cell.getUpgradesInventory(o);
-        final IInventory config = cell.getConfigInventory(o);
+        final IAEStackInventory config = cell.getConfigInventory(o);
         final FuzzyMode fzMode = cell.getFuzzyMode(o);
         final String filter = cell.getOreFilter(o);
         boolean hasInverter = false;
@@ -67,9 +67,8 @@ public class VoidCellInventory extends MEInventoryHandler<IAEItemStack> {
         } else {
             final IItemList<IAEItemStack> priorityList = AEApi.instance().storage().createItemList();
             for (int x = 0; x < config.getSizeInventory(); x++) {
-                final ItemStack is = config.getStackInSlot(x);
-                if (is != null) {
-                    priorityList.add(AEItemStack.create(is));
+                if (config.getAEStackInSlot(x) instanceof IAEItemStack ais) {
+                    priorityList.add(ais);
                 }
             }
             if (!priorityList.isEmpty()) {

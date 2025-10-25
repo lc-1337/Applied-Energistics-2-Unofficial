@@ -22,6 +22,8 @@ public interface ICellCacheRegistry {
 
     int getCellStatus();
 
+    StorageChannel getStorageChannel();
+
     TYPE getCellType();
 
     enum TYPE {

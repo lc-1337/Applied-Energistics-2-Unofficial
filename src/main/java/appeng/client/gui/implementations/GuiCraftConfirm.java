@@ -1106,4 +1106,7 @@ public class GuiCraftConfirm extends GuiSub implements ICraftingCPUTableHolder, 
     public IItemList<IAEItemStack> getMissing() {
         return this.missing;
     }
+
+    @Override
+    public void initPrimaryGuiButton() {}
 }

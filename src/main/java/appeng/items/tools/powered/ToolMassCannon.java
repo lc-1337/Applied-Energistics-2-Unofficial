@@ -67,13 +67,14 @@ import appeng.items.contents.CellUpgrades;
 import appeng.items.misc.ItemPaintBall;
 import appeng.items.tools.powered.powersink.AEBasePoweredItem;
 import appeng.me.storage.CellInventoryHandler;
+import appeng.tile.inventory.IAEStackInventory;
 import appeng.tile.misc.TilePaint;
 import appeng.util.IterationCounter;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ToolMassCannon extends AEBasePoweredItem implements IStorageCell {
+public class ToolMassCannon extends AEBasePoweredItem implements IStorageCell<IAEItemStack> {
 
     public ToolMassCannon() {
         super(AEConfig.instance.matterCannonBattery, Optional.absent());
@@ -106,7 +107,7 @@ public class ToolMassCannon extends AEBasePoweredItem implements IStorageCell {
                                 + ' '
                                 + GuiText.BytesUsed.getLocal());
                 lines.add(
-                        cd.getStoredItemTypes() + " "
+                        cd.getStoredTypes() + " "
                                 + GuiText.Of.getLocal()
                                 + ' '
                                 + NumberFormat.getInstance().format(cd.getTotalItemTypes())
@@ -440,7 +441,7 @@ public class ToolMassCannon extends AEBasePoweredItem implements IStorageCell {
     }
 
     @Override
-    public IInventory getConfigInventory(final ItemStack is) {
+    public IAEStackInventory getConfigInventory(final ItemStack is) {
         return new CellConfig(is);
     }
 
@@ -475,7 +476,7 @@ public class ToolMassCannon extends AEBasePoweredItem implements IStorageCell {
     }
 
     @Override
-    public boolean isBlackListed(final ItemStack cellItem, final IAEItemStack requestedAddition) {
+    public boolean isBlackListed(final IAEItemStack requestedAddition) {
         final float pen = AEApi.instance().registries().matterCannon().getPenetration(requestedAddition.getItemStack());
         if (pen > 0) {
             return false;
@@ -507,5 +508,10 @@ public class ToolMassCannon extends AEBasePoweredItem implements IStorageCell {
     @Override
     public void setOreFilter(ItemStack is, String filter) {
         Platform.openNbtData(is).setString("OreFilter", filter);
+    }
+
+    @Override
+    public StorageChannel getStorageChannel() {
+        return StorageChannel.ITEMS;
     }
 }

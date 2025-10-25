@@ -20,33 +20,37 @@ import appeng.api.config.Actionable;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.StorageChannel;
+import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.items.contents.CellConfig;
-import appeng.util.item.AEItemStack;
 
-public class CreativeCellInventory implements IMEInventoryHandler<IAEItemStack> {
+public class CreativeCellInventory<StackType extends IAEStack<StackType>> implements IMEInventoryHandler<StackType> {
 
-    private final IItemList<IAEItemStack> itemListCache = AEApi.instance().storage().createItemList();
+    private final IItemList<IAEStack<?>> itemListCache = AEApi.instance().storage().createAEStackList();
 
     protected CreativeCellInventory(final ItemStack o) {
         final CellConfig cc = new CellConfig(o);
-        for (final ItemStack is : cc) {
-            if (is != null) {
-                final IAEItemStack i = AEItemStack.create(is);
-                i.setStackSize((long) (Math.pow(2, 52) - 1));
-                this.itemListCache.add(i);
+        for (int i = 0; i < cc.getSizeInventory(); i++) {
+            final IAEStack<?> aes = cc.getAEStackInSlot(i);
+            if (aes != null) {
+                aes.setStackSize((long) (Math.pow(2, 52) - 1));
+                this.itemListCache.add(aes);
             }
         }
     }
 
-    public static IMEInventoryHandler getCell(final ItemStack o) {
-        return new CellInventoryHandler(new CreativeCellInventory(o));
+    public static IMEInventoryHandler getCell(final ItemStack o, StorageChannel sc) {
+        if (sc == StorageChannel.ITEMS) return new ItemCellInventoryHandler(new CreativeCellInventory<IAEItemStack>(o));
+        if (sc == StorageChannel.FLUIDS)
+            return new FluidCellInventoryHandler(new CreativeCellInventory<IAEFluidStack>(o));
+        return null;
     }
 
     @Override
-    public IAEItemStack injectItems(final IAEItemStack input, final Actionable mode, final BaseActionSource src) {
-        final IAEItemStack local = this.itemListCache.findPrecise(input);
+    public StackType injectItems(final StackType input, final Actionable mode, final BaseActionSource src) {
+        final StackType local = (StackType) this.itemListCache.findPrecise(input);
         if (local == null) {
             return input;
         }
@@ -55,8 +59,8 @@ public class CreativeCellInventory implements IMEInventoryHandler<IAEItemStack> 
     }
 
     @Override
-    public IAEItemStack extractItems(final IAEItemStack request, final Actionable mode, final BaseActionSource src) {
-        final IAEItemStack local = this.itemListCache.findPrecise(request);
+    public StackType extractItems(final StackType request, final Actionable mode, final BaseActionSource src) {
+        final StackType local = (StackType) this.itemListCache.findPrecise(request);
         if (local == null) {
             return null;
         }
@@ -65,16 +69,16 @@ public class CreativeCellInventory implements IMEInventoryHandler<IAEItemStack> 
     }
 
     @Override
-    public IItemList<IAEItemStack> getAvailableItems(final IItemList out, int iteration) {
-        for (final IAEItemStack ais : this.itemListCache) {
+    public IItemList<StackType> getAvailableItems(final IItemList out, int iteration) {
+        for (final IAEStack<?> ais : this.itemListCache) {
             out.add(ais);
         }
         return out;
     }
 
     @Override
-    public IAEItemStack getAvailableItem(@Nonnull IAEItemStack request, int iteration) {
-        final IAEItemStack local = this.itemListCache.findPrecise(request);
+    public StackType getAvailableItem(@Nonnull StackType request, int iteration) {
+        final StackType local = (StackType) this.itemListCache.findPrecise(request);
         if (local == null) {
             return null;
         }
@@ -93,12 +97,12 @@ public class CreativeCellInventory implements IMEInventoryHandler<IAEItemStack> 
     }
 
     @Override
-    public boolean isPrioritized(final IAEItemStack input) {
+    public boolean isPrioritized(final StackType input) {
         return this.itemListCache.findPrecise(input) != null;
     }
 
     @Override
-    public boolean canAccept(final IAEItemStack input) {
+    public boolean canAccept(final StackType input) {
         return this.itemListCache.findPrecise(input) != null;
     }
 

@@ -17,9 +17,11 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
 import appeng.api.config.FuzzyMode;
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IItemList;
+import appeng.tile.inventory.IAEStackInventory;
 
-public interface ICellInventory extends IMEInventory<IAEItemStack> {
+public interface ICellInventory<StackType extends IAEStack<StackType>> extends IMEInventory<StackType> {
 
     /**
      * @return the item stack of this storage cell.
@@ -39,7 +41,7 @@ public interface ICellInventory extends IMEInventory<IAEItemStack> {
     /**
      * @return access configured list
      */
-    IInventory getConfigInventory();
+    IAEStackInventory getConfigInventory();
 
     /**
      * @return access installed upgrades.
@@ -79,12 +81,12 @@ public interface ICellInventory extends IMEInventory<IAEItemStack> {
     /**
      * @return how many items are stored.
      */
-    long getStoredItemCount();
+    long getStoredCount();
 
     /**
      * @return how many items types are currently stored.
      */
-    long getStoredItemTypes();
+    long getStoredTypes();
 
     /**
      * @return how many item types remain.
@@ -99,7 +101,7 @@ public interface ICellInventory extends IMEInventory<IAEItemStack> {
     /**
      * @return how many more items can be stored with Distribution card.
      */
-    long getRemainingItemsCountDist(IAEItemStack l);
+    long getRemainingItemsCountDist(StackType l);
 
     /**
      * @return how many items can be added without consuming another byte.
@@ -112,4 +114,6 @@ public interface ICellInventory extends IMEInventory<IAEItemStack> {
     int getStatusForCell();
 
     String getOreFilter();
+
+    IItemList<StackType> getStorageList();
 }

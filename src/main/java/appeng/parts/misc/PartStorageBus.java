@@ -29,6 +29,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.glodblock.github.common.item.ItemFluidPacket;
 import com.glodblock.github.inventory.MEMonitorIFluidHandler;
 import com.glodblock.github.util.BlockPos;
 
@@ -635,7 +636,9 @@ public class PartStorageBus extends PartUpgradeable implements IStorageBus {
 
                         final int slotsToUse = 18 + this.getInstalledUpgrades(Upgrades.CAPACITY) * 9;
                         for (int x = 0; x < this.Config.getSizeInventory() && x < slotsToUse; x++) {
-                            final IAEStack<?> is = this.Config.getAEStackInSlot(x);
+                            IAEStack<?> is = this.Config.getAEStackInSlot(x);
+                            if (getStorageChannel() == StorageChannel.FLUIDS &&
+                            is instanceof IAEItemStack ais && ais.getItem() instanceof ItemFluidPacket) is = ItemFluidPacket.getFluidAEStack(ais);
                             if (is != null) priorityList.add(is);
                         }
 

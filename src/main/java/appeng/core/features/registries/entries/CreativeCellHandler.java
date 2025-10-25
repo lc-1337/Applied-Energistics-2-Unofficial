@@ -38,7 +38,7 @@ public class CreativeCellHandler implements ICellHandler {
     public IMEInventoryHandler getCellInventory(final ItemStack is, final ISaveProvider container,
             final StorageChannel channel) {
         if (channel == StorageChannel.ITEMS && is != null && is.getItem() instanceof ItemCreativeStorageCell) {
-            return CreativeCellInventory.getCell(is);
+            return CreativeCellInventory.getCell(is, StorageChannel.ITEMS);
         }
         return null;
     }

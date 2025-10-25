@@ -15,7 +15,6 @@ import java.util.List;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
-import appeng.api.AEApi;
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.IncludeExclude;
 import appeng.api.config.Upgrades;
@@ -25,24 +24,21 @@ import appeng.api.storage.ICellInventory;
 import appeng.api.storage.ICellInventoryHandler;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.StorageChannel;
-import appeng.api.storage.data.IAEItemStack;
-import appeng.api.storage.data.IItemList;
-import appeng.util.item.AEItemStack;
+import appeng.api.storage.data.IAEStack;
+import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.prioitylist.FuzzyPriorityList;
-import appeng.util.prioitylist.OreFilteredList;
-import appeng.util.prioitylist.PrecisePriorityList;
 
-public class CellInventoryHandler extends MEInventoryHandler<IAEItemStack>
-        implements ICellInventoryHandler, ICellCacheRegistry {
+public abstract class CellInventoryHandler<StackType extends IAEStack<StackType>> extends MEInventoryHandler<StackType>
+        implements ICellInventoryHandler<StackType>, ICellCacheRegistry {
 
-    CellInventoryHandler(final IMEInventory<IAEItemStack> c) {
-        super(c, StorageChannel.ITEMS);
+    CellInventoryHandler(final IMEInventory<StackType> c, final StorageChannel sc) {
+        super(c, sc);
 
-        final ICellInventory ci = this.getCellInv();
+        final ICellInventory<StackType> ci = this.getCellInv();
 
         if (ci != null) {
             final IInventory upgrades = ci.getUpgradesInventory();
-            final IInventory config = ci.getConfigInventory();
+            final IAEStackInventory config = ci.getConfigInventory();
             final FuzzyMode fzMode = ci.getFuzzyMode();
             final String filter = ci.getOreFilter();
 
@@ -73,28 +69,19 @@ public class CellInventoryHandler extends MEInventoryHandler<IAEItemStack>
             }
 
             if (hasOreFilter && !filter.isEmpty()) {
-                this.setPartitionList(new OreFilteredList(filter));
+                setOreFilteredList(filter);
             } else {
-                final IItemList<IAEItemStack> priorityList = AEApi.instance().storage().createItemList();
-                for (int x = 0; x < config.getSizeInventory(); x++) {
-                    final ItemStack is = config.getStackInSlot(x);
-                    if (is != null) {
-                        priorityList.add(AEItemStack.create(is));
-                    }
-                }
-                if (!priorityList.isEmpty()) {
-                    if (hasFuzzy) {
-                        this.setPartitionList(new FuzzyPriorityList<>(priorityList, fzMode));
-                    } else {
-                        this.setPartitionList(new PrecisePriorityList<>(priorityList));
-                    }
-                }
+                setPriorityList(hasFuzzy, config, fzMode);
             }
         }
     }
 
+    protected void setOreFilteredList(String filter) {};
+
+    protected void setPriorityList(boolean hasFuzzy, IAEStackInventory config, FuzzyMode fzMode) {};
+
     @Override
-    public ICellInventory getCellInv() {
+    public ICellInventory<StackType> getCellInv() {
         Object o = this.getInternal();
         if (o instanceof MEPassThrough) {
             o = ((MEPassThrough<?>) o).getInternal();
@@ -159,7 +146,7 @@ public class CellInventoryHandler extends MEInventoryHandler<IAEItemStack>
 
     @Override
     public long getUsedTypes() {
-        return this.getCellInv().getStoredItemTypes();
+        return this.getCellInv().getStoredTypes();
     }
 
     @Override

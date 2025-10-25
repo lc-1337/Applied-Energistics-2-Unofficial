@@ -17,6 +17,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
 import appeng.api.config.FuzzyMode;
+import appeng.tile.inventory.IAEStackInventory;
 
 public interface ICellWorkbenchItem {
 
@@ -43,7 +44,7 @@ public interface ICellWorkbenchItem {
      * <p>
      * onInventoryChange will be called when saving is needed.
      */
-    IInventory getConfigInventory(ItemStack is);
+    IAEStackInventory getConfigInventory(ItemStack is);
 
     /**
      * @return the current fuzzy status.

@@ -413,6 +413,7 @@ public final class AEFluidStack extends AEStack<IAEFluidStack> implements IAEFlu
     @Nullable
     @Override
     public ItemStack getItemStackForNEI() {
+        if (this.getStackSize() <= 0) return null;
         ItemStack stack = stackConvertPacket(this).getItemStack();
         return StackInfo.loadFromNBT(StackInfo.itemStackToNBT(stack), 0);
     }

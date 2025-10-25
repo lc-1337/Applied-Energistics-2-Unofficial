@@ -56,7 +56,7 @@ public class GuiStorageBus extends GuiUpgradeable {
     private GuiTabButton priority;
     private GuiImgButton partition;
     private GuiImgButton clear;
-    private VirtualMEPatternSlot[] craftingSlots;
+    private VirtualMEPatternSlot[] configSlots;
     private final ContainerStorageBus containerStorageBus;
 
     public GuiStorageBus(final InventoryPlayer inventoryPlayer, final IStorageBus te) {
@@ -195,7 +195,7 @@ public class GuiStorageBus extends GuiUpgradeable {
     }
 
     private void initVirtualSlots() {
-        this.craftingSlots = new VirtualMEPatternSlot[63];
+        this.configSlots = new VirtualMEPatternSlot[63];
         final IAEStackInventory inputInv = this.containerStorageBus.getConfig();
         final int xo = 8;
         final int yo = -133;
@@ -207,14 +207,14 @@ public class GuiStorageBus extends GuiUpgradeable {
                         yo + y * 18 + 9 * 18,
                         inputInv,
                         x + y * 9);
-                this.craftingSlots[x + y * 9] = slot;
+                this.configSlots[x + y * 9] = slot;
                 this.registerVirtualSlots(slot);
             }
         }
     }
 
     protected void updateSlotVisibility() {
-        for (VirtualMEPatternSlot slot : this.craftingSlots) {
+        for (VirtualMEPatternSlot slot : this.configSlots) {
             slot.setHidden(
                     slot.getSlotIndex() > (18
                             + (9 * this.containerStorageBus.getUpgradeable().getInstalledUpgrades(Upgrades.CAPACITY))));
