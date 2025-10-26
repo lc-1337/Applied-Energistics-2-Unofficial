@@ -79,5 +79,7 @@ public interface ICellWorkbenchItem {
      */
     default void setOreFilter(ItemStack is, String filter) {}
 
-    StorageChannel getStorageChannel();
+    default StorageChannel getStorageChannel() {
+        return StorageChannel.ITEMS;
+    }
 }

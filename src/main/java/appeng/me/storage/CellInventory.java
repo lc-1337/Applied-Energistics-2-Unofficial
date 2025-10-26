@@ -162,7 +162,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
     private boolean isEmpty(final IMEInventory<?> meInventory) {
         return ((IMEInventory<StackType>) meInventory)
-                .getAvailableItems(getStorageList(), IterationCounter.fetchNewId()).isEmpty();
+                .getAvailableItems(this.getChannel().createPrimitiveList(), IterationCounter.fetchNewId()).isEmpty();
     }
 
     @Override
@@ -391,7 +391,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
     private void loadCellItems() {
         if (this.cellStacks == null) {
-            this.cellStacks = getStorageList();
+            this.cellStacks = this.getChannel().createPrimitiveList();
         }
 
         this.cellStacks.resetStatus(); // clears totals and stuff.
@@ -614,9 +614,6 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
     protected void setTypeWeight(int typeWeight) {
         this.typeWeight = typeWeight;
     }
-
-    @Override
-    public abstract IItemList<StackType> getStorageList();
 
     @Override
     public StorageChannel getChannel() {

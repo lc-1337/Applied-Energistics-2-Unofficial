@@ -161,9 +161,4 @@ public class VoidCellInventory<StackType extends IAEStack<StackType>> implements
     public String getOreFilter() {
         return this.cellType.getOreFilter(this.cellItem);
     }
-
-    @Override
-    public IItemList<StackType> getStorageList() {
-        return null;
-    }
 }

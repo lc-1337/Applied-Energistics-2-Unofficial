@@ -397,8 +397,9 @@ public class TileDrive extends AENetworkInvTile
         if (cellInventory != null) {
             if (cellInventory.getStoredItemTypes() != 0) {
                 int idx = 0;
-                for (Object partitionStack : (handler
-                        .getAvailableItems(cellInventory.getStorageList(), IterationCounter.fetchNewId()))) {
+                for (Object partitionStack : (handler.getAvailableItems(
+                        cellInventory.getChannel().createPrimitiveList(),
+                        IterationCounter.fetchNewId()))) {
                     final IAEStack<?> aes = ((IAEStack<?>) partitionStack).copy();
                     aes.setStackSize(1);
                     cellInventory.getConfigAEInventory().putAEStackInSlot(idx++, aes);

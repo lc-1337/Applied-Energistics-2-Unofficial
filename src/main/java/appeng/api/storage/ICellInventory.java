@@ -18,7 +18,6 @@ import net.minecraft.item.ItemStack;
 
 import appeng.api.config.FuzzyMode;
 import appeng.api.storage.data.IAEStack;
-import appeng.api.storage.data.IItemList;
 import appeng.items.contents.CellConfigLegacy;
 import appeng.items.contents.CellConfigLegacyWrapper;
 import appeng.tile.inventory.IAEStackInventory;
@@ -127,6 +126,4 @@ public interface ICellInventory<StackType extends IAEStack<StackType>> extends I
     int getStatusForCell();
 
     String getOreFilter();
-
-    IItemList<StackType> getStorageList();
 }

@@ -156,7 +156,8 @@ public abstract class AEBaseCell<StackType extends IAEStack<StackType>> extends 
                         + GuiText.Types.getLocal());
 
         if (cellInventory.getTotalItemTypes() == 1 && cellInventory.getStoredItemTypes() != 0) {
-            IAEStack<?> aes = handler.getAvailableItems(cellInventory.getStorageList(), IterationCounter.fetchNewId())
+            IAEStack<?> aes = handler
+                    .getAvailableItems(cellInventory.getChannel().createPrimitiveList(), IterationCounter.fetchNewId())
                     .getFirstItem();
             lines.add(GuiText.Contains.getLocal() + ": " + aes.getDisplayName());
         }

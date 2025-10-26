@@ -3,11 +3,9 @@ package appeng.me.storage;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import appeng.api.AEApi;
 import appeng.api.exceptions.AppEngException;
 import appeng.api.storage.ISaveProvider;
 import appeng.api.storage.data.IAEFluidStack;
-import appeng.api.storage.data.IItemList;
 import appeng.util.item.AEFluidStack;
 
 public class FluidCellInventory extends CellInventory<IAEFluidStack> {
@@ -21,11 +19,6 @@ public class FluidCellInventory extends CellInventory<IAEFluidStack> {
     @Override
     protected IAEFluidStack readStack(NBTTagCompound tag) {
         return AEFluidStack.loadFluidStackFromNBT(tag);
-    }
-
-    @Override
-    public IItemList<IAEFluidStack> getStorageList() {
-        return AEApi.instance().storage().createFluidList();
     }
 
     @Override

@@ -3,11 +3,9 @@ package appeng.me.storage;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import appeng.api.AEApi;
 import appeng.api.exceptions.AppEngException;
 import appeng.api.storage.ISaveProvider;
 import appeng.api.storage.data.IAEItemStack;
-import appeng.api.storage.data.IItemList;
 import appeng.util.item.AEItemStack;
 
 public class ItemCellInventory extends CellInventory<IAEItemStack> {
@@ -21,11 +19,6 @@ public class ItemCellInventory extends CellInventory<IAEItemStack> {
     @Override
     protected IAEItemStack readStack(NBTTagCompound tag) {
         return AEItemStack.loadItemStackFromNBT(tag);
-    }
-
-    @Override
-    public IItemList<IAEItemStack> getStorageList() {
-        return AEApi.instance().storage().createPrimitiveItemList();
     }
 
     @Override
