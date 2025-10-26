@@ -1,17 +1,13 @@
 package appeng.me.storage;
 
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.oredict.OreDictionary;
 
 import appeng.api.AEApi;
 import appeng.api.exceptions.AppEngException;
 import appeng.api.storage.ISaveProvider;
-import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IItemList;
-import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 
 public class ItemCellInventory extends CellInventory<IAEItemStack> {
@@ -30,22 +26,6 @@ public class ItemCellInventory extends CellInventory<IAEItemStack> {
     @Override
     public IItemList<IAEItemStack> getStorageList() {
         return AEApi.instance().storage().createPrimitiveItemList();
-    }
-
-    @Override
-    public StorageChannel getChannel() {
-        return StorageChannel.ITEMS;
-    }
-
-    @Override
-    protected boolean isBlackListed(IAEItemStack input) {
-        if (BLACK_LIST.contains(
-                (OreDictionary.WILDCARD_VALUE << Platform.DEF_OFFSET) | Item.getIdFromItem(input.getItem()))) {
-            return true;
-        }
-
-        return BLACK_LIST
-                .contains((input.getItemDamage() << Platform.DEF_OFFSET) | Item.getIdFromItem(input.getItem()));
     }
 
     @Override

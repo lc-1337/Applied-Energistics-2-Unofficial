@@ -21,8 +21,6 @@ import appeng.api.implementations.guiobjects.IGuiItemObject;
 import appeng.api.implementations.items.IItemGroup;
 import appeng.api.implementations.items.IStorageCell;
 import appeng.api.storage.ICellInventory;
-import appeng.api.storage.IMEInventory;
-import appeng.api.storage.data.IAEStack;
 import appeng.core.AEConfig;
 import appeng.core.features.AEFeature;
 import appeng.core.localization.GuiText;
@@ -37,8 +35,7 @@ import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public abstract class AEBasePortableCell<StackType extends IAEStack<StackType>> extends AEBasePoweredItem
-        implements IStorageCell<StackType>, IGuiItem, IItemGroup {
+public abstract class AEBasePortableCell extends AEBasePoweredItem implements IStorageCell, IGuiItem, IItemGroup {
 
     public AEBasePortableCell() {
         super(AEConfig.instance.portableCellBattery, Optional.absent());
@@ -63,11 +60,9 @@ public abstract class AEBasePortableCell<StackType extends IAEStack<StackType>> 
             final boolean displayMoreInfo) {
         super.addCheckedInformation(stack, player, lines, displayMoreInfo);
 
-        final IMEInventory cdi = AEApi.instance().registries().cell()
-                .getCellInventory(stack, null, getStorageChannel());
-
-        if (cdi instanceof CellInventoryHandler) {
-            final ICellInventory cd = ((CellInventoryHandler) cdi).getCellInv();
+        if (AEApi.instance().registries().cell()
+                .getCellInventory(stack, null, getStorageChannel()) instanceof CellInventoryHandler<?>cih) {
+            final ICellInventory<?> cd = cih.getCellInv();
             if (cd != null) {
                 lines.add(
                         EnumChatFormatting.WHITE + NumberFormat.getInstance().format(cd.getUsedBytes())
@@ -113,11 +108,6 @@ public abstract class AEBasePortableCell<StackType extends IAEStack<StackType>> 
     @Override
     public int getTotalTypes(final ItemStack cellItem) {
         return 27;
-    }
-
-    @Override
-    public boolean isBlackListed(final StackType requestedAddition) {
-        return false;
     }
 
     @Override

@@ -74,7 +74,7 @@ import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ToolMassCannon extends AEBasePoweredItem implements IStorageCell<IAEItemStack> {
+public class ToolMassCannon extends AEBasePoweredItem implements IStorageCell {
 
     public ToolMassCannon() {
         super(AEConfig.instance.matterCannonBattery, Optional.absent());
@@ -476,13 +476,15 @@ public class ToolMassCannon extends AEBasePoweredItem implements IStorageCell<IA
     }
 
     @Override
-    public boolean isBlackListed(final IAEItemStack requestedAddition) {
-        final float pen = AEApi.instance().registries().matterCannon().getPenetration(requestedAddition.getItemStack());
-        if (pen > 0) {
-            return false;
+    public boolean isBlackListed(final IAEStack<?> requestedAddition) {
+        if (requestedAddition instanceof IAEItemStack ais) {
+            final float pen = AEApi.instance().registries().matterCannon().getPenetration(ais.getItemStack());
+            if (pen > 0) {
+                return false;
+            }
+            return !(ais.getItem() instanceof ItemPaintBall);
         }
-
-        return !(requestedAddition.getItem() instanceof ItemPaintBall);
+        return false;
     }
 
     @Override

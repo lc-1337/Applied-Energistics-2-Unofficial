@@ -11,12 +11,14 @@ import net.minecraft.item.ItemStack;
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.IncludeExclude;
 import appeng.api.storage.ICellWorkbenchItem;
+import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEStack;
 import appeng.core.features.AEFeature;
 import appeng.core.localization.GuiText;
 import appeng.items.AEBaseItem;
 import appeng.items.contents.CellConfig;
 import appeng.items.contents.CellUpgrades;
+import appeng.me.storage.CellInventoryHandler;
 import appeng.me.storage.VoidCellInventory;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.Platform;
@@ -36,9 +38,10 @@ public class ItemVoidStorageCell extends AEBaseItem implements ICellWorkbenchIte
             final boolean displayMoreInfo) {
         lines.add(GuiText.VoidCellTooltip.getLocal());
         lines.add(0 + " " + GuiText.Of.getLocal() + " \u00A7k9999\u00A77 " + GuiText.BytesUsed.getLocal());
-        VoidCellInventory inv = (VoidCellInventory) VoidCellInventory.getCell(stack);
-        if (inv != null && stack.getItem() instanceof ItemVoidStorageCell cell) {
-            if (inv.isPreformatted()) {
+        if (stack.getItem() instanceof ItemVoidStorageCell cell) {
+            CellInventoryHandler<?> inv = (CellInventoryHandler<?>) VoidCellInventory
+                    .getCell(stack, cell.getStorageChannel());
+            if (inv != null && inv.isPreformatted()) {
                 String filter = cell.getOreFilter(stack);
                 if (filter.isEmpty()) {
                     final String list = (inv.getWhitelist() == IncludeExclude.WHITELIST ? GuiText.Included
@@ -98,5 +101,10 @@ public class ItemVoidStorageCell extends AEBaseItem implements ICellWorkbenchIte
     @Override
     public void setOreFilter(ItemStack is, String filter) {
         Platform.openNbtData(is).setString("OreFilter", filter);
+    }
+
+    @Override
+    public StorageChannel getStorageChannel() {
+        return StorageChannel.ITEMS;
     }
 }

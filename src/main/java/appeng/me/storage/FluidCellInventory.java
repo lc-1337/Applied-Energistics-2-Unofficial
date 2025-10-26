@@ -6,7 +6,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import appeng.api.AEApi;
 import appeng.api.exceptions.AppEngException;
 import appeng.api.storage.ISaveProvider;
-import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IItemList;
 import appeng.util.item.AEFluidStack;
@@ -27,16 +26,6 @@ public class FluidCellInventory extends CellInventory<IAEFluidStack> {
     @Override
     public IItemList<IAEFluidStack> getStorageList() {
         return AEApi.instance().storage().createFluidList();
-    }
-
-    @Override
-    public StorageChannel getChannel() {
-        return StorageChannel.FLUIDS;
-    }
-
-    @Override
-    protected boolean isBlackListed(IAEFluidStack input) {
-        return BLACK_LIST.contains(input.hashCode());
     }
 
     @Override

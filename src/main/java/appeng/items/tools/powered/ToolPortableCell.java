@@ -11,10 +11,9 @@
 package appeng.items.tools.powered;
 
 import appeng.api.storage.StorageChannel;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.items.AEBasePortableCell;
 
-public class ToolPortableCell extends AEBasePortableCell<IAEItemStack> {
+public class ToolPortableCell extends AEBasePortableCell {
 
     @Override
     public StorageChannel getStorageChannel() {

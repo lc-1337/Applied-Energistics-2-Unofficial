@@ -40,8 +40,8 @@ public class BasicCellHandler implements ICellHandler {
     @Override
     public IMEInventoryHandler getCellInventory(final ItemStack is, final ISaveProvider container,
             final StorageChannel channel) {
-        if (is.getItem() instanceof IStorageCell<?>isc) {
-            if (isc.getStorageChannel() == channel) return CellInventory.getCell(is, container, channel);
+        if (is.getItem() instanceof IStorageCell isc && isc.getStorageChannel() == channel) {
+            return CellInventory.getCell(is, container, channel);
         }
         return null;
     }

@@ -11,9 +11,7 @@
 package appeng.me.storage;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -46,9 +44,8 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
     private static final String STACK_SLOT = "#";
     private static final String STACK_SLOT_COUNT = "@";
-    protected final Set<Integer> BLACK_LIST = new HashSet<>();
-    private String[] slots;
-    private String[] slotCount;
+    private final String[] slots;
+    private final String[] slotCount;
     private final NBTTagCompound tagCompound;
     private final ISaveProvider container;
     private int maxTypes = 63;
@@ -56,7 +53,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
     private long storedCount = 0;
     private IItemList<StackType> cellStacks;
     private final ItemStack cellItem;
-    private IStorageCell cellType;
+    private final IStorageCell cellType;
     private boolean cardVoidOverflow = false;
     private boolean cardDistribution = false;
     private byte restrictionTypes = 0;
@@ -76,15 +73,12 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
             throw new AppEngException("ItemStack was used as a cell, but was not a cell!");
         }
 
-        this.cellType = null;
         this.cellItem = o;
 
-        final Item type = this.cellItem.getItem();
-
-        if (type instanceof IStorageCell) {
-            this.cellType = (IStorageCell) this.cellItem.getItem();
+        if (this.cellItem.getItem() instanceof IStorageCell type) {
+            this.cellType = type;
             this.maxTypes = this.cellType.getTotalTypes(this.cellItem);
-        }
+        } else this.cellType = null;
 
         if (this.cellType == null) {
             throw new AppEngException("ItemStack was used as a cell, but was not a cell!");
@@ -126,15 +120,15 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
     }
 
     private static boolean isStorageCell(final IAEStack<?> itemStack) {
-        if (!(itemStack instanceof IAEItemStack)) {
+        if (!(itemStack instanceof IAEItemStack ais)) {
             return false;
         }
 
         try {
-            final Item type = ((IAEItemStack) itemStack).getItem();
+            final Item type = ais.getItem();
 
-            if (type instanceof IStorageCell) {
-                return !((IStorageCell<?>) type).storableInStorageCell();
+            if (type instanceof IStorageCell sc) {
+                return !sc.storableInStorageCell();
             }
         } catch (final Throwable err) {
             return true;
@@ -150,8 +144,8 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
         final Item type = itemStack.getItem();
 
-        if (type instanceof IStorageCell) {
-            return ((IStorageCell<?>) type).isStorageCell(itemStack);
+        if (type instanceof IStorageCell sc) {
+            return sc.isStorageCell(itemStack);
         }
 
         return false;
@@ -166,14 +160,9 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
         return null;
     }
 
-    public void addBasicBlackList(final int itemID, final int meta) {
-        BLACK_LIST.add((meta << Platform.DEF_OFFSET) | itemID);
-    }
-
-    protected abstract boolean isBlackListed(final StackType input);
-
-    private boolean isEmpty(final IMEInventory<StackType> meInventory) {
-        return meInventory.getAvailableItems(getStorageList(), IterationCounter.fetchNewId()).isEmpty();
+    private boolean isEmpty(final IMEInventory<?> meInventory) {
+        return ((IMEInventory<StackType>) meInventory)
+                .getAvailableItems(getStorageList(), IterationCounter.fetchNewId()).isEmpty();
     }
 
     @Override
@@ -186,15 +175,12 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
             return null;
         }
 
-        if (isBlackListed(input) || this.isBlackListed(input)) {
+        if (this.cellType.isBlackListed(input)) {
             return input;
         }
 
         if (CellInventory.isStorageCell(input)) {
-            final IMEInventory<StackType> meInventory = (IMEInventory<StackType>) getCell(
-                    ((IAEItemStack) input).getItemStack(),
-                    null,
-                    getChannel());
+            final IMEInventory<?> meInventory = getCell(((IAEItemStack) input).getItemStack(), null, getChannel());
 
             if (meInventory != null && !this.isEmpty(meInventory)) {
                 return input;
@@ -348,8 +334,8 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
             final NBTBase c = this.tagCompound.getTag(slots[x]);
 
-            if (c instanceof NBTTagCompound) {
-                v.writeToNBT((NBTTagCompound) c);
+            if (c instanceof NBTTagCompound nbt) {
+                v.writeToNBT(nbt);
             } else {
                 final NBTTagCompound g = new NBTTagCompound();
                 v.writeToNBT(g);
@@ -462,9 +448,6 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
     }
 
     @Override
-    public abstract StorageChannel getChannel();
-
-    @Override
     public ItemStack getItemStack() {
         return this.cellItem;
     }
@@ -550,7 +533,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
         final long basedOnStorage = this.getFreeBytes() / this.getBytesPerType();
         final long baseOnTotal = this.getTotalItemTypes() - this.getStoredTypes();
 
-        return basedOnStorage > baseOnTotal ? baseOnTotal : basedOnStorage;
+        return Math.min(basedOnStorage, baseOnTotal);
     }
 
     @Override
@@ -562,7 +545,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
                 types++;
             }
         }
-        if (types == 0) types = this.getTotalItemTypes();
+        if (types == 0) types = restrictionTypes > 0 ? restrictionTypes : this.getTotalItemTypes();
         if (l != null) {
             if (restrictionLong > 0) {
                 remaining = Math.min((restrictionLong / types) - l.getStackSize(), getRemainingItemCount());
@@ -628,6 +611,11 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
     @Override
     public abstract IItemList<StackType> getStorageList();
+
+    @Override
+    public StorageChannel getChannel() {
+        return this.cellType.getStorageChannel();
+    }
 
     protected abstract String getStackTypeTag();
 

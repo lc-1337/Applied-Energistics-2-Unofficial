@@ -62,6 +62,7 @@ public abstract class CellInventoryHandler<StackType extends IAEStack<StackType>
                     }
                 }
             }
+
             this.setWhitelist(hasInverter ? IncludeExclude.BLACKLIST : IncludeExclude.WHITELIST);
 
             if (hasSticky) {
@@ -76,9 +77,9 @@ public abstract class CellInventoryHandler<StackType extends IAEStack<StackType>
         }
     }
 
-    protected void setOreFilteredList(String filter) {};
+    protected void setOreFilteredList(String filter) {}
 
-    protected void setPriorityList(boolean hasFuzzy, IAEStackInventory config, FuzzyMode fzMode) {};
+    protected void setPriorityList(boolean hasFuzzy, IAEStackInventory config, FuzzyMode fzMode) {}
 
     @Override
     public ICellInventory<StackType> getCellInv() {
@@ -86,7 +87,7 @@ public abstract class CellInventoryHandler<StackType extends IAEStack<StackType>
         if (o instanceof MEPassThrough) {
             o = ((MEPassThrough<?>) o).getInternal();
         }
-        return (ICellInventory) (o instanceof ICellInventory ? o : null);
+        return o instanceof ICellInventory ici ? ici : null;
     }
 
     @Override
@@ -160,8 +161,8 @@ public abstract class CellInventoryHandler<StackType extends IAEStack<StackType>
     }
 
     public List<Object> getRestricted() {
-        ICellInventory cellInventory = this.getCellInv();
-        if (cellInventory instanceof CellInventory ci) {
+        ICellInventory<?> cellInventory = this.getCellInv();
+        if (cellInventory instanceof CellInventory<?>ci) {
             return ci.getRestriction();
 
         }

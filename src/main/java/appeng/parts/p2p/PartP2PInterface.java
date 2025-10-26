@@ -73,7 +73,7 @@ public class PartP2PInterface extends PartP2PTunnelStatic<PartP2PInterface>
         super(is);
     }
 
-    private final DualityInterface duality = new DualityInterface(this.getProxy(), this) {
+    protected final DualityInterface duality = new DualityInterface(this.getProxy(), this) {
 
         @Override
         public void updateCraftingList() {

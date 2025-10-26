@@ -20,8 +20,6 @@ import appeng.api.config.Actionable;
 import appeng.api.networking.security.BaseActionSource;
 import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.StorageChannel;
-import appeng.api.storage.data.IAEFluidStack;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.items.contents.CellConfig;
@@ -42,9 +40,8 @@ public class CreativeCellInventory<StackType extends IAEStack<StackType>> implem
     }
 
     public static IMEInventoryHandler getCell(final ItemStack o, StorageChannel sc) {
-        if (sc == StorageChannel.ITEMS) return new ItemCellInventoryHandler(new CreativeCellInventory<IAEItemStack>(o));
-        if (sc == StorageChannel.FLUIDS)
-            return new FluidCellInventoryHandler(new CreativeCellInventory<IAEFluidStack>(o));
+        if (sc == StorageChannel.ITEMS) return new ItemCellInventoryHandler(new CreativeCellInventory<>(o));
+        if (sc == StorageChannel.FLUIDS) return new FluidCellInventoryHandler(new CreativeCellInventory<>(o));
         return null;
     }
 

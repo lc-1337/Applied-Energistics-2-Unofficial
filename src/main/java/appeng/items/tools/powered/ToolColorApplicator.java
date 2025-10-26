@@ -45,6 +45,7 @@ import appeng.api.storage.ICellInventoryHandler;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.api.util.AEColor;
 import appeng.api.util.DimensionalCoord;
@@ -72,7 +73,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class ToolColorApplicator extends AEBasePoweredItem
-        implements IStorageCell<IAEItemStack>, IItemGroup, IBlockTool, IMouseWheelItem {
+        implements IStorageCell, IItemGroup, IBlockTool, IMouseWheelItem {
 
     private static final Map<Integer, AEColor> ORE_TO_COLOR = new HashMap<>();
 
@@ -420,9 +421,9 @@ public class ToolColorApplicator extends AEBasePoweredItem
     }
 
     @Override
-    public boolean isBlackListed(final IAEItemStack requestedAddition) {
-        if (requestedAddition != null) {
-            final int[] id = OreDictionary.getOreIDs(requestedAddition.getItemStack());
+    public boolean isBlackListed(final IAEStack<?> requestedAddition) {
+        if (requestedAddition instanceof IAEItemStack ais) {
+            final int[] id = OreDictionary.getOreIDs(ais.getItemStack());
 
             for (final int x : id) {
                 if (ORE_TO_COLOR.containsKey(x)) {
@@ -430,11 +431,11 @@ public class ToolColorApplicator extends AEBasePoweredItem
                 }
             }
 
-            if (requestedAddition.getItem() instanceof ItemSnowball) {
+            if (ais.getItem() instanceof ItemSnowball) {
                 return false;
             }
 
-            return !(requestedAddition.getItem() instanceof ItemPaintBall && requestedAddition.getItemDamage() < 20);
+            return !(ais.getItem() instanceof ItemPaintBall && ais.getItemDamage() < 20);
         }
         return true;
     }

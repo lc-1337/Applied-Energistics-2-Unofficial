@@ -69,4 +69,6 @@ public interface ICellWorkbenchItem {
      * @param filter new ore dictionary filter
      */
     default void setOreFilter(ItemStack is, String filter) {}
+
+    StorageChannel getStorageChannel();
 }

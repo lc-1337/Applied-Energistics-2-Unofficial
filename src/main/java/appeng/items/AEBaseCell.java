@@ -54,7 +54,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public abstract class AEBaseCell<StackType extends IAEStack<StackType>> extends AEBaseItem
-        implements IStorageCell<StackType>, IItemGroup, ICellRestriction {
+        implements IStorageCell, IItemGroup, ICellRestriction {
 
     protected MaterialType component;
     protected long totalBytes;
@@ -237,11 +237,6 @@ public abstract class AEBaseCell<StackType extends IAEStack<StackType>> extends 
     @Override
     public int getTotalTypes(final ItemStack cellItem) {
         return this.totalTypes;
-    }
-
-    @Override
-    public boolean isBlackListed(final StackType requestedAddition) {
-        return false;
     }
 
     @Override

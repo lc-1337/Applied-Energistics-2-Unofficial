@@ -25,6 +25,7 @@ import appeng.api.config.FuzzyMode;
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.items.IUpgradeModule;
 import appeng.api.storage.ICellWorkbenchItem;
+import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
@@ -42,6 +43,7 @@ import appeng.util.prioitylist.OreFilteredList;
 
 public class ItemViewCell extends AEBaseItem implements ICellWorkbenchItem {
 
+    // TODO idk how deal with this
     public ItemViewCell() {
         this.setFeature(EnumSet.of(AEFeature.Core));
         this.setMaxStackSize(1);
@@ -176,5 +178,10 @@ public class ItemViewCell extends AEBaseItem implements ICellWorkbenchItem {
 
         String filter = getOreFilter(stack);
         if (!filter.isEmpty()) lines.add(GuiText.PartitionedOre.getLocal() + " : " + filter);
+    }
+
+    @Override
+    public StorageChannel getStorageChannel() {
+        return StorageChannel.ITEMS;
     }
 }

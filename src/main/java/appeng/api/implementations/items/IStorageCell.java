@@ -29,7 +29,7 @@ import appeng.api.storage.data.IAEStack;
  * <p>
  * The standard AE implementation only provides 1-63 Types
  */
-public interface IStorageCell<StackType extends IAEStack<StackType>> extends ICellWorkbenchItem {
+public interface IStorageCell extends ICellWorkbenchItem {
 
     @Deprecated
     int getBytes(ItemStack cellItem);
@@ -77,7 +77,9 @@ public interface IStorageCell<StackType extends IAEStack<StackType>> extends ICe
      * @param requestedAddition requested addition
      * @return true to preventAdditionOfItem
      */
-    boolean isBlackListed(StackType requestedAddition);
+    default boolean isBlackListed(IAEStack<?> requestedAddition) {
+        return false;
+    }
 
     /**
      * Allows you to specify if this storage cell can be stored inside other storage cells, only set this for special
