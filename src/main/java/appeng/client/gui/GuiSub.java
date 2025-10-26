@@ -8,7 +8,7 @@ import appeng.container.IContainerSubGui;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketSwitchGuis;
 
-public abstract class GuiSub extends AEBaseMEGui implements IGuiSub {
+public abstract class GuiSub extends AEBaseGui implements IGuiSub {
 
     protected final IContainerSubGui container;
     protected GuiTabButton originalGuiBtn;

@@ -48,7 +48,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 
 import appeng.api.events.GuiScrollEvent;
+import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.client.ActionKey;
 import appeng.client.ClientHelper;
 import appeng.client.gui.slots.VirtualMESlot;
@@ -90,7 +92,7 @@ import codechicken.lib.gui.GuiDraw;
 import codechicken.nei.guihook.GuiContainerManager;
 import cpw.mods.fml.common.Loader;
 
-public abstract class AEBaseGui extends GuiContainer {
+public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandler {
 
     private static class AEGuiTooltip {
 
@@ -1170,5 +1172,33 @@ public abstract class AEBaseGui extends GuiContainer {
         if (inventorySlots instanceof AEBaseContainer abc && abc.getTarget() instanceof ICustomButtonProvider icbp)
             return icbp.actionPerformedCustomButtons(btn);
         return false;
+    }
+
+    @Override
+    public List<String> handleItemTooltip(final ItemStack stack, final int mouseX, final int mouseY,
+            final List<String> currentToolTip) {
+        VirtualMESlot hoveredSlot = this.getVirtualMESlotUnderMouse();
+        if (hoveredSlot == null) return currentToolTip;
+
+        if (hoveredSlot.getAEStack() instanceof IAEFluidStack afs) {
+            if (currentToolTip.isEmpty()) {
+                currentToolTip.add(afs.getDisplayName());
+            } else {
+                currentToolTip.set(0, afs.getDisplayName());
+            }
+        }
+
+        return currentToolTip;
+    }
+
+    @Override
+    public ItemStack getHoveredStack() {
+        VirtualMESlot hoveredSlot = this.getVirtualMESlotUnderMouse();
+        if (hoveredSlot == null) return null;
+
+        IAEStack<?> hoveredAEStack = hoveredSlot.getAEStack();
+        if (hoveredAEStack == null) return null;
+
+        return hoveredAEStack.getItemStackForNEI();
     }
 }

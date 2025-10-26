@@ -48,8 +48,7 @@ import appeng.api.storage.data.IDisplayRepo;
 import appeng.api.util.IConfigManager;
 import appeng.api.util.IConfigurableObject;
 import appeng.client.ActionKey;
-import appeng.client.gui.AEBaseMEGui;
-import appeng.client.gui.IGuiTooltipHandler;
+import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.slots.VirtualMEMonitorableSlot;
 import appeng.client.gui.slots.VirtualMEPatternSlot;
 import appeng.client.gui.slots.VirtualMEPinSlot;
@@ -91,8 +90,8 @@ import appeng.items.storage.ItemViewCell;
 import appeng.util.IConfigManagerHost;
 import appeng.util.Platform;
 
-public class GuiMEMonitorable extends AEBaseMEGui
-        implements ISortSource, IConfigManagerHost, IDropToFillTextField, IPinsHandler, IGuiTooltipHandler {
+public class GuiMEMonitorable extends AEBaseGui
+        implements ISortSource, IConfigManagerHost, IDropToFillTextField, IPinsHandler {
 
     public static int craftingGridOffsetX;
     public static int craftingGridOffsetY;
