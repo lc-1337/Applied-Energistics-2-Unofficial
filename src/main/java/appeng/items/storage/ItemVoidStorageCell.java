@@ -17,6 +17,7 @@ import appeng.core.features.AEFeature;
 import appeng.core.localization.GuiText;
 import appeng.items.AEBaseItem;
 import appeng.items.contents.CellConfig;
+import appeng.items.contents.CellConfigLegacy;
 import appeng.items.contents.CellUpgrades;
 import appeng.me.storage.CellInventoryHandler;
 import appeng.me.storage.VoidCellInventory;
@@ -53,8 +54,8 @@ public class ItemVoidStorageCell extends AEBaseItem implements ICellWorkbenchIte
                     }
                     if (GuiScreen.isShiftKeyDown()) {
                         lines.add(GuiText.Filter.getLocal() + ": ");
-                        for (int i = 0; i < cell.getConfigInventory(stack).getSizeInventory(); ++i) {
-                            final IAEStack<?> s = cell.getConfigInventory(stack).getAEStackInSlot(i);
+                        for (int i = 0; i < cell.getConfigAEInventory(stack).getSizeInventory(); ++i) {
+                            final IAEStack<?> s = cell.getConfigAEInventory(stack).getAEStackInSlot(i);
                             if (s != null) lines.add(s.getDisplayName());
                         }
                     }
@@ -79,7 +80,12 @@ public class ItemVoidStorageCell extends AEBaseItem implements ICellWorkbenchIte
     }
 
     @Override
-    public IAEStackInventory getConfigInventory(ItemStack is) {
+    public IInventory getConfigInventory(ItemStack is) {
+        return new CellConfigLegacy(new CellConfig(is), StorageChannel.ITEMS);
+    }
+
+    @Override
+    public IAEStackInventory getConfigAEInventory(ItemStack is) {
         return new CellConfig(is);
     }
 

@@ -34,6 +34,7 @@ import appeng.core.localization.ButtonToolTips;
 import appeng.core.localization.GuiText;
 import appeng.items.AEBaseItem;
 import appeng.items.contents.CellConfig;
+import appeng.items.contents.CellConfigLegacy;
 import appeng.items.contents.CellUpgrades;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.Platform;
@@ -62,7 +63,7 @@ public class ItemViewCell extends AEBaseItem implements ICellWorkbenchItem {
             if ((currentViewCell.getItem() instanceof ItemViewCell vc)) {
                 if (!vc.getViewMode(currentViewCell)) continue;
                 final IInventory upgrades = vc.getUpgradesInventory(currentViewCell);
-                final IAEStackInventory config = vc.getConfigInventory(currentViewCell);
+                final IAEStackInventory config = vc.getConfigAEInventory(currentViewCell);
                 final FuzzyMode fzMode = vc.getFuzzyMode(currentViewCell);
                 final String filter = vc.getOreFilter(currentViewCell);
 
@@ -130,7 +131,12 @@ public class ItemViewCell extends AEBaseItem implements ICellWorkbenchItem {
     }
 
     @Override
-    public IAEStackInventory getConfigInventory(final ItemStack is) {
+    public IInventory getConfigInventory(final ItemStack is) {
+        return new CellConfigLegacy(new CellConfig(is), StorageChannel.ITEMS);
+    }
+
+    @Override
+    public IAEStackInventory getConfigAEInventory(ItemStack is) {
         return new CellConfig(is);
     }
 

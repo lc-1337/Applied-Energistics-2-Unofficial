@@ -21,6 +21,7 @@ import appeng.api.storage.StorageChannel;
 import appeng.core.features.AEFeature;
 import appeng.items.AEBaseItem;
 import appeng.items.contents.CellConfig;
+import appeng.items.contents.CellConfigLegacy;
 import appeng.tile.inventory.IAEStackInventory;
 
 public class ItemCreativeStorageCell extends AEBaseItem implements ICellWorkbenchItem {
@@ -41,7 +42,13 @@ public class ItemCreativeStorageCell extends AEBaseItem implements ICellWorkbenc
     }
 
     @Override
-    public IAEStackInventory getConfigInventory(final ItemStack is) {
+    @Deprecated
+    public IInventory getConfigInventory(final ItemStack is) {
+        return new CellConfigLegacy(new CellConfig(is), StorageChannel.ITEMS);
+    }
+
+    @Override
+    public IAEStackInventory getConfigAEInventory(ItemStack is) {
         return new CellConfig(is);
     }
 

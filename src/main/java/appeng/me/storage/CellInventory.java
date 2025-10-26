@@ -396,7 +396,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
         this.cellStacks.resetStatus(); // clears totals and stuff.
 
-        final int types = (int) this.getStoredTypes();
+        final int types = (int) this.getStoredItemTypes();
 
         for (int x = 0; x < types; x++) {
             final StackType ias = readStack(this.tagCompound.getCompoundTag(slots[x]));
@@ -468,8 +468,14 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
     }
 
     @Override
-    public IAEStackInventory getConfigInventory() {
+    @Deprecated
+    public IInventory getConfigInventory() {
         return this.cellType.getConfigInventory(this.cellItem);
+    }
+
+    @Override
+    public IAEStackInventory getConfigAEInventory() {
+        return this.cellType.getConfigAEInventory(this.cellItem);
     }
 
     @Override
@@ -503,9 +509,9 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
     @Override
     public long getUsedBytes() {
-        final long bytesForItemCount = (this.getStoredCount() + this.getUnusedItemCount()) / this.typeWeight;
+        final long bytesForItemCount = (this.getStoredItemCount() + this.getUnusedItemCount()) / this.typeWeight;
 
-        return this.getStoredTypes() * this.getBytesPerType() + bytesForItemCount;
+        return this.getStoredItemTypes() * this.getBytesPerType() + bytesForItemCount;
     }
 
     @Override
@@ -519,19 +525,19 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
     }
 
     @Override
-    public long getStoredCount() {
+    public long getStoredItemCount() {
         return this.storedCount;
     }
 
     @Override
-    public long getStoredTypes() {
+    public long getStoredItemTypes() {
         return this.storedTypes;
     }
 
     @Override
     public long getRemainingItemTypes() {
         final long basedOnStorage = this.getFreeBytes() / this.getBytesPerType();
-        final long baseOnTotal = this.getTotalItemTypes() - this.getStoredTypes();
+        final long baseOnTotal = this.getTotalItemTypes() - this.getStoredItemTypes();
 
         return Math.min(basedOnStorage, baseOnTotal);
     }
@@ -541,7 +547,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
         long remaining;
         long types = 0;
         for (int i = 0; i < this.getTotalItemTypes(); i++) {
-            if (this.getConfigInventory().getAEStackInSlot(i) != null) {
+            if (this.getConfigAEInventory().getAEStackInSlot(i) != null) {
                 types++;
             }
         }
@@ -568,7 +574,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
     public long getRemainingItemCount() {
         if (restrictionLong > 0) {
             return Math.min(
-                    restrictionLong - this.getStoredCount(),
+                    restrictionLong - this.getStoredItemCount(),
                     this.getFreeBytes() * this.typeWeight + this.getUnusedItemCount());
         }
         final long remaining = this.getFreeBytes() * this.typeWeight + this.getUnusedItemCount();
@@ -578,7 +584,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
     @Override
     public int getUnusedItemCount() {
-        final long div = this.getStoredCount() % this.typeWeight;
+        final long div = this.getStoredItemCount() % this.typeWeight;
 
         if (div == 0) {
             return 0;
@@ -589,7 +595,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
     @Override
     public int getStatusForCell() {
-        if (this.getStoredCount() == 0) {
+        if (this.getStoredItemCount() == 0) {
             return 1;
         }
         if (this.canHoldNewItem()) {

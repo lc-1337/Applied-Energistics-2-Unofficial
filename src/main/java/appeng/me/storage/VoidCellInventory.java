@@ -77,8 +77,14 @@ public class VoidCellInventory<StackType extends IAEStack<StackType>> implements
     }
 
     @Override
-    public IAEStackInventory getConfigInventory() {
+    @Deprecated
+    public IInventory getConfigInventory() {
         return this.cellType.getConfigInventory(this.cellItem);
+    }
+
+    @Override
+    public IAEStackInventory getConfigAEInventory() {
+        return this.cellType.getConfigAEInventory(this.cellItem);
     }
 
     @Override
@@ -117,12 +123,12 @@ public class VoidCellInventory<StackType extends IAEStack<StackType>> implements
     }
 
     @Override
-    public long getStoredCount() {
+    public long getStoredItemCount() {
         return 0;
     }
 
     @Override
-    public long getStoredTypes() {
+    public long getStoredItemTypes() {
         return 0;
     }
 

@@ -59,6 +59,7 @@ import appeng.helpers.IMouseWheelItem;
 import appeng.hooks.DispenserBlockTool;
 import appeng.hooks.IBlockTool;
 import appeng.items.contents.CellConfig;
+import appeng.items.contents.CellConfigLegacy;
 import appeng.items.contents.CellUpgrades;
 import appeng.items.misc.ItemPaintBall;
 import appeng.items.tools.powered.powersink.AEBasePoweredItem;
@@ -390,7 +391,7 @@ public class ToolColorApplicator extends AEBasePoweredItem
                                 + ' '
                                 + GuiText.BytesUsed.getLocal());
                 lines.add(
-                        cd.getStoredTypes() + " "
+                        cd.getStoredItemTypes() + " "
                                 + GuiText.Of.getLocal()
                                 + ' '
                                 + cd.getTotalItemTypes()
@@ -471,7 +472,13 @@ public class ToolColorApplicator extends AEBasePoweredItem
     }
 
     @Override
-    public IAEStackInventory getConfigInventory(final ItemStack is) {
+    @Deprecated
+    public IInventory getConfigInventory(final ItemStack is) {
+        return new CellConfigLegacy(new CellConfig(is), StorageChannel.ITEMS);
+    }
+
+    @Override
+    public IAEStackInventory getConfigAEInventory(ItemStack is) {
         return new CellConfig(is);
     }
 

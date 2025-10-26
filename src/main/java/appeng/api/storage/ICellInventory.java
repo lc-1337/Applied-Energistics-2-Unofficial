@@ -19,6 +19,8 @@ import net.minecraft.item.ItemStack;
 import appeng.api.config.FuzzyMode;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
+import appeng.items.contents.CellConfigLegacy;
+import appeng.items.contents.CellConfigLegacyWrapper;
 import appeng.tile.inventory.IAEStackInventory;
 
 public interface ICellInventory<StackType extends IAEStack<StackType>> extends IMEInventory<StackType> {
@@ -40,8 +42,19 @@ public interface ICellInventory<StackType extends IAEStack<StackType>> extends I
 
     /**
      * @return access configured list
+     * @deprecated Use {@link ICellInventory#getConfigAEInventory()}
      */
-    IAEStackInventory getConfigInventory();
+    @Deprecated
+    default IInventory getConfigInventory() {
+        return new CellConfigLegacy(this.getConfigAEInventory(), this.getChannel());
+    }
+
+    /**
+     * @return access configured list
+     */
+    default IAEStackInventory getConfigAEInventory() {
+        return new CellConfigLegacyWrapper(this.getConfigInventory());
+    }
 
     /**
      * @return access installed upgrades.
@@ -81,12 +94,12 @@ public interface ICellInventory<StackType extends IAEStack<StackType>> extends I
     /**
      * @return how many items are stored.
      */
-    long getStoredCount();
+    long getStoredItemCount();
 
     /**
      * @return how many items types are currently stored.
      */
-    long getStoredTypes();
+    long getStoredItemTypes();
 
     /**
      * @return how many item types remain.

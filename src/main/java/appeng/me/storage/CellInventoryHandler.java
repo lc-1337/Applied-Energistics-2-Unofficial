@@ -38,7 +38,7 @@ public abstract class CellInventoryHandler<StackType extends IAEStack<StackType>
 
         if (ci != null) {
             final IInventory upgrades = ci.getUpgradesInventory();
-            final IAEStackInventory config = ci.getConfigInventory();
+            final IAEStackInventory config = ci.getConfigAEInventory();
             final FuzzyMode fzMode = ci.getFuzzyMode();
             final String filter = ci.getOreFilter();
 
@@ -147,7 +147,7 @@ public abstract class CellInventoryHandler<StackType extends IAEStack<StackType>
 
     @Override
     public long getUsedTypes() {
-        return this.getCellInv().getStoredTypes();
+        return this.getCellInv().getStoredItemTypes();
     }
 
     @Override

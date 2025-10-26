@@ -41,6 +41,7 @@ import appeng.core.features.AEFeature;
 import appeng.core.localization.GuiText;
 import appeng.helpers.ICellRestriction;
 import appeng.items.contents.CellConfig;
+import appeng.items.contents.CellConfigLegacy;
 import appeng.items.contents.CellUpgrades;
 import appeng.items.materials.MaterialType;
 import appeng.items.storage.ItemBasicStorageCell;
@@ -109,9 +110,9 @@ public abstract class AEBaseCell<StackType extends IAEStack<StackType>> extends 
 
     public static boolean cellIsPartitioned(ICellInventoryHandler cellHandler) {
         return cellHandler != null && cellHandler.getCellInv() != null
-                && cellHandler.getCellInv().getConfigInventory() != null
-                && IntStream.range(0, cellHandler.getCellInv().getConfigInventory().getSizeInventory())
-                        .anyMatch(i -> cellHandler.getCellInv().getConfigInventory().getAEStackInSlot(i) != null);
+                && cellHandler.getCellInv().getConfigAEInventory() != null
+                && IntStream.range(0, cellHandler.getCellInv().getConfigAEInventory().getSizeInventory())
+                        .anyMatch(i -> cellHandler.getCellInv().getConfigAEInventory().getAEStackInSlot(i) != null);
     }
 
     @SideOnly(Side.CLIENT)
@@ -143,7 +144,7 @@ public abstract class AEBaseCell<StackType extends IAEStack<StackType>> extends 
 
         lines.add(
                 EnumChatFormatting.WHITE
-                        + NumberFormat.getInstance(Locale.ENGLISH).format(cellInventory.getStoredTypes())
+                        + NumberFormat.getInstance(Locale.ENGLISH).format(cellInventory.getStoredItemTypes())
                         + EnumChatFormatting.GRAY
                         + " "
                         + GuiText.Of.getLocal()
@@ -154,7 +155,7 @@ public abstract class AEBaseCell<StackType extends IAEStack<StackType>> extends 
                         + EnumChatFormatting.GRAY
                         + GuiText.Types.getLocal());
 
-        if (cellInventory.getTotalItemTypes() == 1 && cellInventory.getStoredTypes() != 0) {
+        if (cellInventory.getTotalItemTypes() == 1 && cellInventory.getStoredItemTypes() != 0) {
             IAEStack<?> aes = handler.getAvailableItems(cellInventory.getStorageList(), IterationCounter.fetchNewId())
                     .getFirstItem();
             lines.add(GuiText.Contains.getLocal() + ": " + aes.getDisplayName());
@@ -174,8 +175,8 @@ public abstract class AEBaseCell<StackType extends IAEStack<StackType>> extends 
                 if (GuiScreen.isShiftKeyDown()) {
                     int usedFilters = 0;
                     ArrayList<String> filtersTexts = new ArrayList<>();
-                    for (int i = 0; i < cellInventory.getConfigInventory().getSizeInventory(); ++i) {
-                        final IAEStack<?> s = cellInventory.getConfigInventory().getAEStackInSlot(i);
+                    for (int i = 0; i < cellInventory.getConfigAEInventory().getSizeInventory(); ++i) {
+                        final IAEStack<?> s = cellInventory.getConfigAEInventory().getAEStackInSlot(i);
                         if (s != null) {
                             usedFilters++;
                             filtersTexts.add(s.getDisplayName());
@@ -185,7 +186,7 @@ public abstract class AEBaseCell<StackType extends IAEStack<StackType>> extends 
                             GuiText.Filter.getLocal() + " ("
                                     + usedFilters
                                     + "/"
-                                    + cellInventory.getConfigInventory().getSizeInventory()
+                                    + cellInventory.getConfigAEInventory().getSizeInventory()
                                     + ")"
                                     + ": ");
 
@@ -270,7 +271,12 @@ public abstract class AEBaseCell<StackType extends IAEStack<StackType>> extends 
     }
 
     @Override
-    public IAEStackInventory getConfigInventory(final ItemStack is) {
+    public IInventory getConfigInventory(final ItemStack is) {
+        return new CellConfigLegacy(new CellConfig(is), this.getStorageChannel());
+    }
+
+    @Override
+    public IAEStackInventory getConfigAEInventory(final ItemStack is) {
         return new CellConfig(is);
     }
 

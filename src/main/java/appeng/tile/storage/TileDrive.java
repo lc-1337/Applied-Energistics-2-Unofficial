@@ -10,10 +10,6 @@
 
 package appeng.tile.storage;
 
-import static appeng.api.storage.ICellCacheRegistry.TYPE.ESSENTIA;
-import static appeng.api.storage.ICellCacheRegistry.TYPE.FLUID;
-import static appeng.api.storage.ICellCacheRegistry.TYPE.ITEM;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -399,15 +395,15 @@ public class TileDrive extends AENetworkInvTile
     public static void partitionStorageCellToItemsOnCell(ICellInventoryHandler handler) {
         ICellInventory cellInventory = handler.getCellInv();
         if (cellInventory != null) {
-            if (cellInventory.getStoredTypes() != 0) {
+            if (cellInventory.getStoredItemTypes() != 0) {
                 int idx = 0;
                 for (Object partitionStack : (handler
                         .getAvailableItems(cellInventory.getStorageList(), IterationCounter.fetchNewId()))) {
                     final IAEStack<?> aes = ((IAEStack<?>) partitionStack).copy();
                     aes.setStackSize(1);
-                    cellInventory.getConfigInventory().putAEStackInSlot(idx++, aes);
+                    cellInventory.getConfigAEInventory().putAEStackInSlot(idx++, aes);
                 }
-                cellInventory.getConfigInventory().markDirty();
+                cellInventory.getConfigAEInventory().markDirty();
             }
         }
     }
@@ -415,10 +411,10 @@ public class TileDrive extends AENetworkInvTile
     public static void unpartitionStorageCell(ICellInventoryHandler handler) {
         ICellInventory cellInventory = handler.getCellInv();
         if (cellInventory != null) {
-            for (int i = 0; i < cellInventory.getConfigInventory().getSizeInventory(); i++) {
-                cellInventory.getConfigInventory().putAEStackInSlot(i, null);
+            for (int i = 0; i < cellInventory.getConfigAEInventory().getSizeInventory(); i++) {
+                cellInventory.getConfigAEInventory().putAEStackInSlot(i, null);
             }
-            cellInventory.getConfigInventory().markDirty();
+            cellInventory.getConfigAEInventory().markDirty();
         }
     }
 
@@ -430,7 +426,7 @@ public class TileDrive extends AENetworkInvTile
                 cell.getItem() instanceof AEBaseCell<?>abc ? abc.getStorageChannel() : StorageChannel.ITEMS);
         if (inv instanceof ICellInventoryHandler handler) {
             final ICellInventory cellInventory = handler.getCellInv();
-            if (cellInventory != null && cellInventory.getStoredTypes() > 0) {
+            if (cellInventory != null && cellInventory.getStoredItemTypes() > 0) {
                 IInventory cellUpgrades = cellItem.getUpgradesInventory(cell);
                 int freeSlot = -1;
                 for (int i = 0; i < cellUpgrades.getSizeInventory(); i++) {

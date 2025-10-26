@@ -63,6 +63,7 @@ import appeng.hooks.DispenserMatterCannon;
 import appeng.hooks.TickHandler;
 import appeng.hooks.TickHandler.PlayerColor;
 import appeng.items.contents.CellConfig;
+import appeng.items.contents.CellConfigLegacy;
 import appeng.items.contents.CellUpgrades;
 import appeng.items.misc.ItemPaintBall;
 import appeng.items.tools.powered.powersink.AEBasePoweredItem;
@@ -107,7 +108,7 @@ public class ToolMassCannon extends AEBasePoweredItem implements IStorageCell {
                                 + ' '
                                 + GuiText.BytesUsed.getLocal());
                 lines.add(
-                        cd.getStoredTypes() + " "
+                        cd.getStoredItemTypes() + " "
                                 + GuiText.Of.getLocal()
                                 + ' '
                                 + NumberFormat.getInstance().format(cd.getTotalItemTypes())
@@ -441,7 +442,12 @@ public class ToolMassCannon extends AEBasePoweredItem implements IStorageCell {
     }
 
     @Override
-    public IAEStackInventory getConfigInventory(final ItemStack is) {
+    public IInventory getConfigInventory(final ItemStack is) {
+        return new CellConfigLegacy(new CellConfig(is), StorageChannel.ITEMS);
+    }
+
+    @Override
+    public IAEStackInventory getConfigAEInventory(ItemStack is) {
         return new CellConfig(is);
     }
 

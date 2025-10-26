@@ -199,7 +199,7 @@ public class TileCellWorkbench extends AEBaseTile implements ICellWorkbench, IPr
                 return null;
             }
 
-            final IAEStackInventory inv = cell.getConfigInventory(is);
+            final IAEStackInventory inv = cell.getConfigAEInventory(is);
             if (inv == null) {
                 return null;
             }

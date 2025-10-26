@@ -21,11 +21,13 @@ import appeng.api.implementations.guiobjects.IGuiItemObject;
 import appeng.api.implementations.items.IItemGroup;
 import appeng.api.implementations.items.IStorageCell;
 import appeng.api.storage.ICellInventory;
+import appeng.api.storage.StorageChannel;
 import appeng.core.AEConfig;
 import appeng.core.features.AEFeature;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.GuiBridge;
 import appeng.items.contents.CellConfig;
+import appeng.items.contents.CellConfigLegacy;
 import appeng.items.contents.CellUpgrades;
 import appeng.items.contents.PortableCellViewer;
 import appeng.items.tools.powered.powersink.AEBasePoweredItem;
@@ -76,7 +78,7 @@ public abstract class AEBasePortableCell extends AEBasePoweredItem implements IS
                                 + EnumChatFormatting.GRAY
                                 + GuiText.BytesUsed.getLocal());
                 lines.add(
-                        EnumChatFormatting.WHITE + NumberFormat.getInstance().format(cd.getStoredTypes())
+                        EnumChatFormatting.WHITE + NumberFormat.getInstance().format(cd.getStoredItemTypes())
                                 + EnumChatFormatting.GRAY
                                 + " "
                                 + GuiText.Of.getLocal()
@@ -141,7 +143,12 @@ public abstract class AEBasePortableCell extends AEBasePoweredItem implements IS
     }
 
     @Override
-    public IAEStackInventory getConfigInventory(final ItemStack is) {
+    public IInventory getConfigInventory(final ItemStack is) {
+        return new CellConfigLegacy(new CellConfig(is), StorageChannel.ITEMS);
+    }
+
+    @Override
+    public IAEStackInventory getConfigAEInventory(ItemStack is) {
         return new CellConfig(is);
     }
 
