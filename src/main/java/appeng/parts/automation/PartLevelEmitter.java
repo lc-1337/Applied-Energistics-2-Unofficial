@@ -277,6 +277,8 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
             for (final IAEStack<?> st : ((IMEMonitor<IAEStack>) monitor).getStorageList()) {
                 this.lastReportedValue += st.getStackSize();
             }
+        } else if (myStack.getChannel() != monitor.getChannel()) {
+            return;
         } else if (myStack instanceof IAEItemStack ais && this.getInstalledUpgrades(Upgrades.FUZZY) > 0) {
             this.lastReportedValue = 0;
             final FuzzyMode fzMode = (FuzzyMode) this.getConfigManager().getSetting(Settings.FUZZY_MODE);
@@ -305,8 +307,10 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
     @Override
     public void onStackChange(final IItemList o, final IAEStack fullStack, final IAEStack diffStack,
             final BaseActionSource src, final StorageChannel chan) {
-        if (chan == StorageChannel.ITEMS && fullStack.equals(this.config.getAEStackInSlot(0))
-                && this.getInstalledUpgrades(Upgrades.FUZZY) == 0) {
+        IAEStack<?> myStack = this.config.getAEStackInSlot(0);
+        if (myStack == null) return;
+
+        if (fullStack.equals(myStack)) {
             this.lastReportedValue = fullStack.getStackSize();
             this.updateState();
         }
