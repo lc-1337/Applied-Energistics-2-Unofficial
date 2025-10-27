@@ -36,7 +36,6 @@ import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
-import appeng.items.AEBaseCell;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.IterationCounter;
 import appeng.util.Platform;
@@ -145,7 +144,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
         final Item type = itemStack.getItem();
 
-        if (type instanceof AEBaseCell cell) {
+        if (type instanceof IStorageCell cell) {
             return cell.isStorageCell(itemStack);
         }
 
