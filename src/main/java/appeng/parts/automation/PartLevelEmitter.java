@@ -740,7 +740,7 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
         IAEStack<?> stack = this.config.getAEStackInSlot(0);
         if (stack == null) return new LevelItemInfo[] { null };
         return new LevelItemInfo[] { new LevelItemInfo(
-                null, // stack
+                stack,
                 this.getReportingValue(),
                 -1,
                 this.isProvidingStrongPower() > 0 ? LevelState.Craft : LevelState.Idle) };
