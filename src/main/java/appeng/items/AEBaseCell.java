@@ -54,8 +54,7 @@ import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public abstract class AEBaseCell<StackType extends IAEStack<StackType>> extends AEBaseItem
-        implements IStorageCell, IItemGroup, ICellRestriction {
+public abstract class AEBaseCell extends AEBaseItem implements IStorageCell, IItemGroup, ICellRestriction {
 
     protected MaterialType component;
     protected long totalBytes;
