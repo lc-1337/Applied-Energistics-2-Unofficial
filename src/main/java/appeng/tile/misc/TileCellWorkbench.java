@@ -29,7 +29,6 @@ import appeng.client.StorageName;
 import appeng.helpers.ICellRestriction;
 import appeng.helpers.ICellWorkbench;
 import appeng.helpers.IPrimaryGuiIconProvider;
-import appeng.items.AEBaseCell;
 import appeng.tile.AEBaseTile;
 import appeng.tile.TileEvent;
 import appeng.tile.events.TileEventType;
@@ -142,9 +141,9 @@ public class TileCellWorkbench extends AEBaseTile implements ICellWorkbench, IPr
                     icr.setCellRestriction(is, cellRestrictTypes + "," + cellRestrictAmount);
             }
 
-            if (is != null && is.getItem() instanceof AEBaseCell<?>abc) {
-                if (abc.getStorageChannel() != this.storageChannel) {
-                    this.storageChannel = abc.getStorageChannel();
+            if (is != null && is.getItem() instanceof ICellWorkbenchItem wi) {
+                if (wi.getStorageChannel() != this.storageChannel) {
+                    this.storageChannel = wi.getStorageChannel();
 
                     for (int x = 0; x < this.config.getSizeInventory(); x++) {
                         this.config.putAEStackInSlot(x, null);

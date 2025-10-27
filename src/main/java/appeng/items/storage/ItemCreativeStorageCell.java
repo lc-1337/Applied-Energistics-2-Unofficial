@@ -12,19 +12,13 @@ package appeng.items.storage;
 
 import java.util.EnumSet;
 
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
-import appeng.api.config.FuzzyMode;
-import appeng.api.storage.ICellWorkbenchItem;
 import appeng.api.storage.StorageChannel;
 import appeng.core.features.AEFeature;
-import appeng.items.AEBaseItem;
-import appeng.items.contents.CellConfig;
-import appeng.items.contents.CellConfigLegacy;
-import appeng.tile.inventory.IAEStackInventory;
+import appeng.items.AEBaseInfiniteCell;
 
-public class ItemCreativeStorageCell extends AEBaseItem implements ICellWorkbenchItem {
+public class ItemCreativeStorageCell extends AEBaseInfiniteCell {
 
     public ItemCreativeStorageCell() {
         this.setFeature(EnumSet.of(AEFeature.StorageCells, AEFeature.Creative));
@@ -37,28 +31,9 @@ public class ItemCreativeStorageCell extends AEBaseItem implements ICellWorkbenc
     }
 
     @Override
-    public IInventory getUpgradesInventory(final ItemStack is) {
-        return null;
+    public int getTotalTypes(ItemStack cellItem) {
+        return 63;
     }
-
-    @Override
-    @Deprecated
-    public IInventory getConfigInventory(final ItemStack is) {
-        return new CellConfigLegacy(new CellConfig(is), StorageChannel.ITEMS);
-    }
-
-    @Override
-    public IAEStackInventory getConfigAEInventory(ItemStack is) {
-        return new CellConfig(is);
-    }
-
-    @Override
-    public FuzzyMode getFuzzyMode(final ItemStack is) {
-        return FuzzyMode.IGNORE_ALL;
-    }
-
-    @Override
-    public void setFuzzyMode(final ItemStack is, final FuzzyMode fzMode) {}
 
     @Override
     public StorageChannel getStorageChannel() {

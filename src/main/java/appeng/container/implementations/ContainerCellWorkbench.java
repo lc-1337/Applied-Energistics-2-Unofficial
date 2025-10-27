@@ -37,7 +37,6 @@ import appeng.container.slot.SlotRestrictedInput;
 import appeng.helpers.ICellRestriction;
 import appeng.helpers.ICellWorkbench;
 import appeng.helpers.IVirtualSlotHolder;
-import appeng.items.AEBaseCell;
 import appeng.me.storage.CellInventory;
 import appeng.tile.inventory.AppEngNullInventory;
 import appeng.tile.inventory.IAEStackInventory;
@@ -203,10 +202,10 @@ public class ContainerCellWorkbench extends ContainerUpgradeable implements IVir
         final IAEStackInventory inv = this.workBench.getAEInventoryByName(StorageName.NONE);
         final ItemStack is = this.getUpgradeable().getInventoryByName("cell").getStackInSlot(0);
 
-        if (!(is != null && is.getItem() instanceof AEBaseCell<?>abc)) return;
+        if (!(is != null && is.getItem() instanceof ICellWorkbenchItem wi)) return;
 
         final IMEInventory<?> cellInv = AEApi.instance().registries().cell()
-                .getCellInventory(is, null, abc.getStorageChannel());
+                .getCellInventory(is, null, wi.getStorageChannel());
 
         if (!(cellInv instanceof CellInventory ci)) return;
 

@@ -12,23 +12,33 @@ package appeng.me.storage;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
 import appeng.api.AEApi;
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
+import appeng.api.config.FuzzyMode;
+import appeng.api.implementations.items.IStorageCell;
 import appeng.api.networking.security.BaseActionSource;
+import appeng.api.storage.ICellInventory;
 import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.items.contents.CellConfig;
+import appeng.tile.inventory.IAEStackInventory;
 
-public class CreativeCellInventory<StackType extends IAEStack<StackType>> implements IMEInventoryHandler<StackType> {
+public class CreativeCellInventory<StackType extends IAEStack<StackType>>
+        implements IMEInventoryHandler<StackType>, ICellInventory<StackType> {
 
     private final IItemList<IAEStack<?>> itemListCache = AEApi.instance().storage().createAEStackList();
+    private final ItemStack cellItem;
+    private final IStorageCell cellType;
 
     protected CreativeCellInventory(final ItemStack o) {
+        this.cellItem = o;
+        this.cellType = (IStorageCell) o.getItem();
         final CellConfig cc = new CellConfig(o);
         for (int i = 0; i < cc.getSizeInventory(); i++) {
             final IAEStack<?> aes = cc.getAEStackInSlot(i);
@@ -116,5 +126,100 @@ public class CreativeCellInventory<StackType extends IAEStack<StackType>> implem
     @Override
     public boolean validForPass(final int i) {
         return true;
+    }
+
+    @Override
+    public IAEStackInventory getConfigAEInventory() {
+        return new CellConfig(this.cellItem);
+    }
+
+    @Override
+    public ItemStack getItemStack() {
+        return this.cellItem;
+    }
+
+    @Override
+    public double getIdleDrain() {
+        return this.cellType.getIdleDrain();
+    }
+
+    @Override
+    public FuzzyMode getFuzzyMode() {
+        return FuzzyMode.IGNORE_ALL;
+    }
+
+    @Override
+    public IInventory getUpgradesInventory() {
+        return this.cellType.getUpgradesInventory(this.cellItem);
+    }
+
+    @Override
+    public int getBytesPerType() {
+        return 0;
+    }
+
+    @Override
+    public boolean canHoldNewItem() {
+        return false;
+    }
+
+    @Override
+    public long getTotalBytes() {
+        return 0;
+    }
+
+    @Override
+    public long getFreeBytes() {
+        return 0;
+    }
+
+    @Override
+    public long getUsedBytes() {
+        return 0;
+    }
+
+    @Override
+    public long getTotalItemTypes() {
+        return 0;
+    }
+
+    @Override
+    public long getStoredItemCount() {
+        return 0;
+    }
+
+    @Override
+    public long getStoredItemTypes() {
+        return 0;
+    }
+
+    @Override
+    public long getRemainingItemTypes() {
+        return 0;
+    }
+
+    @Override
+    public long getRemainingItemCount() {
+        return 0;
+    }
+
+    @Override
+    public long getRemainingItemsCountDist(StackType l) {
+        return 0;
+    }
+
+    @Override
+    public int getUnusedItemCount() {
+        return 0;
+    }
+
+    @Override
+    public int getStatusForCell() {
+        return 0;
+    }
+
+    @Override
+    public String getOreFilter() {
+        return "";
     }
 }

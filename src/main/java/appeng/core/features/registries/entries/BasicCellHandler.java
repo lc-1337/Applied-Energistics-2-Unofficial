@@ -15,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 
-import appeng.api.implementations.items.IStorageCell;
 import appeng.api.implementations.tiles.IChestOrDrive;
 import appeng.api.storage.ICellHandler;
 import appeng.api.storage.ICellInventory;
@@ -26,6 +25,7 @@ import appeng.api.storage.ISaveProvider;
 import appeng.api.storage.StorageChannel;
 import appeng.client.texture.ExtraBlockTextures;
 import appeng.core.sync.GuiBridge;
+import appeng.items.AEBaseCell;
 import appeng.me.storage.CellInventory;
 import appeng.me.storage.CellInventoryHandler;
 import appeng.util.Platform;
@@ -40,7 +40,7 @@ public class BasicCellHandler implements ICellHandler {
     @Override
     public IMEInventoryHandler getCellInventory(final ItemStack is, final ISaveProvider container,
             final StorageChannel channel) {
-        if (is.getItem() instanceof IStorageCell isc && isc.getStorageChannel() == channel) {
+        if (is.getItem() instanceof AEBaseCell<?>abc && abc.getStorageChannel() == channel) {
             return CellInventory.getCell(is, container, channel);
         }
         return null;
