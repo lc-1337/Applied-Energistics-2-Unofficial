@@ -12,11 +12,8 @@ package appeng.client.gui.implementations;
 
 import java.io.IOException;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.ItemStack;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -28,8 +25,7 @@ import appeng.api.config.Settings;
 import appeng.api.config.StorageFilter;
 import appeng.api.config.Upgrades;
 import appeng.api.storage.StorageChannel;
-import appeng.api.storage.data.IAEStack;
-import appeng.client.gui.slots.VirtualMEPatternSlot;
+import appeng.client.gui.slots.VirtualMEPhantomSlot;
 import appeng.client.gui.slots.VirtualMESlot;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
@@ -42,12 +38,8 @@ import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketConfigButton;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
-import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.helpers.IStorageBus;
 import appeng.tile.inventory.IAEStackInventory;
-import appeng.util.FluidUtils;
-import appeng.util.item.AEFluidStack;
-import appeng.util.item.AEItemStack;
 
 public class GuiStorageBus extends GuiUpgradeable {
 
@@ -56,7 +48,7 @@ public class GuiStorageBus extends GuiUpgradeable {
     private GuiTabButton priority;
     private GuiImgButton partition;
     private GuiImgButton clear;
-    private VirtualMEPatternSlot[] configSlots;
+    private VirtualMEPhantomSlot[] configSlots;
     private final ContainerStorageBus containerStorageBus;
 
     public GuiStorageBus(final InventoryPlayer inventoryPlayer, final IStorageBus te) {
@@ -195,14 +187,14 @@ public class GuiStorageBus extends GuiUpgradeable {
     }
 
     private void initVirtualSlots() {
-        this.configSlots = new VirtualMEPatternSlot[63];
+        this.configSlots = new VirtualMEPhantomSlot[63];
         final IAEStackInventory inputInv = this.containerStorageBus.getConfig();
         final int xo = 8;
         final int yo = -133;
 
         for (int y = 0; y < 7; y++) {
             for (int x = 0; x < 9; x++) {
-                VirtualMEPatternSlot slot = new VirtualMEPatternSlot(
+                VirtualMEPhantomSlot slot = new VirtualMEPhantomSlot(
                         xo + x * 18,
                         yo + y * 18 + 9 * 18,
                         inputInv,
@@ -214,7 +206,7 @@ public class GuiStorageBus extends GuiUpgradeable {
     }
 
     protected void updateSlotVisibility() {
-        for (VirtualMEPatternSlot slot : this.configSlots) {
+        for (VirtualMEPhantomSlot slot : this.configSlots) {
             slot.setHidden(
                     slot.getSlotIndex() > (18
                             + (9 * this.containerStorageBus.getUpgradeable().getInstalledUpgrades(Upgrades.CAPACITY))));
@@ -225,26 +217,11 @@ public class GuiStorageBus extends GuiUpgradeable {
     protected void mouseClicked(int xCoord, int yCoord, int btn) {
         final VirtualMESlot slot = getVirtualMESlotUnderMouse();
 
-        if (slot == null) super.mouseClicked(xCoord, yCoord, btn);
-        else if (slot instanceof VirtualMEPatternSlot slotConfig) {
-            final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-            final IAEStack<?> aes;
-            final ItemStack playerHand = player.inventory.getItemStack();
-            final ItemStack is = playerHand != null ? playerHand.copy() : null;
-
-            if (playerHand != null) {
-                is.stackSize = 1;
-                if (containerStorageBus.getStorageChannel() == StorageChannel.FLUIDS) {
-                    aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(is));
-                } else {
-                    aes = AEItemStack.create(is);
-                }
-            } else {
-                aes = null;
-            }
-
-            NetworkHandler.instance
-                    .sendToServer(new PacketVirtualSlot(slotConfig.getStorageName(), slot.getSlotIndex(), aes));
+        if (slot == null) {
+            super.mouseClicked(xCoord, yCoord, btn);
+        } else if (slot instanceof VirtualMEPhantomSlot slotConfig) {
+            StorageChannel channel = containerStorageBus.getStorageChannel();
+            slotConfig.handleMouseClicked(channel == StorageChannel.ITEMS, channel == StorageChannel.FLUIDS, false);
         }
     }
 }

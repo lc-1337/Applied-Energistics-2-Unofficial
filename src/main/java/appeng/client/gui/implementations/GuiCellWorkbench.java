@@ -12,9 +12,7 @@ package appeng.client.gui.implementations;
 
 import java.io.IOException;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -28,8 +26,7 @@ import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.items.IUpgradeModule;
 import appeng.api.storage.StorageChannel;
-import appeng.api.storage.data.IAEStack;
-import appeng.client.gui.slots.VirtualMEPatternSlot;
+import appeng.client.gui.slots.VirtualMEPhantomSlot;
 import appeng.client.gui.slots.VirtualMESlot;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiToggleButton;
@@ -39,13 +36,9 @@ import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
-import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.helpers.ICellWorkbench;
 import appeng.tile.inventory.IAEStackInventory;
-import appeng.util.FluidUtils;
 import appeng.util.Platform;
-import appeng.util.item.AEFluidStack;
-import appeng.util.item.AEItemStack;
 
 public class GuiCellWorkbench extends GuiUpgradeable {
 
@@ -55,7 +48,7 @@ public class GuiCellWorkbench extends GuiUpgradeable {
     private GuiImgButton partition;
     private GuiToggleButton copyMode;
     protected GuiImgButton cellRestriction;
-    private VirtualMEPatternSlot[] configSlots;
+    private VirtualMEPhantomSlot[] configSlots;
 
     public GuiCellWorkbench(final InventoryPlayer inventoryPlayer, final ICellWorkbench te) {
         super(new ContainerCellWorkbench(inventoryPlayer, te));
@@ -178,14 +171,14 @@ public class GuiCellWorkbench extends GuiUpgradeable {
     }
 
     private void initVirtualSlots() {
-        this.configSlots = new VirtualMEPatternSlot[63];
+        this.configSlots = new VirtualMEPhantomSlot[63];
         final IAEStackInventory inputInv = this.workbench.getConfig();
         final int xo = 8;
         final int yo = -133;
 
         for (int y = 0; y < 7; y++) {
             for (int x = 0; x < 9; x++) {
-                VirtualMEPatternSlot slot = new VirtualMEPatternSlot(
+                VirtualMEPhantomSlot slot = new VirtualMEPhantomSlot(
                         xo + x * 18,
                         yo + y * 18 + 9 * 18,
                         inputInv,
@@ -262,26 +255,11 @@ public class GuiCellWorkbench extends GuiUpgradeable {
     protected void mouseClicked(int xCoord, int yCoord, int btn) {
         final VirtualMESlot slot = getVirtualMESlotUnderMouse();
 
-        if (slot == null) super.mouseClicked(xCoord, yCoord, btn);
-        else if (slot instanceof VirtualMEPatternSlot slotConfig) {
-            final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-            final IAEStack<?> aes;
-            final ItemStack playerHand = player.inventory.getItemStack();
-            final ItemStack is = playerHand != null ? playerHand.copy() : null;
-
-            if (playerHand != null) {
-                is.stackSize = 1;
-                if (workbench.getStorageChannel() == StorageChannel.FLUIDS) {
-                    aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(is));
-                } else {
-                    aes = AEItemStack.create(is);
-                }
-            } else {
-                aes = null;
-            }
-
-            NetworkHandler.instance
-                    .sendToServer(new PacketVirtualSlot(slotConfig.getStorageName(), slot.getSlotIndex(), aes));
+        if (slot == null) {
+            super.mouseClicked(xCoord, yCoord, btn);
+        } else if (slot instanceof VirtualMEPhantomSlot slotConfig) {
+            StorageChannel channel = workbench.getStorageChannel();
+            slotConfig.handleMouseClicked(channel == StorageChannel.ITEMS, channel == StorageChannel.FLUIDS, false);
         }
     }
 }
