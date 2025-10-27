@@ -12,33 +12,49 @@ package appeng.parts.automation;
 
 import java.util.function.Predicate;
 
-import net.minecraft.inventory.IInventory;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import appeng.api.config.RedstoneMode;
+import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.TickRateModulation;
+import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
+import appeng.client.StorageName;
+import appeng.core.sync.GuiBridge;
 import appeng.helpers.IOreFilterable;
 import appeng.me.GridAccessException;
-import appeng.tile.inventory.AppEngInternalAEInventory;
+import appeng.tile.inventory.IAEStackInventory;
+import appeng.tile.inventory.IIAEStackInventory;
 import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
 
-public abstract class PartSharedItemBus extends PartUpgradeable implements IGridTickable, IOreFilterable {
+public abstract class PartSharedItemBus<StackType extends IAEStack<StackType>> extends PartUpgradeable
+        implements IGridTickable, IOreFilterable, IIAEStackInventory {
 
-    private final AppEngInternalAEInventory config = new AppEngInternalAEInventory(this, 9);
+    private final IAEStackInventory config = new IAEStackInventory(this, 9);
     private int adaptorHash = 0;
     private InventoryAdaptor adaptor;
     private boolean lastRedstone = false;
     protected String oreFilterString = "";
     protected Predicate<IAEItemStack> filterPredicate = null;
+    protected final BaseActionSource mySrc;
 
     public PartSharedItemBus(final ItemStack is) {
         super(is);
+
+        this.getConfigManager().registerSetting(Settings.REDSTONE_CONTROLLED, RedstoneMode.IGNORE);
+
+        this.mySrc = new MachineSource(this);
     }
 
     @Override
@@ -53,24 +69,15 @@ public abstract class PartSharedItemBus extends PartUpgradeable implements IGrid
     @Override
     public void readFromNBT(final net.minecraft.nbt.NBTTagCompound extra) {
         super.readFromNBT(extra);
-        this.getConfig().readFromNBT(extra, "config");
+        this.config.readFromNBT(extra, "config");
         this.oreFilterString = extra.getString("filter");
     }
 
     @Override
     public void writeToNBT(final net.minecraft.nbt.NBTTagCompound extra) {
         super.writeToNBT(extra);
-        this.getConfig().writeToNBT(extra, "config");
+        this.config.writeToNBT(extra, "config");
         extra.setString("filter", this.oreFilterString);
-    }
-
-    @Override
-    public IInventory getInventoryByName(final String name) {
-        if (name.equals("config")) {
-            return this.getConfig();
-        }
-
-        return super.getInventoryByName(name);
     }
 
     @Override
@@ -105,18 +112,10 @@ public abstract class PartSharedItemBus extends PartUpgradeable implements IGrid
     }
 
     protected int availableSlots() {
-        return Math.min(1 + this.getInstalledUpgrades(Upgrades.CAPACITY) * 4, this.getConfig().getSizeInventory());
+        return Math.min(1 + this.getInstalledUpgrades(Upgrades.CAPACITY) * 4, this.config.getSizeInventory());
     }
 
-    protected int calculateItemsToSend() {
-        return switch (this.getInstalledUpgrades(Upgrades.SPEED)) {
-            default -> 1;
-            case 1 -> 8;
-            case 2 -> 32;
-            case 3 -> 64;
-            case 4 -> 96;
-        };
-    }
+    protected abstract int calculateItemsToSend();
 
     /**
      * Checks if the bus can actually do something.
@@ -158,10 +157,6 @@ public abstract class PartSharedItemBus extends PartUpgradeable implements IGrid
 
     protected abstract TickRateModulation doBusWork();
 
-    AppEngInternalAEInventory getConfig() {
-        return this.config;
-    }
-
     @Override
     public String getFilter() {
         return oreFilterString;
@@ -171,5 +166,61 @@ public abstract class PartSharedItemBus extends PartUpgradeable implements IGrid
     public void setFilter(String filter) {
         oreFilterString = filter;
         filterPredicate = null;
+    }
+
+    @Override
+    protected boolean isSleeping() {
+        return this.getHandler() == null || super.isSleeping();
+    }
+
+    @Override
+    public TickRateModulation tickingRequest(final IGridNode node, final int ticksSinceLastCall) {
+        return this.doBusWork();
+    }
+
+    @Override
+    public boolean onPartActivate(final EntityPlayer player, final Vec3 pos) {
+        if (!player.isSneaking()) {
+            if (Platform.isClient()) {
+                return true;
+            }
+
+            Platform.openGUI(player, this.getHost().getTile(), this.getSide(), GuiBridge.GUI_BUS);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public RedstoneMode getRSMode() {
+        return (RedstoneMode) this.getConfigManager().getSetting(Settings.REDSTONE_CONTROLLED);
+    }
+
+    @Override
+    public int cableConnectionRenderTo() {
+        return 5;
+    }
+
+    @Override
+    public void saveAEStackInv() {
+
+    }
+
+    @Override
+    public IAEStackInventory getAEInventoryByName(StorageName name) {
+        return this.config;
+    }
+
+    protected abstract float getPowerMultiplier();
+
+    protected abstract IMEMonitor<StackType> getMonitor();
+
+    protected boolean supportFuzzy() {
+        return false;
+    }
+
+    protected boolean supportOreDict() {
+        return false;
     }
 }

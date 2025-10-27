@@ -13,11 +13,10 @@ package appeng.items.storage;
 import com.google.common.base.Optional;
 
 import appeng.api.storage.StorageChannel;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.items.AEBaseCell;
 import appeng.items.materials.MaterialType;
 
-public class ItemBasicStorageCell extends AEBaseCell<IAEItemStack> {
+public class ItemBasicStorageCell extends AEBaseCell {
 
     public ItemBasicStorageCell(MaterialType whichCell, long kilobytes) {
         super(whichCell, kilobytes);

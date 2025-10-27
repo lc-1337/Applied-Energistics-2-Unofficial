@@ -424,7 +424,7 @@ public class TileDrive extends AENetworkInvTile
         final IMEInventoryHandler<?> inv = cellHandler.getCellInventory(
                 cell,
                 host,
-                cell.getItem() instanceof AEBaseCell<?>abc ? abc.getStorageChannel() : StorageChannel.ITEMS);
+                cell.getItem() instanceof AEBaseCell abc ? abc.getStorageChannel() : StorageChannel.ITEMS);
         if (inv instanceof ICellInventoryHandler handler) {
             final ICellInventory cellInventory = handler.getCellInv();
             if (cellInventory != null && cellInventory.getStoredItemTypes() > 0) {
@@ -467,7 +467,7 @@ public class TileDrive extends AENetworkInvTile
             final IMEInventoryHandler<?> inv = cellHandler.getCellInventory(
                     cell,
                     this,
-                    cell.getItem() instanceof AEBaseCell<?>abc ? abc.getStorageChannel() : StorageChannel.ITEMS);
+                    cell.getItem() instanceof AEBaseCell abc ? abc.getStorageChannel() : StorageChannel.ITEMS);
             if (inv instanceof ICellInventoryHandler handler) {
                 if (ItemBasicStorageCell.cellIsPartitioned(handler)) {
                     unpartitionStorageCell(handler);
