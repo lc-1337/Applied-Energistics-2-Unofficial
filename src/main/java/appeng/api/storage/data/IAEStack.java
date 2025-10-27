@@ -261,4 +261,6 @@ public interface IAEStack<StackType extends IAEStack> {
     @SideOnly(Side.CLIENT)
     void drawOverlayInGui(Minecraft mc, int x, int y, boolean showAmount, boolean showAmountAlways,
             boolean showCraftableText, boolean showCraftableIcon);
+
+    int getPowerMultiplier();
 }

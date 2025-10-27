@@ -1257,13 +1257,20 @@ public class Platform {
         if (possible != null) {
             retrieved = possible.getStackSize();
         }
+        final int typeMultiplier = request.getPowerMultiplier();
 
-        final double availablePower = energy.extractAEPower(retrieved, Actionable.SIMULATE, PowerMultiplier.CONFIG);
+        final double availablePower = energy.extractAEPower(
+                Platform.ceilDiv(retrieved, typeMultiplier),
+                Actionable.SIMULATE,
+                PowerMultiplier.CONFIG);
 
-        final long itemToExtract = Math.min((long) (availablePower + 0.9), retrieved);
+        final long itemToExtract = Math.min((long) (availablePower * typeMultiplier + 0.9), retrieved);
 
         if (itemToExtract > 0) {
-            energy.extractAEPower(retrieved, Actionable.MODULATE, PowerMultiplier.CONFIG);
+            energy.extractAEPower(
+                    Platform.ceilDiv(retrieved, typeMultiplier),
+                    Actionable.MODULATE,
+                    PowerMultiplier.CONFIG);
 
             possible.setStackSize(itemToExtract);
             final StackType ret = cell.extractItems(possible, Actionable.MODULATE, src);
@@ -1286,7 +1293,7 @@ public class Platform {
         if (possible != null) {
             stored -= possible.getStackSize();
         }
-        long typeMultiplier = input instanceof IAEFluidStack ? 1000 : 1;
+        final int typeMultiplier = input.getPowerMultiplier();
 
         final double availablePower = energy
                 .extractAEPower(Platform.ceilDiv(stored, typeMultiplier), Actionable.SIMULATE, PowerMultiplier.CONFIG);

@@ -693,4 +693,9 @@ public final class AEItemStack extends AEStack<IAEItemStack> implements IAEItemS
 
         GL11.glTranslatef(0.0f, 0.0f, -200.0f);
     }
+
+    @Override
+    public int getPowerMultiplier() {
+        return 1;
+    }
 }

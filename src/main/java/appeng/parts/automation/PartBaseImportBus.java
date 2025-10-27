@@ -125,8 +125,10 @@ public abstract class PartBaseImportBus<StackType extends IAEStack<StackType>> e
                 this.itemToSend = this.calculateItemsToSend();
                 this.itemToSend = Math.min(
                         this.itemToSend,
-                        (int) (0.01 + this.getProxy().getEnergy()
-                                .extractAEPower(this.itemToSend, Actionable.SIMULATE, PowerMultiplier.CONFIG)));
+                        (int) (0.01 + this.getProxy().getEnergy().extractAEPower(
+                                this.itemToSend / getPowerMultiplier(),
+                                Actionable.SIMULATE,
+                                PowerMultiplier.CONFIG)));
 
                 final IMEMonitor<StackType> inv = this.getMonitor();
                 final IEnergyGrid energy = this.getProxy().getEnergy();
@@ -169,4 +171,6 @@ public abstract class PartBaseImportBus<StackType extends IAEStack<StackType>> e
 
     protected abstract boolean doOreDict(final InventoryAdaptor myAdaptor, IMEMonitor<StackType> inv,
             final IEnergyGrid energy, final FuzzyMode fzMode);
+
+    protected abstract int getPowerMultiplier();
 }

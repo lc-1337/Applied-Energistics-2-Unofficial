@@ -54,11 +54,6 @@ public class PartExportBus extends PartBaseExportBus<IAEItemStack> implements IC
     }
 
     @Override
-    protected float getPowerMultiplier() {
-        return 1;
-    }
-
-    @Override
     protected boolean supportFuzzy() {
         return true;
     }

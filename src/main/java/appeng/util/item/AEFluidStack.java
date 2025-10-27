@@ -441,4 +441,9 @@ public final class AEFluidStack extends AEStack<IAEFluidStack> implements IAEFlu
         tessellator.draw();
         GL11.glPopAttrib();
     }
+
+    @Override
+    public int getPowerMultiplier() {
+        return 1000;
+    }
 }

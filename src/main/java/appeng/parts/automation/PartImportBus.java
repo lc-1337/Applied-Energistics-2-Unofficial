@@ -118,7 +118,7 @@ public class PartImportBus extends PartBaseImportBus<IAEItemStack> implements II
     }
 
     @Override
-    protected float getPowerMultiplier() {
+    protected int getPowerMultiplier() {
         return 1;
     }
 

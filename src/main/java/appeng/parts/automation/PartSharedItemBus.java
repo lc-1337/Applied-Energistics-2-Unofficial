@@ -212,8 +212,6 @@ public abstract class PartSharedItemBus<StackType extends IAEStack<StackType>> e
         return this.config;
     }
 
-    protected abstract float getPowerMultiplier();
-
     protected abstract IMEMonitor<StackType> getMonitor();
 
     protected boolean supportFuzzy() {
