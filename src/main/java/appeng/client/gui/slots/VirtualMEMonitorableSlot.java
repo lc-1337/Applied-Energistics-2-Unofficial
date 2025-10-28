@@ -13,10 +13,15 @@ public class VirtualMEMonitorableSlot extends VirtualMESlot {
         super(x, y, slotIndex);
         this.repo = repo;
         this.showAmountAlways = true;
+        this.showCraftableText = true;
+        this.showCraftableIcon = true;
     }
 
     @Override
     public @Nullable IAEStack<?> getAEStack() {
         return this.repo.getReferenceStack(this.slotIndex);
     }
+
+    @Override
+    protected void drawNEIOverlay() {}
 }

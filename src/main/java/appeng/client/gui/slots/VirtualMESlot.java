@@ -1,14 +1,19 @@
 package appeng.client.gui.slots;
 
+import static appeng.integration.modules.NEI.searchField;
+import static codechicken.nei.NEIClientConfig.getSearchExpression;
 import static net.minecraft.client.gui.Gui.drawRect;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
 
 import org.lwjgl.opengl.GL11;
 
 import appeng.api.storage.data.IAEStack;
+import codechicken.nei.NEIClientUtils;
+import codechicken.nei.api.ItemFilter;
 
 public abstract class VirtualMESlot {
 
@@ -20,8 +25,8 @@ public abstract class VirtualMESlot {
 
     protected boolean showAmount = true;
     protected boolean showAmountAlways = false;
-    protected boolean showCraftableText = true;
-    protected boolean showCraftableIcon = true;
+    protected boolean showCraftableText = false;
+    protected boolean showCraftableIcon = false;
 
     public VirtualMESlot(int x, int y, int slotIndex) {
         this.xPos = x;
@@ -77,6 +82,9 @@ public abstract class VirtualMESlot {
                     this.showCraftableText,
                     this.showCraftableIcon);
         }
+
+        this.drawNEIOverlay();
+
         final boolean hovered = this.isHovered(mouseX, mouseY);
         if (hovered) {
             this.drawHoveredOverlay();
@@ -92,6 +100,23 @@ public abstract class VirtualMESlot {
         GL11.glColorMask(true, true, true, true);
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
+    }
+
+    protected void drawNEIOverlay() {
+        if (searchField.isSearchingInventory()) {
+            ItemFilter itemFilter = searchField.getItemFilter();
+            if (itemFilter == null) return;
+
+            IAEStack<?> aes = this.getAEStack();
+            ItemStack item = aes != null ? aes.getItemStackForNEI() : null;
+            if (aes == null || item == null ? !getSearchExpression().isEmpty() : !itemFilter.matches(item)) {
+                NEIClientUtils.gl2DRenderContext(() -> {
+                    GL11.glTranslatef(0, 0, 150);
+                    drawRect(this.xPos, this.yPos, this.xPos + 16, this.yPos + 16, 0x80000000);
+                    GL11.glTranslatef(0, 0, -150);
+                });
+            }
+        }
     }
 
     public boolean isHidden() {

@@ -12,8 +12,6 @@ public class VirtualMESlotSingle extends VirtualMESlot {
         super(x, y, slotIndex);
         this.stack = stack;
         this.showAmount = false;
-        this.showCraftableText = false;
-        this.showCraftableIcon = false;
     }
 
     @Nullable

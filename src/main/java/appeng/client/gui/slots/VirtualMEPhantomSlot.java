@@ -24,9 +24,6 @@ public class VirtualMEPhantomSlot extends VirtualMESlot {
         this.inventory = inventory;
 
         this.showAmount = false;
-        this.showAmountAlways = false;
-        this.showCraftableText = false;
-        this.showCraftableIcon = false;
     }
 
     @Nullable
