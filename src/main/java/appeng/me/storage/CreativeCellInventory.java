@@ -95,7 +95,7 @@ public class CreativeCellInventory<StackType extends IAEStack<StackType>>
 
     @Override
     public StorageChannel getChannel() {
-        return StorageChannel.ITEMS;
+        return this.cellType.getStorageChannel();
     }
 
     @Override

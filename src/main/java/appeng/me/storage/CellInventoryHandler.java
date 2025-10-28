@@ -157,7 +157,7 @@ public abstract class CellInventoryHandler<StackType extends IAEStack<StackType>
 
     @Override
     public TYPE getCellType() {
-        return TYPE.ITEM;
+        return this.getStorageChannel() == StorageChannel.FLUIDS ? TYPE.FLUID : TYPE.ITEM;
     }
 
     public List<Object> getRestricted() {
