@@ -15,6 +15,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,6 +54,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.ActionKey;
 import appeng.client.ClientHelper;
+import appeng.client.gui.slots.VirtualMEPhantomSlot;
 import appeng.client.gui.slots.VirtualMESlot;
 import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.client.gui.widgets.ITooltip;
@@ -89,10 +91,15 @@ import appeng.integration.IntegrationType;
 import appeng.integration.abstraction.INEI;
 import appeng.util.Platform;
 import codechicken.lib.gui.GuiDraw;
+import codechicken.nei.VisiblityData;
+import codechicken.nei.api.INEIGuiHandler;
+import codechicken.nei.api.TaggedInventoryArea;
 import codechicken.nei.guihook.GuiContainerManager;
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.Optional;
 
-public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandler {
+@Optional.Interface(modid = "NotEnoughItems", iface = "codechicken.nei.api.INEIGuiHandler")
+public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandler, INEIGuiHandler {
 
     private static class AEGuiTooltip {
 
@@ -1200,5 +1207,38 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
         if (hoveredAEStack == null) return null;
 
         return hoveredAEStack.getItemStackForNEI();
+    }
+
+    @Override
+    public boolean handleDragNDrop(GuiContainer gui, int mouseX, int mouseY, ItemStack draggedStack, int button) {
+        if (Minecraft.getMinecraft().thePlayer.inventory.getItemStack() != null) return false;
+        final VirtualMESlot slot = getVirtualMESlotUnderMouse();
+
+        if (slot instanceof VirtualMEPhantomSlot slotConfig) {
+            slotConfig.handleMouseClicked(true, true, isCtrlKeyDown(), draggedStack, button == 1);
+        }
+
+        return false;
+    }
+
+    // idk useless
+    @Override
+    public VisiblityData modifyVisiblity(GuiContainer gui, VisiblityData currentVisibility) {
+        return currentVisibility;
+    }
+
+    @Override
+    public Iterable<Integer> getItemSpawnSlots(GuiContainer gui, ItemStack item) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<TaggedInventoryArea> getInventoryAreas(GuiContainer gui) {
+        return null;
+    }
+
+    @Override
+    public boolean hideItemPanelSlot(GuiContainer gui, int x, int y, int w, int h) {
+        return false;
     }
 }

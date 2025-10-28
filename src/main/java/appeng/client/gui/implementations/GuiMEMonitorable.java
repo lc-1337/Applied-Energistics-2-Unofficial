@@ -50,7 +50,7 @@ import appeng.api.util.IConfigurableObject;
 import appeng.client.ActionKey;
 import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.slots.VirtualMEMonitorableSlot;
-import appeng.client.gui.slots.VirtualMEPatternSlot;
+import appeng.client.gui.slots.VirtualMEPhantomSlot;
 import appeng.client.gui.slots.VirtualMEPinSlot;
 import appeng.client.gui.slots.VirtualMESlot;
 import appeng.client.gui.widgets.GuiImgButton;
@@ -498,7 +498,7 @@ public class GuiMEMonitorable extends AEBaseGui
         VirtualMESlot hoveredSlot = this.getVirtualMESlotUnderMouse();
 
         final boolean isMonitorableSlot = hoveredSlot instanceof VirtualMEMonitorableSlot;
-        if (isMonitorableSlot || hoveredSlot instanceof VirtualMEPatternSlot) {
+        if (isMonitorableSlot || hoveredSlot instanceof VirtualMEPhantomSlot) {
             IAEStack<?> aes = hoveredSlot.getAEStack();
             final int threshold = AEConfig.instance.getTerminalFontSize() == TerminalFontSize.SMALL ? 9999 : 999;
             if (aes != null && aes.getStackSize() > threshold) {
