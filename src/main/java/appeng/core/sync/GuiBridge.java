@@ -485,27 +485,24 @@ public enum GuiBridge implements IGuiHandler {
         if (Platform.hasPermissions(
                 te != null ? new DimensionalCoord(te) : new DimensionalCoord(player.worldObj, x, y, z),
                 player)) {
-            if (this.type.isItem()) {
-                final ItemStack it = player.inventory.getCurrentItem();
-                if (it != null && it.getItem() instanceof IGuiItem) {
-                    final Object myItem = ((IGuiItem) it.getItem()).getGuiObject(it, w, player, x, y, z);
-                    if (this.CorrectTileOrPart(myItem)) {
-                        return true;
-                    }
-                }
-            }
-
-            if (this.type.isTile()) {
-                final TileEntity TE = w.getTileEntity(x, y, z);
-                if (TE instanceof IPartHost) {
-                    ((IPartHost) TE).getPart(side);
-                    final IPart part = ((IPartHost) TE).getPart(side);
+            if (te != null && this.type.isTile()) {
+                if (te instanceof IPartHost host) {
+                    host.getPart(side);
+                    final IPart part = host.getPart(side);
                     if (this.CorrectTileOrPart(part)) {
                         return this.securityCheck(part, player);
                     }
                 } else {
-                    if (this.CorrectTileOrPart(TE)) {
-                        return this.securityCheck(TE, player);
+                    if (this.CorrectTileOrPart(te)) {
+                        return this.securityCheck(te, player);
+                    }
+                }
+            } else if (this.type.isItem()) {
+                final ItemStack it = player.inventory.getCurrentItem();
+                if (it != null && it.getItem() instanceof IGuiItem guiItem) {
+                    final Object myItem = guiItem.getGuiObject(it, w, player, x, y, z);
+                    if (this.CorrectTileOrPart(myItem)) {
+                        return true;
                     }
                 }
             }
