@@ -56,7 +56,7 @@ dependencies {
         exclude module: "Baubles"
     }
     runtimeOnlyNonPublishable('com.github.GTNewHorizons:ThaumicEnergistics:1.7.14-GTNH:dev') { transitive = false }
-    runtimeOnlyNonPublishable('com.github.GTNewHorizons:AE2FluidCraft-Rework:1.5.6-gtnh:dev') { transitive = false }
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:AE2FluidCraft-Rework:99:dev') { transitive = false }
     runtimeOnlyNonPublishable('com.github.GTNewHorizons:NotEnoughEnergistics:99:dev') {
         exclude module: "Applied-Energistics-2-Unofficial"
         exclude module: "waila"

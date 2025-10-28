@@ -39,7 +39,8 @@ public class CreativeCellInventory<StackType extends IAEStack<StackType>>
     protected CreativeCellInventory(final ItemStack o) {
         this.cellItem = o;
         this.cellType = (IStorageCell) o.getItem();
-        final CellConfig cc = new CellConfig(o);
+        final IAEStackInventory cc = o.getItem() instanceof IStorageCell sc ? sc.getConfigAEInventory(o)
+                : new IAEStackInventory(null, 0);
         for (int i = 0; i < cc.getSizeInventory(); i++) {
             final IAEStack<?> aes = cc.getAEStackInSlot(i);
             if (aes != null) {
