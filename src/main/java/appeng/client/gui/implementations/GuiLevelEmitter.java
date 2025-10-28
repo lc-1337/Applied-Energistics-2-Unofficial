@@ -26,7 +26,6 @@ import appeng.api.config.Upgrades;
 import appeng.api.config.YesNo;
 import appeng.client.StorageName;
 import appeng.client.gui.slots.VirtualMEPhantomSlot;
-import appeng.client.gui.slots.VirtualMESlot;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.container.implementations.ContainerLevelEmitter;
@@ -259,13 +258,12 @@ public class GuiLevelEmitter extends GuiUpgradeable {
             this.amountTextField.mouseClicked(xCoord, yCoord, btn);
         }
 
-        final VirtualMESlot slot = getVirtualMESlotUnderMouse();
+        super.mouseClicked(xCoord, yCoord, btn);
+    }
 
-        if (slot == null) {
-            super.mouseClicked(xCoord, yCoord, btn);
-        } else if (slot instanceof VirtualMEPhantomSlot slotConfig) {
-            slotConfig.handleMouseClicked(true, true, isCtrlKeyDown());
-        }
+    @Override
+    protected void handlePhantomSlotInteraction(VirtualMEPhantomSlot slot, int mouseButton) {
+        slot.handleMouseClicked(true, true, isCtrlKeyDown());
     }
 
     @Override

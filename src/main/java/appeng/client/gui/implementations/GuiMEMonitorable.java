@@ -517,7 +517,6 @@ public class GuiMEMonitorable extends AEBaseGui
         searchField.mouseClicked(xCoord, yCoord, btn);
         isAutoFocused = false;
 
-        if (handleSlotClick(xCoord, yCoord, btn)) return;
         if (handleViewCellClick(xCoord, yCoord, btn)) return;
 
         super.mouseClicked(xCoord, yCoord, btn);
@@ -529,12 +528,10 @@ public class GuiMEMonitorable extends AEBaseGui
         NetworkHandler.instance.sendToServer(p);
     }
 
-    protected boolean handleSlotClick(final int mouseX, final int mouseY, final int mouseButton) {
-        final VirtualMESlot slot = getVirtualMESlotUnderMouse();
-
-        if (slot == null) return false;
-
-        return this.handleMonitorableSlotClick(slot, mouseButton);
+    @Override
+    protected boolean handleVirtualSlotClick(VirtualMESlot virtualSlot, final int mouseButton) {
+        if (this.handleMonitorableSlotClick(virtualSlot, mouseButton)) return true;
+        else return super.handleVirtualSlotClick(virtualSlot, mouseButton);
     }
 
     private boolean handleMonitorableSlotClick(VirtualMESlot virtualSlot, final int mouseButton) {

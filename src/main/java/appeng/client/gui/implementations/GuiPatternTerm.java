@@ -12,10 +12,7 @@ package appeng.client.gui.implementations;
 
 import java.io.IOException;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -28,10 +25,8 @@ import appeng.api.config.ItemSubstitution;
 import appeng.api.config.PatternBeSubstitution;
 import appeng.api.config.Settings;
 import appeng.api.storage.ITerminalHost;
-import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
 import appeng.client.gui.slots.VirtualMEPhantomSlot;
-import appeng.client.gui.slots.VirtualMESlot;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.implementations.ContainerPatternTerm;
@@ -43,11 +38,7 @@ import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
-import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.tile.inventory.IAEStackInventory;
-import appeng.util.FluidUtils;
-import appeng.util.item.AEFluidStack;
-import appeng.util.item.AEItemStack;
 
 public class GuiPatternTerm extends GuiMEMonitorable {
 
@@ -92,85 +83,6 @@ public class GuiPatternTerm extends GuiMEMonitorable {
             NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_MULTI));
         } else super.mouseClicked(xCoord, yCoord, btn);
 
-    }
-
-    @Override
-    protected void handleDragVirtualSlot(VirtualMESlot slot, int mouseButton) {
-        if (slot instanceof VirtualMEPhantomSlot patternSlot) {
-            this.handleVirtualSlotInteraction(patternSlot, mouseButton);
-        }
-    }
-
-    @Override
-    protected boolean handleSlotClick(int mouseX, int mouseY, int mouseButton) {
-        final var clickedSlot = this.getVirtualMESlotUnderMouse();
-        if (clickedSlot instanceof VirtualMEPhantomSlot slot) {
-            this.handleVirtualSlotInteraction(slot, mouseButton);
-        }
-
-        return super.handleSlotClick(mouseX, mouseY, mouseButton);
-    }
-
-    private void handleVirtualSlotInteraction(VirtualMEPhantomSlot slot, int mouseButton) {
-        final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-        IAEStack<?> aes = slot.getAEStack();
-        final ItemStack playerHand = player.inventory.getItemStack();
-        final ItemStack is = playerHand != null ? playerHand.copy() : null;
-
-        final boolean isLControlDown = isCtrlKeyDown();
-
-        switch (mouseButton) {
-            case 0 -> { // left click
-                if (playerHand != null) {
-                    if (isLControlDown) {
-                        aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(is));
-                    } else {
-                        aes = AEItemStack.create(is);
-                    }
-                } else {
-                    aes = null;
-                }
-            }
-            case 1 -> { // right click
-                if (playerHand != null) {
-                    is.stackSize = 1;
-                    if (isLControlDown) aes = AEFluidStack.create(FluidUtils.getFluidFromContainer(is));
-                    else aes = AEItemStack.create(is);
-
-                    if (aes != null && aes.equals(slot.getAEStack())) {
-                        aes = slot.getAEStack();
-                        aes.decStackSize(-1);
-                    }
-                } else if (aes != null) {
-                    aes.decStackSize(1);
-                    if (aes.getStackSize() <= 0) aes = null;
-                }
-            }
-            case 2 -> { // middle click
-                if (aes != null) {
-                    if (isLControlDown) {
-                        NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_ITEM_RENAMER));
-                    } else {
-                        NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_VALUE_AMOUNT));
-                    }
-                }
-            }
-        }
-
-        NetworkHandler.instance.sendToServer(new PacketVirtualSlot(slot.getStorageName(), slot.getSlotIndex(), aes));
-    }
-
-    @Override
-    public boolean handleDragNDrop(GuiContainer gui, int mouseX, int mouseY, ItemStack draggedStack, int button) {
-        if (Minecraft.getMinecraft().thePlayer.inventory.getItemStack() != null) return false;
-        final VirtualMESlot slot = getVirtualMESlotUnderMouse();
-
-        if (slot instanceof VirtualMEPhantomSlot slotConfig) {
-            slotConfig.handleMouseClicked(true, true, isCtrlKeyDown(), draggedStack, button == 1);
-            return true;
-        }
-
-        return false;
     }
 
     @Override

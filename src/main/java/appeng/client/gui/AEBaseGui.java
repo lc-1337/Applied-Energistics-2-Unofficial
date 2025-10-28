@@ -387,6 +387,9 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
 
     @Override
     protected void mouseClicked(final int xCoord, final int yCoord, final int btn) {
+        final VirtualMESlot slot = getVirtualMESlotUnderMouse();
+        if (slot != null && this.handleVirtualSlotClick(slot, btn)) return;
+
         this.drag_click.clear();
         this.draggedSlots.clear();
 
@@ -407,7 +410,23 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
         super.mouseClicked(xCoord, yCoord, btn);
     }
 
-    protected void handleDragVirtualSlot(VirtualMESlot slot, int mouseButton) {}
+    protected boolean handleVirtualSlotClick(final VirtualMESlot slot, final int mouseButton) {
+        if (slot instanceof VirtualMEPhantomSlot vSlot) {
+            this.handlePhantomSlotInteraction(vSlot, mouseButton);
+        }
+
+        return false;
+    }
+
+    protected void handleDragVirtualSlot(VirtualMESlot slot, int mouseButton) {
+        if (slot instanceof VirtualMEPhantomSlot patternSlot) {
+            this.handlePhantomSlotInteraction(patternSlot, mouseButton);
+        }
+    }
+
+    protected void handlePhantomSlotInteraction(VirtualMEPhantomSlot slot, int mouseButton) {
+        slot.handleMouseClicked(true, true, isCtrlKeyDown(), null, mouseButton);
+    }
 
     @Override
     protected void mouseClickMove(final int x, final int y, final int c, final long d) {
@@ -1211,11 +1230,11 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
 
     @Override
     public boolean handleDragNDrop(GuiContainer gui, int mouseX, int mouseY, ItemStack draggedStack, int button) {
-        if (Minecraft.getMinecraft().thePlayer.inventory.getItemStack() != null) return false;
         final VirtualMESlot slot = getVirtualMESlotUnderMouse();
 
         if (slot instanceof VirtualMEPhantomSlot slotConfig) {
-            slotConfig.handleMouseClicked(true, true, isCtrlKeyDown(), draggedStack, button == 1);
+            slotConfig.handleMouseClicked(true, true, isCtrlKeyDown(), draggedStack, button);
+            return true;
         }
 
         return false;

@@ -26,7 +26,6 @@ import appeng.api.config.StorageFilter;
 import appeng.api.config.Upgrades;
 import appeng.api.storage.StorageChannel;
 import appeng.client.gui.slots.VirtualMEPhantomSlot;
-import appeng.client.gui.slots.VirtualMESlot;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.implementations.ContainerStorageBus;
@@ -214,14 +213,8 @@ public class GuiStorageBus extends GuiUpgradeable {
     }
 
     @Override
-    protected void mouseClicked(int xCoord, int yCoord, int btn) {
-        final VirtualMESlot slot = getVirtualMESlotUnderMouse();
-
-        if (slot == null) {
-            super.mouseClicked(xCoord, yCoord, btn);
-        } else if (slot instanceof VirtualMEPhantomSlot slotConfig) {
-            StorageChannel channel = containerStorageBus.getStorageChannel();
-            slotConfig.handleMouseClicked(channel == StorageChannel.ITEMS, channel == StorageChannel.FLUIDS, false);
-        }
+    protected void handlePhantomSlotInteraction(VirtualMEPhantomSlot slot, int mouseButton) {
+        StorageChannel channel = containerStorageBus.getStorageChannel();
+        slot.handleMouseClicked(channel == StorageChannel.ITEMS, channel == StorageChannel.FLUIDS, false);
     }
 }
