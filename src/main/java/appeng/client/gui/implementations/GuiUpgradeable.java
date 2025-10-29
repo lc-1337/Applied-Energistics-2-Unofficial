@@ -11,10 +11,8 @@
 package appeng.client.gui.implementations;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.entity.player.InventoryPlayer;
 
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
 import appeng.api.config.ActionItems;
 import appeng.api.config.FuzzyMode;
@@ -24,9 +22,7 @@ import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
 import appeng.api.config.YesNo;
 import appeng.api.implementations.IUpgradeableHost;
-import appeng.client.StorageName;
 import appeng.client.gui.AEBaseGui;
-import appeng.client.gui.slots.VirtualMEPhantomSlot;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.container.implementations.ContainerUpgradeable;
 import appeng.core.localization.GuiColors;
@@ -37,10 +33,8 @@ import appeng.core.sync.packets.PacketConfigButton;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.parts.automation.PartExportBus;
 import appeng.parts.automation.PartImportBus;
-import appeng.parts.automation.PartSharedItemBus;
-import appeng.tile.inventory.IAEStackInventory;
 
-public class GuiUpgradeable extends AEBaseGui {
+public abstract class GuiUpgradeable extends AEBaseGui {
 
     protected final ContainerUpgradeable cvb;
     protected final IUpgradeableHost bc;
@@ -50,12 +44,6 @@ public class GuiUpgradeable extends AEBaseGui {
     protected GuiImgButton craftMode;
     protected GuiImgButton schedulingMode;
     protected GuiImgButton oreFilter;
-
-    protected VirtualMEPhantomSlot[] virtualSlots;
-
-    public GuiUpgradeable(final InventoryPlayer inventoryPlayer, final IUpgradeableHost te) {
-        this(new ContainerUpgradeable(inventoryPlayer, te));
-    }
 
     public GuiUpgradeable(final ContainerUpgradeable te) {
         super(te);
@@ -86,7 +74,6 @@ public class GuiUpgradeable extends AEBaseGui {
     public void initGui() {
         super.initGui();
         this.addButtons();
-        this.initVirtualSlots();
     }
 
     @SuppressWarnings("unchecked")
@@ -118,24 +105,6 @@ public class GuiUpgradeable extends AEBaseGui {
         this.buttonList.add(this.fuzzyMode);
         this.buttonList.add(this.schedulingMode);
         this.buttonList.add(this.oreFilter);
-    }
-
-    private void initVirtualSlots() {
-        if (this.bc instanceof PartSharedItemBus<?>sb) {
-            this.virtualSlots = new VirtualMEPhantomSlot[9];
-            final IAEStackInventory inputInv = sb.getAEInventoryByName(StorageName.NONE);
-            for (int y = 0; y < 3; y++) {
-                for (int x = 0; x < 3; x++) {
-                    VirtualMEPhantomSlot slot = new VirtualMEPhantomSlot(
-                            62 + 18 * x,
-                            22 + 18 * (y % (3)),
-                            inputInv,
-                            x + y * 3);
-                    this.virtualSlots[x + y * 3] = slot;
-                    this.registerVirtualSlots(slot);
-                }
-            }
-        }
     }
 
     @Override
@@ -192,40 +161,6 @@ public class GuiUpgradeable extends AEBaseGui {
                         .drawTexturedModalRect(offsetX + 178, offsetY + this.ySize - 90, 178, this.ySize - 90, 68, 68);
             }
         }
-        if (this.bc instanceof PartSharedItemBus<?>) {
-            final int capacity = this.cvb.getUpgradeable().getInstalledUpgrades(Upgrades.CAPACITY);
-            if (capacity < 1) {
-                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-                GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.4F);
-                GL11.glEnable(GL11.GL_BLEND);
-            }
-
-            this.drawTexturedModalRect(offsetX + 61, offsetY + 39, 79, 39, 18, 18);
-            this.drawTexturedModalRect(offsetX + 79, offsetY + 21, 79, 39, 18, 18);
-            this.drawTexturedModalRect(offsetX + 97, offsetY + 39, 79, 39, 18, 18);
-            this.drawTexturedModalRect(offsetX + 79, offsetY + 57, 79, 39, 18, 18);
-
-            if (capacity < 1) {
-                GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-                GL11.glPopAttrib();
-            }
-
-            if (capacity < 2) {
-                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-                GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.4F);
-                GL11.glEnable(GL11.GL_BLEND);
-            }
-
-            this.drawTexturedModalRect(offsetX + 61, offsetY + 21, 79, 39, 18, 18);
-            this.drawTexturedModalRect(offsetX + 61, offsetY + 57, 79, 39, 18, 18);
-            this.drawTexturedModalRect(offsetX + 97, offsetY + 21, 79, 39, 18, 18);
-            this.drawTexturedModalRect(offsetX + 97, offsetY + 57, 79, 39, 18, 18);
-
-            if (capacity < 2) {
-                GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-                GL11.glPopAttrib();
-            }
-        }
     }
 
     protected void handleButtonVisibility() {
@@ -247,26 +182,9 @@ public class GuiUpgradeable extends AEBaseGui {
         if (this.oreFilter != null) {
             this.oreFilter.setVisibility(this.bc.getInstalledUpgrades(Upgrades.ORE_FILTER) > 0);
         }
-        if (this.bc instanceof PartSharedItemBus<?>) {
-            final int capacity = this.cvb.getUpgradeable().getInstalledUpgrades(Upgrades.CAPACITY);
-            final boolean firstTier = capacity > 0;
-            final boolean secondTier = capacity > 1;
-
-            this.virtualSlots[1].setHidden(!firstTier);
-            this.virtualSlots[3].setHidden(!firstTier);
-            this.virtualSlots[5].setHidden(!firstTier);
-            this.virtualSlots[7].setHidden(!firstTier);
-
-            this.virtualSlots[0].setHidden(!secondTier);
-            this.virtualSlots[2].setHidden(!secondTier);
-            this.virtualSlots[6].setHidden(!secondTier);
-            this.virtualSlots[8].setHidden(!secondTier);
-        }
     }
 
-    protected String getBackground() {
-        return "guis/bus.png";
-    }
+    protected abstract String getBackground();
 
     protected String getAdvancedBackground() {
         return "guis/advanced_toolbox.png";

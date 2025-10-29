@@ -148,6 +148,11 @@ public class ContainerCellWorkbench extends ContainerUpgradeable implements IVir
 
             this.setCopyMode(this.getWorkBenchCopyMode());
             this.setFuzzyMode(this.getWorkBenchFuzzyMode());
+
+            this.updateVirtualSlots(
+                    StorageName.NONE,
+                    this.workBench.getAEInventoryByName(StorageName.NONE),
+                    this.configClientSlot);
         }
 
         this.prevStack = is;
