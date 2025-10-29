@@ -112,7 +112,6 @@ import appeng.api.storage.data.IAETagCompound;
 import appeng.api.storage.data.IItemList;
 import appeng.api.util.AEColor;
 import appeng.api.util.DimensionalCoord;
-import appeng.client.me.SlotME;
 import appeng.container.AEBaseContainer;
 import appeng.container.slot.SlotFake;
 import appeng.core.AEConfig;
@@ -1847,10 +1846,6 @@ public class Platform {
     public static IAEItemStack getAEStackInSlot(Slot slot) {
         if (slot == null || !slot.getHasStack()) {
             return null;
-        }
-
-        if (slot instanceof SlotME) {
-            return ((SlotME) slot).getAEStack();
         }
 
         if (slot instanceof SlotFake) {

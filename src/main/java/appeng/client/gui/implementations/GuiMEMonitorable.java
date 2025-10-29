@@ -60,7 +60,6 @@ import appeng.client.gui.widgets.IDropToFillTextField;
 import appeng.client.gui.widgets.ISortSource;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.client.me.ItemRepo;
-import appeng.client.me.SlotME;
 import appeng.container.AEBaseContainer;
 import appeng.container.implementations.ContainerMEMonitorable;
 import appeng.container.slot.AppEngSlot;
@@ -271,8 +270,6 @@ public class GuiMEMonitorable extends AEBaseGui
         this.perRow = AEConfig.instance.getConfigManager().getSetting(Settings.TERMINAL_STYLE) != TerminalStyle.FULL ? 9
                 : 9 + ((this.width - this.standardSize) / 18);
         this.rows = calculateRowsCount();
-
-        this.getMeSlots().clear();
 
         // make sure we have space at least for one row of normal slots, because pins not adjusted by scroll bar
         adjustPinsSize();
@@ -735,10 +732,9 @@ public class GuiMEMonitorable extends AEBaseGui
 
             if (CommonHelper.proxy.isActionKey(ActionKey.SEARCH_CONNECTED_INVENTORIES, key)
                     && !(NEI.searchField.focused() || searchField.isFocused())) {
-                final boolean mouseInGui = this
-                        .isPointInRegion(0, 0, this.xSize, this.ySize, this.currentMouseX, this.currentMouseY);
-                if (mouseInGui && getSlot(this.currentMouseX, this.currentMouseY) instanceof SlotME sme) {
-                    IAEItemStack stack = sme.getAEStack();
+                VirtualMESlot slot = this.getVirtualMESlotUnderMouse();
+                if (slot instanceof VirtualMEMonitorableSlot monitorableSlot) {
+                    IAEStack<?> stack = monitorableSlot.getAEStack();
                     this.monitorableContainer.setTargetStack(stack);
                     if (stack != null) {
                         final PacketInventoryAction p = new PacketInventoryAction(
@@ -944,15 +940,5 @@ public class GuiMEMonitorable extends AEBaseGui
     @Override
     public void setPinsState(PinsState state) {
         configSrc.putSetting(Settings.PINS_STATE, state);
-    }
-
-    // Moving items via hotbar keys in terminals isn't working anyway.
-    // Let's disable hotbar keys processing for terminal slots to allow proper input of numbers in the search field
-    @Override
-    protected boolean checkHotbarKeys(int keyCode) {
-        if (theSlot instanceof SlotME) {
-            return false;
-        }
-        return super.checkHotbarKeys(keyCode);
     }
 }

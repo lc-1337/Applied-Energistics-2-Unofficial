@@ -60,8 +60,6 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.ItemSearchDTO;
 import appeng.client.StorageName;
-import appeng.client.me.InternalSlotME;
-import appeng.client.me.SlotME;
 import appeng.container.guisync.GuiSync;
 import appeng.container.guisync.SyncData;
 import appeng.container.implementations.ContainerCellWorkbench;
@@ -436,18 +434,6 @@ public abstract class AEBaseContainer extends Container {
             return null;
         }
 
-        boolean hasMETiles = false;
-        for (final Object is : this.inventorySlots) {
-            if (is instanceof InternalSlotME) {
-                hasMETiles = true;
-                break;
-            }
-        }
-
-        if (hasMETiles && Platform.isClient()) {
-            return null;
-        }
-
         final AppEngSlot clickSlot = (AppEngSlot) this.inventorySlots.get(idx); // require AE SLots!
 
         if (clickSlot instanceof SlotDisabled || clickSlot instanceof SlotInaccessible) {
@@ -518,7 +504,7 @@ public abstract class AEBaseContainer extends Container {
             if (tis != null) {
                 // find partials..
                 for (final Slot d : selectedSlots) {
-                    if (d instanceof SlotDisabled || d instanceof SlotME) {
+                    if (d instanceof SlotDisabled) {
                         continue;
                     }
 
@@ -561,7 +547,7 @@ public abstract class AEBaseContainer extends Container {
 
                 // any match..
                 for (final Slot d : selectedSlots) {
-                    if (d instanceof SlotDisabled || d instanceof SlotME) {
+                    if (d instanceof SlotDisabled) {
                         continue;
                     }
 

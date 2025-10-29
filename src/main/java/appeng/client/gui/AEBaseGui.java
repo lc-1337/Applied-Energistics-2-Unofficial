@@ -16,7 +16,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -57,9 +56,6 @@ import appeng.client.gui.slots.VirtualMEPhantomSlot;
 import appeng.client.gui.slots.VirtualMESlot;
 import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.client.gui.widgets.ITooltip;
-import appeng.client.me.InternalSlotME;
-import appeng.client.me.SlotDisconnected;
-import appeng.client.me.SlotME;
 import appeng.client.render.AppEngRenderItem;
 import appeng.client.render.TranslatedRenderItem;
 import appeng.container.AEBaseContainer;
@@ -139,7 +135,6 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
     }
 
     private static boolean switchingGuis;
-    private final List<InternalSlotME> meSlots = new LinkedList<>();
     // drag y
     protected final Set<Slot> drag_click = new HashSet<>();
     public static final AppEngRenderItem aeRenderItem = new AppEngRenderItem();
@@ -189,12 +184,6 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
         super.initGui();
 
         this.virtualSlots.clear();
-        final List<Slot> slots = this.getInventorySlots();
-        slots.removeIf(SlotME.class::isInstance);
-
-        for (final InternalSlotME me : this.meSlots) {
-            slots.add(new SlotME(me));
-        }
     }
 
     protected void registerVirtualSlots(VirtualMESlot slot) {
@@ -457,36 +446,6 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
                     NetworkHandler.instance.sendToServer(p);
                 }
             }
-        } else if (slot instanceof SlotDisconnected) {
-            this.drag_click.add(slot);
-            if (this.drag_click.size() > 1) {
-                if (itemstack != null) {
-                    for (final Slot dr : this.drag_click) {
-                        if (slot.getStack() == null) {
-                            InventoryAction action = InventoryAction.SPLIT_OR_PLACE_SINGLE;
-                            final PacketInventoryAction p = new PacketInventoryAction(
-                                    action,
-                                    dr.getSlotIndex(),
-                                    ((SlotDisconnected) slot).getSlot().getId());
-                            NetworkHandler.instance.sendToServer(p);
-                        }
-                    }
-                } else if (isShiftKeyDown()) {
-                    for (final Slot dr : this.drag_click) {
-                        InventoryAction action = null;
-                        if (slot.getStack() != null) {
-                            action = InventoryAction.SHIFT_CLICK;
-                        }
-                        if (action != null) {
-                            final PacketInventoryAction p = new PacketInventoryAction(
-                                    action,
-                                    dr.getSlotIndex(),
-                                    ((SlotDisconnected) slot).getSlot().getId());
-                            NetworkHandler.instance.sendToServer(p);
-                        }
-                    }
-                }
-            }
         } else {
             super.mouseClickMove(x, y, c, d);
         }
@@ -541,116 +500,17 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
 
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
             if (this.enableSpaceClicking() && !(slot instanceof SlotPatternTerm)) {
-                IAEItemStack stack = null;
-                if (slot instanceof SlotME) {
-                    stack = ((SlotME) slot).getAEStack();
-                }
-
                 int slotNum = this.getInventorySlots().size();
 
-                if (!(slot instanceof SlotME) && slot != null) {
+                if (slot != null) {
                     slotNum = slot.slotNumber;
                 }
 
-                ((AEBaseContainer) this.inventorySlots).setTargetStack(stack);
+                ((AEBaseContainer) this.inventorySlots).setTargetStack(null);
                 final PacketInventoryAction p = new PacketInventoryAction(InventoryAction.MOVE_REGION, slotNum, 0);
                 NetworkHandler.instance.sendToServer(p);
                 return;
             }
-        }
-
-        if (slot instanceof SlotDisconnected) {
-            if (this.drag_click.size() > 1) {
-                return;
-            }
-
-            InventoryAction action = null;
-
-            switch (mouseButton) {
-                case 0 -> // pickup / set-down.
-                {
-                    ItemStack heldStack = player.inventory.getItemStack();
-                    if (slot.getStack() == null && heldStack != null) action = InventoryAction.SPLIT_OR_PLACE_SINGLE;
-                    else if (slot.getStack() != null && (heldStack == null || heldStack.stackSize <= 1))
-                        action = InventoryAction.PICKUP_OR_SET_DOWN;
-                }
-                case 1 -> action = ctrlDown == 1 ? InventoryAction.PICKUP_SINGLE : InventoryAction.SHIFT_CLICK;
-                case 3 -> { // creative dupe:
-                    if (player.capabilities.isCreativeMode) {
-                        action = InventoryAction.CREATIVE_DUPLICATE;
-                    }
-                } // drop item:
-                default -> {}
-            }
-
-            if (action != null) {
-                final PacketInventoryAction p = new PacketInventoryAction(
-                        action,
-                        slot.getSlotIndex(),
-                        ((SlotDisconnected) slot).getSlot().getId());
-                NetworkHandler.instance.sendToServer(p);
-            }
-
-            return;
-        }
-
-        if (slot instanceof SlotME sme) {
-            InventoryAction action = null;
-            IAEItemStack stack = null;
-
-            switch (mouseButton) {
-                case 0 -> { // pickup / set-down.
-                    action = ctrlDown == 1 ? InventoryAction.SPLIT_OR_PLACE_SINGLE : InventoryAction.PICKUP_OR_SET_DOWN;
-                    if (sme.isPin() && player.inventory.getItemStack() != null) {
-                        final PacketInventoryAction p = new PacketInventoryAction(
-                                InventoryAction.SET_PIN,
-                                sme.getPinIndex(),
-                                0);
-                        NetworkHandler.instance.sendToServer(p);
-                        return;
-                    }
-
-                    stack = sme.getAEStack();
-                    if (stack != null && action == InventoryAction.PICKUP_OR_SET_DOWN
-                            && stack.getStackSize() == 0
-                            && player.inventory.getItemStack() == null) {
-                        action = InventoryAction.AUTO_CRAFT;
-                    }
-                }
-                case 1 -> {
-                    if (sme.isPin() && ctrlDown == 1) { // clear pin
-                        final PacketInventoryAction p = new PacketInventoryAction(
-                                InventoryAction.SET_PIN,
-                                sme.getPinIndex(),
-                                -1);
-                        NetworkHandler.instance.sendToServer(p);
-                        return;
-                    }
-
-                    action = ctrlDown == 1 ? InventoryAction.PICKUP_SINGLE : InventoryAction.SHIFT_CLICK;
-                    stack = ((SlotME) slot).getAEStack();
-                }
-                case 3 -> { // creative dupe:
-                    stack = ((SlotME) slot).getAEStack();
-                    if (stack != null && stack.isCraftable()) {
-                        action = InventoryAction.AUTO_CRAFT;
-                    } else if (player.capabilities.isCreativeMode) {
-                        final IAEItemStack slotItem = ((SlotME) slot).getAEStack();
-                        if (slotItem != null) {
-                            action = InventoryAction.CREATIVE_DUPLICATE;
-                        }
-                    }
-                } // drop item:
-                default -> {}
-            }
-
-            if (action != null) {
-                ((AEBaseContainer) this.inventorySlots).setTargetStack(stack);
-                final PacketInventoryAction p = new PacketInventoryAction(action, this.getInventorySlots().size(), 0);
-                NetworkHandler.instance.sendToServer(p);
-            }
-
-            return;
         }
 
         if (!this.disableShiftClick && isShiftKeyDown()) {
@@ -789,24 +649,7 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
      * @return If the event was handled
      */
     protected boolean mouseWheelEvent(final int x, final int y, final int wheel) {
-        if (!isShiftKeyDown()) {
-            return false;
-        }
-        final Slot slot = this.getSlot(x, y);
-        if (slot instanceof SlotME) {
-            final IAEItemStack item = ((SlotME) slot).getAEStack();
-            if (item != null) {
-                ((AEBaseContainer) this.inventorySlots).setTargetStack(item);
-                final InventoryAction direction = wheel > 0 ? InventoryAction.ROLL_DOWN : InventoryAction.ROLL_UP;
-                final int times = Math.abs(wheel);
-                final int inventorySize = this.getInventorySlots().size();
-                for (int h = 0; h < times; h++) {
-                    final PacketInventoryAction p = new PacketInventoryAction(direction, inventorySize, 0);
-                    NetworkHandler.instance.sendToServer(p);
-                }
-            }
-        }
-        return true;
+        return false;
     }
 
     protected boolean enableSpaceClicking() {
@@ -852,10 +695,7 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
     }
 
     private void drawSlot(final Slot s) {
-        if (s instanceof SlotME || s instanceof SlotFake) {
-            if (s instanceof SlotME sme && sme.isPin() && !sme.getHasStack()) {
-                drawTextureOnSlot(s, sme.getPinIcon(), sme.getOpacityOfIcon());
-            }
+        if (s instanceof SlotFake) {
             IAEItemStack stack = Platform.getAEStackInSlot(s);
             if (s instanceof SlotFake && stack != null && stack.getStackSize() == 1) {
                 this.safeDrawSlot(s);
@@ -900,8 +740,7 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
                                 || s instanceof AppEngCraftingSlot
                                 || s instanceof SlotDisabled
                                 || s instanceof SlotInaccessible
-                                || s instanceof SlotRestrictedInput
-                                || s instanceof SlotDisconnected;
+                                || s instanceof SlotRestrictedInput;
                         if (isValid && s instanceof SlotRestrictedInput) {
                             try {
                                 isValid = ((SlotRestrictedInput) s).isValid(is, this.mc.theWorld);
@@ -1069,10 +908,6 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
 
     protected void setScrollBar(final GuiScrollbar myScrollBar) {
         this.scrollBar = myScrollBar;
-    }
-
-    protected List<InternalSlotME> getMeSlots() {
-        return this.meSlots;
     }
 
     public static final synchronized boolean isSwitchingGuis() {

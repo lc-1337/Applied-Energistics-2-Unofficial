@@ -21,7 +21,6 @@ import java.util.Map;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -43,7 +42,6 @@ import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.client.gui.widgets.ISortSource;
 import appeng.client.me.ItemRepo;
-import appeng.client.me.SlotME;
 import appeng.client.render.highlighter.BlockPosHighlighter;
 import appeng.container.implementations.ContainerNetworkStatus;
 import appeng.core.AEConfig;
@@ -294,61 +292,6 @@ public class GuiNetworkStatus extends AEBaseGui implements ISortSource {
         final int size = this.repo.size();
         this.getScrollBar().setTop(39).setLeft(175).setHeight(78);
         this.getScrollBar().setRange(0, (size + 4) / 5 - this.rows, 1);
-    }
-
-    // @Override - NEI
-    public List<String> handleItemTooltip(final ItemStack stack, final int mouseX, final int mouseY,
-            final List<String> currentToolTip) {
-        if (stack != null) {
-            final Slot s = this.getSlot(mouseX, mouseY);
-            if (s instanceof SlotME) {
-                IAEItemStack myStack = null;
-
-                try {
-                    final SlotME theSlotField = (SlotME) s;
-                    myStack = theSlotField.getAEStack();
-                } catch (final Throwable ignore) {}
-
-                if (myStack != null) {
-                    while (currentToolTip.size() > 1) {
-                        currentToolTip.remove(1);
-                    }
-                }
-            }
-        }
-        return currentToolTip;
-    }
-
-    // Vanilla version...
-    protected void drawItemStackTooltip(final ItemStack stack, final int x, final int y) {
-        final Slot s = this.getSlot(x, y);
-        if (s instanceof SlotME && stack != null) {
-            IAEItemStack myStack = null;
-
-            try {
-                final SlotME theSlotField = (SlotME) s;
-                myStack = theSlotField.getAEStack();
-            } catch (final Throwable ignore) {}
-
-            if (myStack != null) {
-                final List<String> currentToolTip = stack
-                        .getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
-
-                while (currentToolTip.size() > 1) {
-                    currentToolTip.remove(1);
-                }
-
-                currentToolTip.add(
-                        GuiText.Installed.getLocal() + ": "
-                                + NumberFormat.getNumberInstance(Locale.US).format(myStack.getStackSize()));
-                currentToolTip.add(
-                        GuiText.EnergyDrain.getLocal() + ": "
-                                + Platform.formatPowerLong(myStack.getCountRequestable(), true));
-
-                this.drawTooltip(x, y, currentToolTip.toArray(new String[0]));
-            }
-        }
-        // super.drawItemStackTooltip( stack, x, y );
     }
 
     @Override
