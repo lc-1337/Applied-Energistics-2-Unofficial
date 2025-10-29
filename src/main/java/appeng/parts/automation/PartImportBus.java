@@ -10,7 +10,6 @@
 
 package appeng.parts.automation;
 
-import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.item.ItemStack;
 
 import appeng.api.AEApi;
@@ -21,10 +20,8 @@ import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
 import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.energy.IEnergySource;
-import appeng.api.parts.IPartRenderHelper;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEItemStack;
-import appeng.client.texture.CableBusTextures;
 import appeng.helpers.Reflected;
 import appeng.me.GridAccessException;
 import appeng.util.InventoryAdaptor;
@@ -33,8 +30,6 @@ import appeng.util.inv.IInventoryDestination;
 import appeng.util.inv.ItemSlot;
 import appeng.util.item.AEItemStack;
 import appeng.util.prioitylist.OreFilteredList;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class PartImportBus extends PartBaseImportBus<IAEItemStack> implements IInventoryDestination {
 
@@ -62,59 +57,8 @@ public class PartImportBus extends PartBaseImportBus<IAEItemStack> implements II
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void renderInventory(final IPartRenderHelper rh, final RenderBlocks renderer) {
-        rh.setTexture(
-                CableBusTextures.PartImportSides.getIcon(),
-                CableBusTextures.PartImportSides.getIcon(),
-                CableBusTextures.PartMonitorBack.getIcon(),
-                this.getItemStack().getIconIndex(),
-                CableBusTextures.PartImportSides.getIcon(),
-                CableBusTextures.PartImportSides.getIcon());
-
-        rh.setBounds(3, 3, 15, 13, 13, 16);
-        rh.renderInventoryBox(renderer);
-
-        rh.setBounds(4, 4, 14, 12, 12, 15);
-        rh.renderInventoryBox(renderer);
-
-        rh.setBounds(5, 5, 13, 11, 11, 14);
-        rh.renderInventoryBox(renderer);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void renderStatic(final int x, final int y, final int z, final IPartRenderHelper rh,
-            final RenderBlocks renderer) {
-        this.setRenderCache(rh.useSimplifiedRendering(x, y, z, this, this.getRenderCache()));
-        rh.setTexture(
-                CableBusTextures.PartImportSides.getIcon(),
-                CableBusTextures.PartImportSides.getIcon(),
-                CableBusTextures.PartMonitorBack.getIcon(),
-                this.getItemStack().getIconIndex(),
-                CableBusTextures.PartImportSides.getIcon(),
-                CableBusTextures.PartImportSides.getIcon());
-
-        rh.setBounds(4, 4, 14, 12, 12, 16);
-        rh.renderBlock(x, y, z, renderer);
-
-        rh.setBounds(5, 5, 13, 11, 11, 14);
-        rh.renderBlock(x, y, z, renderer);
-
-        rh.setBounds(6, 6, 12, 10, 10, 13);
-        rh.renderBlock(x, y, z, renderer);
-        rh.setTexture(
-                CableBusTextures.PartMonitorSidesStatus.getIcon(),
-                CableBusTextures.PartMonitorSidesStatus.getIcon(),
-                CableBusTextures.PartMonitorBack.getIcon(),
-                this.getItemStack().getIconIndex(),
-                CableBusTextures.PartMonitorSidesStatus.getIcon(),
-                CableBusTextures.PartMonitorSidesStatus.getIcon());
-
-        rh.setBounds(6, 6, 11, 10, 10, 12);
-        rh.renderBlock(x, y, z, renderer);
-
-        this.renderLights(x, y, z, rh, renderer);
+    protected Object getTarget() {
+        return this.getHandler();
     }
 
     @Override
@@ -142,7 +86,7 @@ public class PartImportBus extends PartBaseImportBus<IAEItemStack> implements II
     }
 
     @Override
-    protected int calculateItemsToSend() {
+    public int calculateAmountToSend() {
         return switch (this.getInstalledUpgrades(Upgrades.SPEED)) {
             case 1 -> 8;
             case 2 -> 32;
@@ -153,8 +97,9 @@ public class PartImportBus extends PartBaseImportBus<IAEItemStack> implements II
     }
 
     @Override
-    protected boolean importStuff(final InventoryAdaptor myAdaptor, final IAEItemStack whatToImport,
+    protected boolean importStuff(final Object myTarget, final IAEItemStack whatToImport,
             final IMEMonitor<IAEItemStack> inv, final IEnergySource energy, final FuzzyMode fzMode) {
+        if (!(myTarget instanceof InventoryAdaptor myAdaptor)) return false;
         final int toSend = this.calculateMaximumAmountToImport(myAdaptor, whatToImport, inv, fzMode);
         final ItemStack newItems;
 
@@ -233,8 +178,9 @@ public class PartImportBus extends PartBaseImportBus<IAEItemStack> implements II
     }
 
     @Override
-    protected boolean doOreDict(final InventoryAdaptor myAdaptor, IMEMonitor<IAEItemStack> inv,
-            final IEnergyGrid energy, final FuzzyMode fzMode) {
+    protected boolean doOreDict(final Object myTarget, IMEMonitor<IAEItemStack> inv, final IEnergyGrid energy,
+            final FuzzyMode fzMode) {
+        if (!(myTarget instanceof InventoryAdaptor myAdaptor)) return false;
         if (!oreFilterString.isEmpty()) {
             if (filterPredicate == null) filterPredicate = OreFilteredList.makeFilter(oreFilterString);
             for (ItemSlot slot : myAdaptor) {

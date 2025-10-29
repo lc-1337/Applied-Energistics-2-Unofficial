@@ -16,10 +16,8 @@ import java.util.Collection;
 import net.minecraft.item.ItemStack;
 
 import appeng.api.config.FuzzyMode;
-import appeng.api.config.SchedulingMode;
 import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
-import appeng.api.config.YesNo;
 import appeng.api.networking.crafting.ICraftingRequester;
 import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.storage.IMEMonitor;
@@ -38,12 +36,10 @@ public class PartExportBus extends PartBaseExportBus<IAEItemStack> implements IC
         super(is);
 
         this.getConfigManager().registerSetting(Settings.FUZZY_MODE, FuzzyMode.IGNORE_ALL);
-        this.getConfigManager().registerSetting(Settings.CRAFT_ONLY, YesNo.NO);
-        this.getConfigManager().registerSetting(Settings.SCHEDULING_MODE, SchedulingMode.DEFAULT);
     }
 
     @Override
-    protected int calculateItemsToSend() {
+    public int calculateAmountToSend() {
         return switch (this.getInstalledUpgrades(Upgrades.SPEED)) {
             case 1 -> 8;
             case 2 -> 32;

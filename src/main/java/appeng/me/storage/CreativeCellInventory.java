@@ -15,7 +15,8 @@ import javax.annotation.Nonnull;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
-import appeng.api.AEApi;
+import com.glodblock.github.util.Util;
+
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
@@ -24,6 +25,7 @@ import appeng.api.networking.security.BaseActionSource;
 import appeng.api.storage.ICellInventory;
 import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.StorageChannel;
+import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.items.contents.CellConfig;
@@ -32,20 +34,26 @@ import appeng.tile.inventory.IAEStackInventory;
 public class CreativeCellInventory<StackType extends IAEStack<StackType>>
         implements IMEInventoryHandler<StackType>, ICellInventory<StackType> {
 
-    private final IItemList<IAEStack<?>> itemListCache = AEApi.instance().storage().createAEStackList();
+    private final IItemList<StackType> listCache;
     private final ItemStack cellItem;
     private final IStorageCell cellType;
 
     protected CreativeCellInventory(final ItemStack o) {
         this.cellItem = o;
         this.cellType = (IStorageCell) o.getItem();
+        this.listCache = getChannel().createPrimitiveList();
+
         final IAEStackInventory cc = o.getItem() instanceof IStorageCell sc ? sc.getConfigAEInventory(o)
                 : new IAEStackInventory(null, 0);
         for (int i = 0; i < cc.getSizeInventory(); i++) {
-            final IAEStack<?> aes = cc.getAEStackInSlot(i);
+            IAEStack<?> aes = cc.getAEStackInSlot(i);
             if (aes != null) {
+                if (getChannel() == StorageChannel.FLUIDS && aes instanceof IAEItemStack ais) {
+                    aes = Util.getAEFluidFromItem(ais.getItemStack());
+                }
+
                 aes.setStackSize((long) (Math.pow(2, 52) - 1));
-                this.itemListCache.add(aes);
+                this.listCache.add((StackType) aes);
             }
         }
     }
@@ -58,7 +66,7 @@ public class CreativeCellInventory<StackType extends IAEStack<StackType>>
 
     @Override
     public StackType injectItems(final StackType input, final Actionable mode, final BaseActionSource src) {
-        final StackType local = (StackType) this.itemListCache.findPrecise(input);
+        final StackType local = this.listCache.findPrecise(input);
         if (local == null) {
             return input;
         }
@@ -68,7 +76,7 @@ public class CreativeCellInventory<StackType extends IAEStack<StackType>>
 
     @Override
     public StackType extractItems(final StackType request, final Actionable mode, final BaseActionSource src) {
-        final StackType local = (StackType) this.itemListCache.findPrecise(request);
+        final StackType local = this.listCache.findPrecise(request);
         if (local == null) {
             return null;
         }
@@ -78,7 +86,7 @@ public class CreativeCellInventory<StackType extends IAEStack<StackType>>
 
     @Override
     public IItemList<StackType> getAvailableItems(final IItemList out, int iteration) {
-        for (final IAEStack<?> ais : this.itemListCache) {
+        for (final StackType ais : this.listCache) {
             out.add(ais);
         }
         return out;
@@ -86,7 +94,7 @@ public class CreativeCellInventory<StackType extends IAEStack<StackType>>
 
     @Override
     public StackType getAvailableItem(@Nonnull StackType request, int iteration) {
-        final StackType local = (StackType) this.itemListCache.findPrecise(request);
+        final StackType local = this.listCache.findPrecise(request);
         if (local == null) {
             return null;
         }
@@ -106,12 +114,12 @@ public class CreativeCellInventory<StackType extends IAEStack<StackType>>
 
     @Override
     public boolean isPrioritized(final StackType input) {
-        return this.itemListCache.findPrecise(input) != null;
+        return this.listCache.findPrecise(input) != null;
     }
 
     @Override
     public boolean canAccept(final StackType input) {
-        return this.itemListCache.findPrecise(input) != null;
+        return this.listCache.findPrecise(input) != null;
     }
 
     @Override

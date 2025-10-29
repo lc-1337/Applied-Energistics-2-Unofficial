@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
@@ -115,7 +116,11 @@ public abstract class PartSharedItemBus<StackType extends IAEStack<StackType>> e
         return Math.min(1 + this.getInstalledUpgrades(Upgrades.CAPACITY) * 4, this.config.getSizeInventory());
     }
 
-    protected abstract int calculateItemsToSend();
+    public abstract int calculateAmountToSend();
+
+    public IIcon getFaceIcon() {
+        return this.getItemStack().getIconIndex();
+    }
 
     /**
      * Checks if the bus can actually do something.
@@ -203,9 +208,7 @@ public abstract class PartSharedItemBus<StackType extends IAEStack<StackType>> e
     }
 
     @Override
-    public void saveAEStackInv() {
-
-    }
+    public void saveAEStackInv() {}
 
     @Override
     public IAEStackInventory getAEInventoryByName(StorageName name) {

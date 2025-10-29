@@ -74,7 +74,7 @@ public abstract class PartBaseExportBus<StackType extends IAEStack<StackType>> e
             return TickRateModulation.IDLE;
         }
 
-        this.itemToSend = this.calculateItemsToSend();
+        this.itemToSend = this.calculateAmountToSend();
         this.didSomething = false;
 
         try {
@@ -163,7 +163,7 @@ public abstract class PartBaseExportBus<StackType extends IAEStack<StackType>> e
                 CableBusTextures.PartExportSides.getIcon(),
                 CableBusTextures.PartExportSides.getIcon(),
                 CableBusTextures.PartMonitorBack.getIcon(),
-                this.getItemStack().getIconIndex(),
+                this.getFaceIcon(),
                 CableBusTextures.PartExportSides.getIcon(),
                 CableBusTextures.PartExportSides.getIcon());
 
@@ -186,7 +186,7 @@ public abstract class PartBaseExportBus<StackType extends IAEStack<StackType>> e
                 CableBusTextures.PartExportSides.getIcon(),
                 CableBusTextures.PartExportSides.getIcon(),
                 CableBusTextures.PartMonitorBack.getIcon(),
-                this.getItemStack().getIconIndex(),
+                this.getFaceIcon(),
                 CableBusTextures.PartExportSides.getIcon(),
                 CableBusTextures.PartExportSides.getIcon());
 
@@ -203,7 +203,7 @@ public abstract class PartBaseExportBus<StackType extends IAEStack<StackType>> e
                 CableBusTextures.PartMonitorSidesStatus.getIcon(),
                 CableBusTextures.PartMonitorSidesStatus.getIcon(),
                 CableBusTextures.PartMonitorBack.getIcon(),
-                this.getItemStack().getIconIndex(),
+                this.getFaceIcon(),
                 CableBusTextures.PartMonitorSidesStatus.getIcon(),
                 CableBusTextures.PartMonitorSidesStatus.getIcon());
 

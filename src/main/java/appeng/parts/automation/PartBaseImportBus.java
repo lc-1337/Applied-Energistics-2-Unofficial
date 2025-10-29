@@ -22,7 +22,6 @@ import appeng.client.StorageName;
 import appeng.client.texture.CableBusTextures;
 import appeng.core.settings.TickRates;
 import appeng.me.GridAccessException;
-import appeng.util.InventoryAdaptor;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -51,7 +50,7 @@ public abstract class PartBaseImportBus<StackType extends IAEStack<StackType>> e
                 CableBusTextures.PartImportSides.getIcon(),
                 CableBusTextures.PartImportSides.getIcon(),
                 CableBusTextures.PartMonitorBack.getIcon(),
-                this.getItemStack().getIconIndex(),
+                this.getFaceIcon(),
                 CableBusTextures.PartImportSides.getIcon(),
                 CableBusTextures.PartImportSides.getIcon());
 
@@ -74,7 +73,7 @@ public abstract class PartBaseImportBus<StackType extends IAEStack<StackType>> e
                 CableBusTextures.PartImportSides.getIcon(),
                 CableBusTextures.PartImportSides.getIcon(),
                 CableBusTextures.PartMonitorBack.getIcon(),
-                this.getItemStack().getIconIndex(),
+                this.getFaceIcon(),
                 CableBusTextures.PartImportSides.getIcon(),
                 CableBusTextures.PartImportSides.getIcon());
 
@@ -90,7 +89,7 @@ public abstract class PartBaseImportBus<StackType extends IAEStack<StackType>> e
                 CableBusTextures.PartMonitorSidesStatus.getIcon(),
                 CableBusTextures.PartMonitorSidesStatus.getIcon(),
                 CableBusTextures.PartMonitorBack.getIcon(),
-                this.getItemStack().getIconIndex(),
+                this.getFaceIcon(),
                 CableBusTextures.PartMonitorSidesStatus.getIcon(),
                 CableBusTextures.PartMonitorSidesStatus.getIcon());
 
@@ -109,6 +108,8 @@ public abstract class PartBaseImportBus<StackType extends IAEStack<StackType>> e
                 false);
     }
 
+    protected abstract Object getTarget();
+
     @Override
     protected TickRateModulation doBusWork() {
         if (!this.getProxy().isActive() || !this.canDoBusWork()) {
@@ -117,12 +118,12 @@ public abstract class PartBaseImportBus<StackType extends IAEStack<StackType>> e
 
         this.worked = false;
 
-        final InventoryAdaptor myAdaptor = this.getHandler();
+        final Object myTarget = this.getTarget();
         final FuzzyMode fzMode = (FuzzyMode) this.getConfigManager().getSetting(Settings.FUZZY_MODE);
 
-        if (myAdaptor != null) {
+        if (myTarget != null) {
             try {
-                this.itemToSend = this.calculateItemsToSend();
+                this.itemToSend = this.calculateAmountToSend();
                 this.itemToSend = Math.min(
                         this.itemToSend,
                         (int) (0.01 + this.getProxy().getEnergy().extractAEPower(
@@ -141,17 +142,17 @@ public abstract class PartBaseImportBus<StackType extends IAEStack<StackType>> e
                         if (ais != null && this.itemToSend > 0) {
                             configured = true;
                             while (this.itemToSend > 0) {
-                                if (this.importStuff(myAdaptor, ais, inv, energy, fzMode)) {
+                                if (this.importStuff(myTarget, ais, inv, energy, fzMode)) {
                                     break;
                                 }
                             }
                         }
                     }
-                } else if (supportOreDict()) configured = doOreDict(myAdaptor, inv, energy, fzMode);
+                } else if (supportOreDict()) configured = doOreDict(myTarget, inv, energy, fzMode);
 
                 if (!configured) {
                     while (this.itemToSend > 0) {
-                        if (this.importStuff(myAdaptor, null, inv, energy, fzMode)) {
+                        if (this.importStuff(myTarget, null, inv, energy, fzMode)) {
                             break;
                         }
                     }
@@ -166,11 +167,11 @@ public abstract class PartBaseImportBus<StackType extends IAEStack<StackType>> e
         return this.worked ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
     }
 
-    protected abstract boolean importStuff(final InventoryAdaptor myAdaptor, final StackType whatToImport,
+    protected abstract boolean importStuff(final Object myTarget, final StackType whatToImport,
             final IMEMonitor<StackType> inv, final IEnergySource energy, final FuzzyMode fzMode);
 
-    protected abstract boolean doOreDict(final InventoryAdaptor myAdaptor, IMEMonitor<StackType> inv,
-            final IEnergyGrid energy, final FuzzyMode fzMode);
+    protected abstract boolean doOreDict(final Object myTarget, IMEMonitor<StackType> inv, final IEnergyGrid energy,
+            final FuzzyMode fzMode);
 
     protected abstract int getPowerMultiplier();
 }
