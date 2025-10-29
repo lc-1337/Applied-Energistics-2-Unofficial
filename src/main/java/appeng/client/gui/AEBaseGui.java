@@ -431,7 +431,9 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
                     break;
                 }
             }
-            if (this.hoveredVirtualSlot != null && !this.draggedSlots.contains(this.hoveredVirtualSlot)) {
+            if (((this.mc.thePlayer.inventory.getItemStack() != null && this.hoveredVirtualSlot != null)
+                    || this.hoveredVirtualSlot instanceof VirtualMEPhantomSlot)
+                    && !this.draggedSlots.contains(this.hoveredVirtualSlot)) {
                 this.draggedSlots.add(this.hoveredVirtualSlot);
                 this.handleDragVirtualSlot(this.hoveredVirtualSlot, c);
             }
