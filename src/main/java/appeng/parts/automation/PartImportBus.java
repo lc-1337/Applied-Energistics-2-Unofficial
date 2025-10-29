@@ -16,7 +16,6 @@ import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.PowerMultiplier;
-import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
 import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.energy.IEnergySource;
@@ -36,8 +35,6 @@ public class PartImportBus extends PartBaseImportBus<IAEItemStack> implements II
     @Reflected
     public PartImportBus(final ItemStack is) {
         super(is);
-
-        this.getConfigManager().registerSetting(Settings.FUZZY_MODE, FuzzyMode.IGNORE_ALL);
     }
 
     @Override

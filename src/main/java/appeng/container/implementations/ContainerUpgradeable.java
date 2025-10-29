@@ -34,7 +34,7 @@ import appeng.container.guisync.GuiSync;
 import appeng.container.slot.IOptionalSlotHost;
 import appeng.container.slot.OptionalSlotFake;
 import appeng.container.slot.SlotRestrictedInput;
-import appeng.parts.automation.PartExportBus;
+import appeng.parts.automation.PartBaseExportBus;
 import appeng.util.Platform;
 
 public abstract class ContainerUpgradeable extends AEBaseContainer implements IOptionalSlotHost {
@@ -215,7 +215,7 @@ public abstract class ContainerUpgradeable extends AEBaseContainer implements IO
     protected void loadSettingsFromHost(final IConfigManager cm) {
         this.setFuzzyMode((FuzzyMode) cm.getSetting(Settings.FUZZY_MODE));
         this.setRedStoneMode((RedstoneMode) cm.getSetting(Settings.REDSTONE_CONTROLLED));
-        if (this.getUpgradeable() instanceof PartExportBus) {
+        if (this.getUpgradeable() instanceof PartBaseExportBus<?>) {
             this.setCraftingMode((YesNo) cm.getSetting(Settings.CRAFT_ONLY));
             this.setSchedulingMode((SchedulingMode) cm.getSetting(Settings.SCHEDULING_MODE));
         }

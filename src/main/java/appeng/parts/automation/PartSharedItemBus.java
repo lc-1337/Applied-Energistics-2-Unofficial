@@ -19,6 +19,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+import appeng.api.config.FuzzyMode;
 import appeng.api.config.RedstoneMode;
 import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
@@ -28,6 +29,7 @@ import appeng.api.networking.security.MachineSource;
 import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
@@ -49,13 +51,19 @@ public abstract class PartSharedItemBus<StackType extends IAEStack<StackType>> e
     protected String oreFilterString = "";
     protected Predicate<IAEItemStack> filterPredicate = null;
     protected final BaseActionSource mySrc;
+    private final StorageChannel channel;
+
+    // XD
+    protected final int[] slotSequence = new int[] { 4, 1, 3, 5, 7, 0, 2, 6, 8 };
 
     public PartSharedItemBus(final ItemStack is) {
         super(is);
 
         this.getConfigManager().registerSetting(Settings.REDSTONE_CONTROLLED, RedstoneMode.IGNORE);
+        this.getConfigManager().registerSetting(Settings.FUZZY_MODE, FuzzyMode.IGNORE_ALL);
 
         this.mySrc = new MachineSource(this);
+        this.channel = StorageChannel.getStorageChannelByParametrizedClass(this.getClass());
     }
 
     @Override
@@ -213,6 +221,10 @@ public abstract class PartSharedItemBus<StackType extends IAEStack<StackType>> e
     @Override
     public IAEStackInventory getAEInventoryByName(StorageName name) {
         return this.config;
+    }
+
+    public StorageChannel getStorageChannel() {
+        return this.channel;
     }
 
     protected abstract IMEMonitor<StackType> getMonitor();
