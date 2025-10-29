@@ -15,7 +15,6 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -91,15 +90,10 @@ import appeng.integration.IntegrationType;
 import appeng.integration.abstraction.INEI;
 import appeng.util.Platform;
 import codechicken.lib.gui.GuiDraw;
-import codechicken.nei.VisiblityData;
-import codechicken.nei.api.INEIGuiHandler;
-import codechicken.nei.api.TaggedInventoryArea;
 import codechicken.nei.guihook.GuiContainerManager;
 import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.Optional;
 
-@Optional.Interface(modid = "NotEnoughItems", iface = "codechicken.nei.api.INEIGuiHandler")
-public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandler, INEIGuiHandler {
+public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandler {
 
     private static class AEGuiTooltip {
 
@@ -425,7 +419,7 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
     }
 
     protected void handlePhantomSlotInteraction(VirtualMEPhantomSlot slot, int mouseButton) {
-        slot.handleMouseClicked(true, true, isCtrlKeyDown(), null, mouseButton);
+        slot.handleMouseClicked(true, true, isCtrlKeyDown(), mouseButton);
     }
 
     @Override
@@ -437,8 +431,7 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
                     break;
                 }
             }
-            if (this.mc.thePlayer.inventory.getItemStack() != null && this.hoveredVirtualSlot != null
-                    && !this.draggedSlots.contains(this.hoveredVirtualSlot)) {
+            if (this.hoveredVirtualSlot != null && !this.draggedSlots.contains(this.hoveredVirtualSlot)) {
                 this.draggedSlots.add(this.hoveredVirtualSlot);
                 this.handleDragVirtualSlot(this.hoveredVirtualSlot, c);
             }
@@ -1226,38 +1219,5 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
         if (hoveredAEStack == null) return null;
 
         return hoveredAEStack.getItemStackForNEI();
-    }
-
-    @Override
-    public boolean handleDragNDrop(GuiContainer gui, int mouseX, int mouseY, ItemStack draggedStack, int button) {
-        final VirtualMESlot slot = getVirtualMESlotUnderMouse();
-
-        if (slot instanceof VirtualMEPhantomSlot slotConfig) {
-            slotConfig.handleMouseClicked(true, true, isCtrlKeyDown(), draggedStack, button);
-            return true;
-        }
-
-        return false;
-    }
-
-    // idk useless
-    @Override
-    public VisiblityData modifyVisiblity(GuiContainer gui, VisiblityData currentVisibility) {
-        return currentVisibility;
-    }
-
-    @Override
-    public Iterable<Integer> getItemSpawnSlots(GuiContainer gui, ItemStack item) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<TaggedInventoryArea> getInventoryAreas(GuiContainer gui) {
-        return null;
-    }
-
-    @Override
-    public boolean hideItemPanelSlot(GuiContainer gui, int x, int y, int w, int h) {
-        return false;
     }
 }
