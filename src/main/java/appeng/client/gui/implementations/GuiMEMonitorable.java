@@ -129,6 +129,7 @@ public class GuiMEMonitorable extends AEBaseGui
     private int currentMouseY = 0;
     private PinsState pinsState;
     public final boolean hasPinHost;
+    private boolean enableShiftPause = true;
 
     protected VirtualMEPinSlot[] pinSlots = null;
     protected VirtualMEMonitorableSlot[] monitorableSlots = null;
@@ -459,6 +460,8 @@ public class GuiMEMonitorable extends AEBaseGui
 
         craftingGridOffsetX -= 25;
         craftingGridOffsetY -= 6;
+
+        this.enableShiftPause = AEConfig.instance.settings.getSetting(Settings.PAUSE_WHEN_HOLDING_SHIFT) == YesNo.YES;
     }
 
     protected int calculateRowsCount() {
@@ -904,7 +907,7 @@ public class GuiMEMonitorable extends AEBaseGui
         super.handleKeyboardInput();
 
         // Pause the terminal when holding shift
-        this.repo.setPaused(isShiftKeyDown());
+        if (enableShiftPause) this.repo.setPaused(isShiftKeyDown());
     }
 
     public boolean hideItemPanelSlot(int tx, int ty, int tw, int th) {
