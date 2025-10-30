@@ -6,9 +6,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import appeng.api.AEApi;
 import appeng.api.storage.data.IAEStack;
 import appeng.core.sync.GuiBridge;
+import appeng.helpers.IPatternTerminalEx;
 import appeng.helpers.Reflected;
 
-public class PartPatternTerminalEx extends PartPatternTerminal {
+public class PartPatternTerminalEx extends PartPatternTerminal implements IPatternTerminalEx {
 
     public static final int exPatternInputsWidth = 4;
     public static final int exPatternInputsHeigh = 4;

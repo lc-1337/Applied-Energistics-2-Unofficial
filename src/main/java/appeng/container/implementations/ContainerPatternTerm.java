@@ -549,6 +549,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEA
     public void onSlotChange(final Slot s) {
         if (!isServer()) return;
         if (s == this.patternSlotOUT) {
+            this.isFirstUpdate = true;
             this.detectAndSendChanges();
         } else if (s == patternRefiller && patternRefiller.getStack() != null) {
             refillBlankPatterns(patternSlotIN);
