@@ -5,6 +5,8 @@ public enum MonitorableAction {
     PICKUP_OR_SET_DOWN,
     SHIFT_CLICK,
     PICKUP_SINGLE,
+    ROLL_UP,
+    ROLL_DOWN,
     MOVE_REGION,
     AUTO_CRAFT,
     CREATIVE_DUPLICATE,

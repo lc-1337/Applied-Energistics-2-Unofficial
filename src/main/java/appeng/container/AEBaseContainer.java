@@ -33,7 +33,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -60,8 +59,6 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.ItemSearchDTO;
 import appeng.client.StorageName;
-import appeng.client.me.InternalSlotME;
-import appeng.client.me.SlotME;
 import appeng.container.guisync.GuiSync;
 import appeng.container.guisync.SyncData;
 import appeng.container.implementations.ContainerCellWorkbench;
@@ -87,7 +84,6 @@ import appeng.core.sync.packets.PacketPartialItem;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.helpers.ICustomNameObject;
-import appeng.helpers.IPinsHandler;
 import appeng.helpers.IPrimaryGuiIconProvider;
 import appeng.helpers.InventoryAction;
 import appeng.helpers.WirelessTerminalGuiObject;
@@ -101,10 +97,8 @@ import appeng.parts.misc.PartStorageBus;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.tile.storage.TileChest;
 import appeng.tile.storage.TileDrive;
-import appeng.util.InventoryAdaptor;
 import appeng.util.IterationCounter;
 import appeng.util.Platform;
-import appeng.util.inv.AdaptorPlayerHand;
 import appeng.util.item.AEItemStack;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
@@ -436,18 +430,6 @@ public abstract class AEBaseContainer extends Container {
             return null;
         }
 
-        boolean hasMETiles = false;
-        for (final Object is : this.inventorySlots) {
-            if (is instanceof InternalSlotME) {
-                hasMETiles = true;
-                break;
-            }
-        }
-
-        if (hasMETiles && Platform.isClient()) {
-            return null;
-        }
-
         final AppEngSlot clickSlot = (AppEngSlot) this.inventorySlots.get(idx); // require AE SLots!
 
         if (clickSlot instanceof SlotDisabled || clickSlot instanceof SlotInaccessible) {
@@ -466,8 +448,6 @@ public abstract class AEBaseContainer extends Container {
              * Gather a list of valid destinations.
              */
             if (clickSlot.isPlayerSide()) {
-                tis = this.shiftStoreItem(tis);
-
                 // target slots in the container...
                 for (final Object inventorySlot : this.inventorySlots) {
                     final AppEngSlot cs = (AppEngSlot) inventorySlot;
@@ -518,7 +498,7 @@ public abstract class AEBaseContainer extends Container {
             if (tis != null) {
                 // find partials..
                 for (final Slot d : selectedSlots) {
-                    if (d instanceof SlotDisabled || d instanceof SlotME) {
+                    if (d instanceof SlotDisabled) {
                         continue;
                     }
 
@@ -561,7 +541,7 @@ public abstract class AEBaseContainer extends Container {
 
                 // any match..
                 for (final Slot d : selectedSlots) {
-                    if (d instanceof SlotDisabled || d instanceof SlotME) {
+                    if (d instanceof SlotDisabled) {
                         continue;
                     }
 
@@ -750,22 +730,6 @@ public abstract class AEBaseContainer extends Container {
                 }
             }
 
-            if (action == InventoryAction.SET_PIN && this instanceof IPinsHandler iph) {
-                if (id == -1) {
-                    iph.setPin(null, slot);
-                    return;
-                }
-                ItemStack hand = player.inventory.getItemStack();
-                if (hand == null) return;
-                if (iph.getPin(slot) != null && iph.getPin(slot) instanceof IAEItemStack slotStack
-                        && hand.isItemEqual(slotStack.getItemStack())) {
-                    // put item in the terminal
-                    doAction(player, InventoryAction.PICKUP_OR_SET_DOWN, this.inventorySlots.size(), id);
-                } else {
-                    iph.setPin(AEItemStack.create(hand), slot);
-                }
-            }
-
             return;
         }
 
@@ -773,212 +737,12 @@ public abstract class AEBaseContainer extends Container {
         final IAEItemStack slotItem = this.clientRequestedTargetItem instanceof IAEItemStack ais ? ais : null;
 
         switch (action) {
-            case SHIFT_CLICK -> {
-                if (this.getPowerSource() == null || this.getCellInventory() == null) {
-                    return;
-                }
-                if (slotItem != null) {
-                    IAEItemStack ais = slotItem.copy();
-                    ItemStack myItem = ais.getItemStack();
-
-                    ais.setStackSize(myItem.getMaxStackSize());
-
-                    final InventoryAdaptor adp = InventoryAdaptor.getAdaptor(player, ForgeDirection.UNKNOWN);
-                    myItem.stackSize = (int) ais.getStackSize();
-                    myItem = adp.simulateAdd(myItem);
-
-                    if (myItem != null) {
-                        ais.setStackSize(ais.getStackSize() - myItem.stackSize);
-                    }
-
-                    ais = Platform.poweredExtraction(
-                            this.getPowerSource(),
-                            this.getCellInventory(),
-                            ais,
-                            this.getActionSource());
-                    if (ais != null) {
-                        adp.addItems(ais.getItemStack());
-                    }
-                }
-            }
-            case ROLL_DOWN -> {
-                if (this.getPowerSource() == null || this.getCellInventory() == null) {
-                    return;
-                }
-                final int releaseQty = 1;
-                final ItemStack isg = player.inventory.getItemStack();
-                if (isg != null && releaseQty > 0) {
-                    IAEItemStack ais = AEApi.instance().storage().createItemStack(isg);
-                    ais.setStackSize(1);
-                    final IAEItemStack extracted = ais.copy();
-
-                    ais = Platform
-                            .poweredInsert(this.getPowerSource(), this.getCellInventory(), ais, this.getActionSource());
-                    if (ais == null) {
-                        final InventoryAdaptor ia = new AdaptorPlayerHand(player);
-
-                        final ItemStack fail = ia.removeItems(1, extracted.getItemStack(), null);
-                        if (fail == null) {
-                            this.getCellInventory()
-                                    .extractItems(extracted, Actionable.MODULATE, this.getActionSource());
-                        }
-
-                        this.updateHeld(player);
-                    }
-                }
-            }
-            case ROLL_UP, PICKUP_SINGLE -> {
-                if (this.getPowerSource() == null || this.getCellInventory() == null) {
-                    return;
-                }
-                if (slotItem != null) {
-                    int liftQty = 1;
-                    final ItemStack item = player.inventory.getItemStack();
-
-                    if (item != null) {
-                        if (item.stackSize >= item.getMaxStackSize()) {
-                            liftQty = 0;
-                        }
-                        if (!Platform.isSameItemPrecise(slotItem.getItemStack(), item)) {
-                            liftQty = 0;
-                        }
-                    }
-
-                    if (liftQty > 0) {
-                        IAEItemStack ais = slotItem.copy();
-                        ais.setStackSize(1);
-                        ais = Platform.poweredExtraction(
-                                this.getPowerSource(),
-                                this.getCellInventory(),
-                                ais,
-                                this.getActionSource());
-                        if (ais != null) {
-                            final InventoryAdaptor ia = new AdaptorPlayerHand(player);
-
-                            final ItemStack fail = ia.addItems(ais.getItemStack());
-                            if (fail != null) {
-                                this.getCellInventory().injectItems(ais, Actionable.MODULATE, this.getActionSource());
-                            }
-
-                            this.updateHeld(player);
-                        }
-                    }
-                }
-            }
-            case PICKUP_OR_SET_DOWN -> {
-                if (this.getPowerSource() == null || this.getCellInventory() == null) {
-                    return;
-                }
-                if (player.inventory.getItemStack() == null) {
-                    if (slotItem != null) {
-                        IAEItemStack ais = slotItem.copy();
-                        ais.setStackSize(ais.getItemStack().getMaxStackSize());
-                        ais = Platform.poweredExtraction(
-                                this.getPowerSource(),
-                                this.getCellInventory(),
-                                ais,
-                                this.getActionSource());
-                        if (ais != null) {
-                            player.inventory.setItemStack(ais.getItemStack());
-                        } else {
-                            player.inventory.setItemStack(null);
-                        }
-                        this.updateHeld(player);
-                    }
-                } else {
-                    IAEItemStack ais = AEApi.instance().storage().createItemStack(player.inventory.getItemStack());
-                    ais = Platform
-                            .poweredInsert(this.getPowerSource(), this.getCellInventory(), ais, this.getActionSource());
-                    if (ais != null) {
-                        player.inventory.setItemStack(ais.getItemStack());
-                    } else {
-                        player.inventory.setItemStack(null);
-                    }
-                    this.updateHeld(player);
-                }
-            }
-            case SPLIT_OR_PLACE_SINGLE -> {
-                if (this.getPowerSource() == null || this.getCellInventory() == null) {
-                    return;
-                }
-                if (player.inventory.getItemStack() == null) {
-                    if (slotItem != null) {
-                        IAEItemStack ais = slotItem.copy();
-                        final long maxSize = ais.getItemStack().getMaxStackSize();
-                        ais.setStackSize(maxSize);
-                        ais = this.getCellInventory().extractItems(ais, Actionable.SIMULATE, this.getActionSource());
-
-                        if (ais != null) {
-                            final long stackSize = Math.min(maxSize, ais.getStackSize());
-                            ais.setStackSize((stackSize + 1) >> 1);
-                            ais = Platform.poweredExtraction(
-                                    this.getPowerSource(),
-                                    this.getCellInventory(),
-                                    ais,
-                                    this.getActionSource());
-                        }
-
-                        if (ais != null) {
-                            player.inventory.setItemStack(ais.getItemStack());
-                        } else {
-                            player.inventory.setItemStack(null);
-                        }
-                        this.updateHeld(player);
-                    }
-                } else {
-                    IAEItemStack ais = AEApi.instance().storage().createItemStack(player.inventory.getItemStack());
-                    ais.setStackSize(1);
-                    ais = Platform
-                            .poweredInsert(this.getPowerSource(), this.getCellInventory(), ais, this.getActionSource());
-                    if (ais == null) {
-                        final ItemStack is = player.inventory.getItemStack();
-                        is.stackSize--;
-                        if (is.stackSize <= 0) {
-                            player.inventory.setItemStack(null);
-                        }
-                        this.updateHeld(player);
-                    }
-                }
-            }
             case CREATIVE_DUPLICATE -> {
                 if (player.capabilities.isCreativeMode && slotItem != null) {
                     final ItemStack is = slotItem.getItemStack();
                     is.stackSize = is.getMaxStackSize();
                     player.inventory.setItemStack(is);
                     this.updateHeld(player);
-                }
-            }
-            case MOVE_REGION -> {
-                if (this.getPowerSource() == null || this.getCellInventory() == null) {
-                    return;
-                }
-                if (slotItem != null) {
-                    final int playerInv = 9 * 4;
-                    for (int slotNum = 0; slotNum < playerInv; slotNum++) {
-                        IAEItemStack ais = slotItem.copy();
-                        ItemStack myItem = ais.getItemStack();
-
-                        ais.setStackSize(myItem.getMaxStackSize());
-
-                        final InventoryAdaptor adp = InventoryAdaptor.getAdaptor(player, ForgeDirection.UNKNOWN);
-                        myItem.stackSize = (int) ais.getStackSize();
-                        myItem = adp.simulateAdd(myItem);
-
-                        if (myItem != null) {
-                            ais.setStackSize(ais.getStackSize() - myItem.stackSize);
-                        }
-
-                        ais = Platform.poweredExtraction(
-                                this.getPowerSource(),
-                                this.getCellInventory(),
-                                ais,
-                                this.getActionSource());
-                        if (ais != null) {
-                            adp.addItems(ais.getItemStack());
-                        } else {
-                            return;
-                        }
-                    }
                 }
             }
             case FIND_ITEMS -> {
@@ -1107,21 +871,6 @@ public abstract class AEBaseContainer extends Container {
                 AELog.debug(e);
             }
         }
-    }
-
-    private ItemStack shiftStoreItem(final ItemStack input) {
-        if (this.getPowerSource() == null || this.getCellInventory() == null) {
-            return input;
-        }
-        final IAEItemStack ais = Platform.poweredInsert(
-                this.getPowerSource(),
-                this.getCellInventory(),
-                AEApi.instance().storage().createItemStack(input),
-                this.getActionSource());
-        if (ais == null) {
-            return null;
-        }
-        return ais.getItemStack();
     }
 
     private void updateSlot(final Slot clickSlot) {
