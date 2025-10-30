@@ -169,6 +169,7 @@ public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, II
     }
 
     public boolean rangeCheck() {
+        if (infinityRange) return true;
         this.sqRange = this.myRange = Double.MAX_VALUE;
 
         if (this.targetGrid != null) {
@@ -198,7 +199,7 @@ public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, II
     }
 
     private boolean testWap(final IWirelessAccessPoint wap) {
-        double rangeLimit = infinityRange ? Double.MAX_VALUE : wap.getRange();
+        double rangeLimit = wap.getRange();
         rangeLimit *= rangeLimit;
 
         final DimensionalCoord dc = wap.getLocation();
