@@ -97,8 +97,8 @@ public class GuiMEMonitorable extends AEBaseGui
 
     private static String memoryText = "";
     private final IDisplayRepo repo;
-    private final int offsetX = 9;
-    private final int offsetY = 18;
+    protected int offsetRepoX = 9;
+    protected int offsetRepoY = 18;
     private final int MAGIC_HEIGHT_NUMBER = 114 + 1;
     private final int lowerTextureOffset = 0;
     private final IConfigManager configSrc;
@@ -107,7 +107,7 @@ public class GuiMEMonitorable extends AEBaseGui
     private final ContainerMEMonitorable monitorableContainer;
     private GuiTabButton craftingStatusBtn;
     private GuiImgButton craftingStatusImgBtn;
-    private final MEGuiTextField searchField;
+    protected final MEGuiTextField searchField;
     private GuiText myName;
     private int perRow = 9;
     private int reservedSpace = 0;
@@ -190,7 +190,7 @@ public class GuiMEMonitorable extends AEBaseGui
     }
 
     private void setScrollBar() {
-        this.getScrollBar().setTop(18).setLeft(175).setHeight(this.rows * 18 - 2);
+        this.getScrollBar().setTop(this.offsetRepoY).setLeft(166 + this.offsetRepoX).setHeight(this.rows * 18 - 2);
         this.getScrollBar().setRange(
                 0,
                 (this.repo.size() + pinsState.ordinal() * 9 + this.perRow - 1) / this.perRow - this.rows,
@@ -281,8 +281,8 @@ public class GuiMEMonitorable extends AEBaseGui
         for (int y = 0; y < pinsRows; y++) {
             for (int x = 0; x < this.perRow; x++) {
                 VirtualMEPinSlot slot = new VirtualMEPinSlot(
-                        this.offsetX + x * 18,
-                        y * 18 + this.offsetY,
+                        this.offsetRepoX + x * 18,
+                        y * 18 + this.offsetRepoY,
                         this.repo,
                         y * this.perRow + x);
                 this.pinSlots[y * this.perRow + x] = slot;
@@ -295,8 +295,8 @@ public class GuiMEMonitorable extends AEBaseGui
         for (int y = 0; y < normalSlotRows; y++) {
             for (int x = 0; x < this.perRow; x++) {
                 VirtualMEMonitorableSlot slot = new VirtualMEMonitorableSlot(
-                        this.offsetX + x * 18,
-                        this.offsetY + y * 18 + pinsRows * 18,
+                        this.offsetRepoX + x * 18,
+                        this.offsetRepoY + y * 18 + pinsRows * 18,
                         this.repo,
                         y * this.perRow + x);
                 this.monitorableSlots[y * this.perRow + x] = slot;
@@ -411,8 +411,8 @@ public class GuiMEMonitorable extends AEBaseGui
         if (hasPinHost) {
             this.buttonList.add(
                     this.pinsStateButton = new GuiImgButton(
-                            this.guiLeft + 178,
-                            this.guiTop + 18 + (rows * 18) + 25,
+                            getPinButtonX(),
+                            getPinButtonY(),
                             Settings.PINS_STATE,
                             configSrc.getSetting(Settings.PINS_STATE)));
         }
@@ -421,7 +421,7 @@ public class GuiMEMonitorable extends AEBaseGui
         final Enum searchMode = AEConfig.instance.settings.getSetting(Settings.SEARCH_MODE);
         this.canBeAutoFocused = SearchBoxMode.AUTOSEARCH == searchMode || SearchBoxMode.NEI_AUTOSEARCH == searchMode;
 
-        this.searchField.x = this.guiLeft + Math.max(80, this.offsetX);
+        this.searchField.x = this.guiLeft + this.offsetRepoX + 71;
         this.searchField.y = this.guiTop + 4;
         this.searchField.setFocused(this.canBeAutoFocused);
         this.isAutoFocused = this.canBeAutoFocused;
@@ -471,6 +471,14 @@ public class GuiMEMonitorable extends AEBaseGui
         final int extraSpace = this.height - MAGIC_HEIGHT_NUMBER - NEIPadding - this.reservedSpace;
 
         return Math.max(3, Math.min(this.getMaxRows(), (int) Math.floor(extraSpace / 18)));
+    }
+
+    protected int getPinButtonX() {
+        return this.guiLeft + 178;
+    }
+
+    protected int getPinButtonY() {
+        return this.guiTop + 18 + (rows * 18) + 25;
     }
 
     @Override
@@ -681,6 +689,16 @@ public class GuiMEMonitorable extends AEBaseGui
                 x_width,
                 99 + this.reservedSpace - this.lowerTextureOffset);
 
+        this.searchField.drawTextBox();
+
+        this.updateViewCells();
+    }
+
+    protected String getBackground() {
+        return "guis/terminal.png";
+    }
+
+    protected void updateViewCells() {
         if (this.viewCell) {
             boolean update = false;
 
@@ -695,12 +713,6 @@ public class GuiMEMonitorable extends AEBaseGui
                 this.repo.setViewCell(this.myCurrentViewCells);
             }
         }
-
-        searchField.drawTextBox();
-    }
-
-    protected String getBackground() {
-        return "guis/terminal.png";
     }
 
     @Override
@@ -708,7 +720,7 @@ public class GuiMEMonitorable extends AEBaseGui
         return this.repo.hasPower();
     }
 
-    int getMaxRows() {
+    protected int getMaxRows() {
         return AEConfig.instance.getConfigManager().getSetting(Settings.TERMINAL_STYLE) == TerminalStyle.SMALL
                 ? AEConfig.instance.MEMonitorableSmallSize
                 : Integer.MAX_VALUE;
@@ -848,11 +860,11 @@ public class GuiMEMonitorable extends AEBaseGui
                 && pointY < rectY + rectHeight + 1;
     }
 
-    int getReservedSpace() {
+    protected int getReservedSpace() {
         return this.reservedSpace;
     }
 
-    void setReservedSpace(final int reservedSpace) {
+    protected void setReservedSpace(final int reservedSpace) {
         this.reservedSpace = reservedSpace;
     }
 
