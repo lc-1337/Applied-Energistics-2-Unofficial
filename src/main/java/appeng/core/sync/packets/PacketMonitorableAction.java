@@ -19,23 +19,23 @@ import io.netty.buffer.Unpooled;
 public class PacketMonitorableAction extends AppEngPacket {
 
     private final MonitorableAction action;
-    private final int slot;
+    private final int custom;
 
     @SuppressWarnings("unused")
     public PacketMonitorableAction(final ByteBuf stream) {
         this.action = MonitorableAction.values()[stream.readInt()];
-        this.slot = stream.readInt();
+        this.custom = stream.readInt();
     }
 
-    public PacketMonitorableAction(final MonitorableAction action, final int slot) {
+    public PacketMonitorableAction(final MonitorableAction action, final int custom) {
         this.action = action;
-        this.slot = slot;
+        this.custom = custom;
 
         final ByteBuf data = Unpooled.buffer();
 
         data.writeInt(this.getPacketID());
         data.writeInt(action.ordinal());
-        data.writeInt(slot);
+        data.writeInt(custom);
 
         this.configureWrite(data);
     }
@@ -64,6 +64,6 @@ public class PacketMonitorableAction extends AppEngPacket {
             return;
         }
 
-        container.doMonitorableAction(action, slot, (EntityPlayerMP) player);
+        container.doMonitorableAction(action, custom, (EntityPlayerMP) player);
     }
 }

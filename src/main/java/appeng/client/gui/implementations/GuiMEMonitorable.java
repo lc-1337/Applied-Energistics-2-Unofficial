@@ -530,9 +530,9 @@ public class GuiMEMonitorable extends AEBaseGui
         super.mouseClicked(xCoord, yCoord, btn);
     }
 
-    private void sendAction(MonitorableAction action, @Nullable IAEStack<?> stack, int slotIndex) {
+    private void sendAction(MonitorableAction action, @Nullable IAEStack<?> stack, int custom) {
         ((AEBaseContainer) this.inventorySlots).setTargetStack(stack);
-        final PacketMonitorableAction p = new PacketMonitorableAction(action, slotIndex);
+        final PacketMonitorableAction p = new PacketMonitorableAction(action, custom);
         NetworkHandler.instance.sendToServer(p);
     }
 
@@ -548,7 +548,7 @@ public class GuiMEMonitorable extends AEBaseGui
 
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
             if (slotStack != null) {
-                this.sendAction(MonitorableAction.MOVE_REGION, slotStack, this.monitorableSlots.length);
+                this.sendAction(MonitorableAction.MOVE_REGION, slotStack, -1);
                 return true;
             }
             return false;
@@ -573,21 +573,21 @@ public class GuiMEMonitorable extends AEBaseGui
                     this.sendAction(
                             isLShiftDown ? MonitorableAction.FILL_CONTAINERS : MonitorableAction.FILL_SINGLE_CONTAINER,
                             slot.getAEStack(),
-                            this.monitorableSlots.length);
+                            -1);
                     return true;
                 }
 
                 if (isLShiftDown) {
-                    this.sendAction(MonitorableAction.SHIFT_CLICK, slotStack, this.monitorableSlots.length);
+                    this.sendAction(MonitorableAction.SHIFT_CLICK, slotStack, -1);
                     return true;
                 }
 
                 if (slot.getAEStack() != null && slot.getAEStack().getStackSize() == 0
                         && player.inventory.getItemStack() == null) {
-                    this.sendAction(MonitorableAction.AUTO_CRAFT, slot.getAEStack(), this.monitorableSlots.length);
+                    this.sendAction(MonitorableAction.AUTO_CRAFT, slot.getAEStack(), -1);
                     return true;
                 }
-                this.sendAction(MonitorableAction.PICKUP_OR_SET_DOWN, slotStack, this.monitorableSlots.length);
+                this.sendAction(MonitorableAction.PICKUP_OR_SET_DOWN, slotStack, -1);
                 return true;
             }
             case 1 -> { // right click
@@ -608,24 +608,24 @@ public class GuiMEMonitorable extends AEBaseGui
                             isLShiftDown ? MonitorableAction.DRAIN_CONTAINERS
                                     : MonitorableAction.DRAIN_SINGLE_CONTAINER,
                             slot.getAEStack(),
-                            this.monitorableSlots.length);
+                            -1);
                     return true;
                 }
 
                 if (isLShiftDown) {
-                    this.sendAction(MonitorableAction.PICKUP_SINGLE, slotStack, this.monitorableSlots.length);
+                    this.sendAction(MonitorableAction.PICKUP_SINGLE, slotStack, -1);
                     return true;
                 }
 
-                this.sendAction(MonitorableAction.SPLIT_OR_PLACE_SINGLE, slotStack, this.monitorableSlots.length);
+                this.sendAction(MonitorableAction.SPLIT_OR_PLACE_SINGLE, slotStack, -1);
                 return true;
             }
             case 2 -> { // middle click
                 if (slot.getAEStack() != null && slot.getAEStack().isCraftable()) {
-                    this.sendAction(MonitorableAction.AUTO_CRAFT, slot.getAEStack(), this.monitorableSlots.length);
+                    this.sendAction(MonitorableAction.AUTO_CRAFT, slot.getAEStack(), -1);
                     return true;
                 } else if (player.capabilities.isCreativeMode) {
-                    this.sendAction(MonitorableAction.CREATIVE_DUPLICATE, slotStack, this.monitorableSlots.length);
+                    this.sendAction(MonitorableAction.CREATIVE_DUPLICATE, slotStack, -1);
                     return true;
                 }
             }
@@ -657,6 +657,30 @@ public class GuiMEMonitorable extends AEBaseGui
             }
         }
         return false;
+    }
+
+    @Override
+    protected boolean mouseWheelEvent(int x, int y, int wheel) {
+        VirtualMESlot slot = this.getVirtualMESlotUnderMouse();
+        if (!isShiftKeyDown() || !(slot instanceof VirtualMEMonitorableSlot)) return false;
+
+        final MonitorableAction direction = wheel > 0 ? MonitorableAction.ROLL_DOWN : MonitorableAction.ROLL_UP;
+        if (direction == MonitorableAction.ROLL_DOWN
+                && Minecraft.getMinecraft().thePlayer.inventory.getItemStack() == null) {
+            return false;
+        }
+        if (direction == MonitorableAction.ROLL_UP && !(slot.getAEStack() instanceof IAEItemStack)) {
+            return false;
+        }
+
+        ((AEBaseContainer) this.inventorySlots).setTargetStack(slot.getAEStack());
+        final int times = Math.abs(wheel);
+        for (int i = 0; i < times; i++) {
+            final PacketMonitorableAction p = new PacketMonitorableAction(direction, -1);
+            NetworkHandler.instance.sendToServer(p);
+        }
+
+        return true;
     }
 
     @Override

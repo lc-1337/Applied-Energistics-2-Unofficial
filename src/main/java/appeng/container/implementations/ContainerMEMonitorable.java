@@ -557,7 +557,7 @@ public class ContainerMEMonitorable extends AEBaseContainer
         return pinsHandler;
     }
 
-    public void doMonitorableAction(MonitorableAction action, int slotIndex, final EntityPlayerMP player) {
+    public void doMonitorableAction(MonitorableAction action, int custom, final EntityPlayerMP player) {
         IAEItemStack slotItem = null;
         IAEFluidStack slotFluid = null;
         if (this.getTargetStack() instanceof IAEFluidStack afs) {
@@ -567,17 +567,17 @@ public class ContainerMEMonitorable extends AEBaseContainer
         }
 
         switch (action) {
-            case AUTO_CRAFT -> {}
+            case AUTO_CRAFT -> {} // handled in PacketMonitorableAction
             case SET_ITEM_PIN -> {
                 ItemStack hand = player.inventory.getItemStack();
                 if (hand == null) return;
 
-                if (this.getPin(slotIndex) != null && this.getPin(slotIndex) instanceof IAEItemStack pinStack
+                if (this.getPin(custom) != null && this.getPin(custom) instanceof IAEItemStack pinStack
                         && hand.isItemEqual(pinStack.getItemStack())) {
                     // put item in the terminal
                     doMonitorableAction(MonitorableAction.PICKUP_OR_SET_DOWN, this.inventorySlots.size(), player);
                 } else {
-                    this.setPin(AEItemStack.create(hand), slotIndex);
+                    this.setPin(AEItemStack.create(hand), custom);
                 }
             }
             case SET_CONTAINER_PIN -> {
@@ -586,16 +586,16 @@ public class ContainerMEMonitorable extends AEBaseContainer
                 FluidStack fluid = getFluidFromContainer(hand);
                 if (fluid == null) return;
 
-                if (this.getPin(slotIndex) != null && this.getPin(slotIndex) instanceof IAEFluidStack pinStack
+                if (this.getPin(custom) != null && this.getPin(custom) instanceof IAEFluidStack pinStack
                         && fluid.isFluidEqual(pinStack.getFluidStack())) {
                     // put item in the terminal
                     doMonitorableAction(MonitorableAction.FILL_SINGLE_CONTAINER, this.inventorySlots.size(), player);
                 } else {
-                    this.setPin(AEFluidStack.create(fluid), slotIndex);
+                    this.setPin(AEFluidStack.create(fluid), custom);
                 }
             }
             case UNSET_PIN -> {
-                this.setPin(null, slotIndex);
+                this.setPin(null, custom);
             }
             case SHIFT_CLICK -> { // shift left click
                 if (this.getPowerSource() == null || this.getCellInventory() == null || slotItem == null) {
@@ -620,7 +620,7 @@ public class ContainerMEMonitorable extends AEBaseContainer
                     adaptor.addItems(ais.getItemStack());
                 }
             }
-            case PICKUP_SINGLE -> { // shift right click
+            case PICKUP_SINGLE, ROLL_UP -> { // shift right click, roll up
                 if (this.getPowerSource() == null || this.getCellInventory() == null || slotItem == null) {
                     return;
                 }
@@ -724,6 +724,25 @@ public class ContainerMEMonitorable extends AEBaseContainer
                         }
                         this.updateHeld(player);
                     }
+                }
+            }
+            case ROLL_DOWN -> {
+                final ItemStack hand = player.inventory.getItemStack();
+                if (this.getPowerSource() == null || this.getCellInventory() == null || hand == null) {
+                    return;
+                }
+
+                IAEItemStack ais = AEItemStack.create(hand);
+                ais.setStackSize(1);
+
+                ais = Platform
+                        .poweredInsert(this.getPowerSource(), this.getCellInventory(), ais, this.getActionSource());
+                if (ais == null) {
+                    hand.stackSize--;
+                    if (hand.stackSize <= 0) {
+                        player.inventory.setItemStack(null);
+                    }
+                    this.updateHeld(player);
                 }
             }
             case MOVE_REGION -> {
