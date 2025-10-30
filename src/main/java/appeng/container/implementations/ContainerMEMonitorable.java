@@ -75,6 +75,9 @@ import appeng.api.util.IConfigManager;
 import appeng.api.util.IConfigurableObject;
 import appeng.container.AEBaseContainer;
 import appeng.container.guisync.GuiSync;
+import appeng.container.slot.AppEngSlot;
+import appeng.container.slot.SlotDisabled;
+import appeng.container.slot.SlotInaccessible;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.core.AELog;
 import appeng.core.sync.network.NetworkHandler;
@@ -981,5 +984,41 @@ public class ContainerMEMonitorable extends AEBaseContainer
             player.inventory.setItemStack(FluidContainerRegistry.drainFluidContainer(hand));
         }
         this.updateHeld(player);
+    }
+
+    @Override
+    public ItemStack transferStackInSlot(EntityPlayer p, int idx) {
+        if (Platform.isClient()) {
+            return null;
+        }
+
+        final AppEngSlot clickSlot = (AppEngSlot) this.inventorySlots.get(idx); // require AE SLots!
+
+        if (clickSlot instanceof SlotDisabled || clickSlot instanceof SlotInaccessible) {
+            return null;
+        }
+
+        if (clickSlot != null && clickSlot.getHasStack() && clickSlot.isPlayerSide()) {
+            ItemStack tis = clickSlot.getStack();
+            tis = this.shiftStoreItem(tis);
+            clickSlot.putStack(tis);
+        }
+
+        return super.transferStackInSlot(p, idx);
+    }
+
+    private ItemStack shiftStoreItem(final ItemStack input) {
+        if (this.getPowerSource() == null || this.getCellInventory() == null) {
+            return input;
+        }
+        final IAEItemStack ais = Platform.poweredInsert(
+                this.getPowerSource(),
+                this.getCellInventory(),
+                AEApi.instance().storage().createItemStack(input),
+                this.getActionSource());
+        if (ais == null) {
+            return null;
+        }
+        return ais.getItemStack();
     }
 }
