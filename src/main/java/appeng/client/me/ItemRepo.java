@@ -31,6 +31,7 @@ import appeng.api.config.SortOrder;
 import appeng.api.config.TypeFilter;
 import appeng.api.config.ViewItems;
 import appeng.api.storage.IItemDisplayRegistry;
+import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IDisplayRepo;
@@ -250,6 +251,12 @@ public class ItemRepo implements IDisplayRepo {
 
             if (this.myPartitionList != null && !this.myPartitionList.isListed(is)) {
                 continue;
+            }
+
+            if (typeFilter == TypeFilter.ITEMS) {
+                if (!(is instanceof IAEItemStack)) continue;
+            } else if (typeFilter == TypeFilter.FLUIDS) {
+                if (!(is instanceof IAEFluidStack)) continue;
             }
 
             if (is instanceof IAEItemStack ais) {

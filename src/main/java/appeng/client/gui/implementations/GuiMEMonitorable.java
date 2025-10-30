@@ -30,7 +30,6 @@ import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-import appeng.api.AEApi;
 import appeng.api.config.CraftingStatus;
 import appeng.api.config.PinsState;
 import appeng.api.config.SearchBoxFocusPriority;
@@ -341,15 +340,13 @@ public class GuiMEMonitorable extends AEBaseGui
                             this.configSrc.getSetting(Settings.VIEW_MODE)));
             offset += 20;
         }
-        if (!AEApi.instance().registries().itemDisplay().getItemFilters().isEmpty()) {
-            this.buttonList.add(
-                    this.typeFilter = new GuiImgButton(
-                            this.guiLeft - 18,
-                            offset,
-                            Settings.TYPE_FILTER,
-                            this.configSrc.getSetting(Settings.TYPE_FILTER)));
-            offset += 20;
-        }
+        this.buttonList.add(
+                this.typeFilter = new GuiImgButton(
+                        this.guiLeft - 18,
+                        offset,
+                        Settings.TYPE_FILTER,
+                        this.configSrc.getSetting(Settings.TYPE_FILTER)));
+        offset += 20;
 
         this.buttonList.add(
                 this.SortDirBox = new GuiImgButton(
