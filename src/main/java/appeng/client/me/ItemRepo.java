@@ -58,7 +58,7 @@ public class ItemRepo implements IDisplayRepo {
 
     private String searchString = "";
     private Map<IAEStack<?>, Boolean> searchCache = new WeakHashMap<>();
-    private IPartitionList<IAEItemStack> myPartitionList;
+    private IPartitionList myPartitionList;
     private boolean hasPower;
     private boolean paused = false;
 
@@ -248,11 +248,11 @@ public class ItemRepo implements IDisplayRepo {
                 continue;
             }
 
-            if (is instanceof IAEItemStack ais) {
-                if (this.myPartitionList != null && !this.myPartitionList.isListed(ais)) {
-                    continue;
-                }
+            if (this.myPartitionList != null && !this.myPartitionList.isListed(is)) {
+                continue;
+            }
 
+            if (is instanceof IAEItemStack ais) {
                 if (registry.isBlacklisted(ais.getItemStack().getItem())
                         || registry.isBlacklisted(ais.getItemStack().getItem().getClass())) {
                     continue;

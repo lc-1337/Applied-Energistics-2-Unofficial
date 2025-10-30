@@ -38,9 +38,11 @@ import appeng.items.contents.CellConfigLegacy;
 import appeng.items.contents.CellUpgrades;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.Platform;
+import appeng.util.prioitylist.FuzzyPriorityList;
 import appeng.util.prioitylist.IPartitionList;
 import appeng.util.prioitylist.MergedPriorityList;
 import appeng.util.prioitylist.OreFilteredList;
+import appeng.util.prioitylist.PrecisePriorityList;
 
 public class ItemViewCell extends AEBaseItem implements ICellWorkbenchItem {
 
@@ -88,7 +90,7 @@ public class ItemViewCell extends AEBaseItem implements ICellWorkbenchItem {
                 if (hasOreFilter && !filter.isEmpty()) {
                     myMergedList.addNewList(new OreFilteredList(filter), !hasInverter);
                 } else {
-                    final IItemList<IAEStack<?>> priorityList = AEApi.instance().storage().createAEStackList();
+                    final IItemList priorityList = AEApi.instance().storage().createAEStackList();
 
                     for (int x = 0; x < config.getSizeInventory(); x++) {
                         final IAEStack<?> aes = config.getAEStackInSlot(x);
@@ -99,9 +101,9 @@ public class ItemViewCell extends AEBaseItem implements ICellWorkbenchItem {
 
                     if (!priorityList.isEmpty()) {
                         if (hasFuzzy) {
-                            // myMergedList.addNewList(new FuzzyPriorityList<>(priorityList, fzMode), !hasInverter);
+                            myMergedList.addNewList(new FuzzyPriorityList(priorityList, fzMode), !hasInverter);
                         } else {
-                            // myMergedList.addNewList(new PrecisePriorityList<>(priorityList), !hasInverter);
+                            myMergedList.addNewList(new PrecisePriorityList(priorityList), !hasInverter);
                         }
                     }
                 }
