@@ -99,7 +99,7 @@ import appeng.util.item.AEItemStack;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 
 public class ContainerMEMonitorable extends AEBaseContainer
-        implements IConfigManagerHost, IConfigurableObject, IMEMonitorHandlerReceiver, IPinsHandler {
+        implements IConfigManagerHost, IConfigurableObject, IMEMonitorHandlerReceiver<IAEStack<?>>, IPinsHandler {
 
     private final SlotRestrictedInput[] cellView = new SlotRestrictedInput[5];
     private final IMEMonitor<IAEItemStack> monitorItems;
@@ -389,7 +389,8 @@ public class ContainerMEMonitorable extends AEBaseContainer
     }
 
     @Override
-    public void postChange(IBaseMonitor monitor, Iterable<IAEStack<?>> change, BaseActionSource actionSource) {
+    public void postChange(IBaseMonitor<IAEStack<?>> monitor, Iterable<IAEStack<?>> change,
+            BaseActionSource actionSource) {
         for (final IAEStack<?> aes : change) {
             if (aes instanceof IAEItemStack ais) {
                 this.items.add(ais);

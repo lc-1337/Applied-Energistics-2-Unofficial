@@ -540,6 +540,11 @@ public final class AEItemStack extends AEStack<IAEItemStack> implements IAEItemS
         return getItem().getUnlocalizedName();
     }
 
+    // addon...
+    public String getModID() {
+        return this.getModId();
+    }
+
     @Override
     public String getModId() {
         if (this.getDefinition().getUniqueID() != null) {

@@ -29,7 +29,7 @@ import appeng.util.inv.ItemListIgnoreCrafting;
 import appeng.util.item.ItemFilterList;
 
 public class MEMonitorPassThrough<T extends IAEStack<T>> extends MEPassThrough<T>
-        implements IMEMonitor<T>, IMEMonitorHandlerReceiver {
+        implements IMEMonitor<T>, IMEMonitorHandlerReceiver<T> {
 
     private final HashMap<IMEMonitorHandlerReceiver, Object> listeners = new HashMap<>();
     private BaseActionSource changeSource;
@@ -111,8 +111,7 @@ public class MEMonitorPassThrough<T extends IAEStack<T>> extends MEPassThrough<T
     }
 
     @Override
-    public void postChange(final IBaseMonitor monitor, final Iterable<IAEStack<?>> change,
-            final BaseActionSource source) {
+    public void postChange(final IBaseMonitor<T> monitor, final Iterable<T> change, final BaseActionSource source) {
         final Iterator<Entry<IMEMonitorHandlerReceiver, Object>> i = this.listeners.entrySet().iterator();
         while (i.hasNext()) {
             final Entry<IMEMonitorHandlerReceiver, Object> e = i.next();

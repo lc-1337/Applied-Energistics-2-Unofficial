@@ -786,7 +786,7 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, IFluidHan
         private static final long serialVersionUID = 7995805326136526631L;
     }
 
-    private class ChestNetNotifier<T extends IAEStack<T>> implements IMEMonitorHandlerReceiver {
+    private class ChestNetNotifier implements IMEMonitorHandlerReceiver<IAEStack<?>> {
 
         private final StorageChannel chan;
 
@@ -806,7 +806,7 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, IFluidHan
         }
 
         @Override
-        public void postChange(final IBaseMonitor monitor, final Iterable<IAEStack<?>> change,
+        public void postChange(final IBaseMonitor<IAEStack<?>> monitor, final Iterable<IAEStack<?>> change,
                 final BaseActionSource source) {
             try {
                 if (TileChest.this.getProxy().isActive()) {

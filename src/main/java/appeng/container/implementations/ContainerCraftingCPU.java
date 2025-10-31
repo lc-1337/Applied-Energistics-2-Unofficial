@@ -48,7 +48,8 @@ import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.tile.crafting.TileCraftingTile;
 import appeng.util.Platform;
 
-public class ContainerCraftingCPU extends AEBaseContainer implements IMEMonitorHandlerReceiver, ICustomNameObject {
+public class ContainerCraftingCPU extends AEBaseContainer
+        implements IMEMonitorHandlerReceiver<IAEStack<?>>, ICustomNameObject {
 
     private final IItemList<IAEStack<?>> list = AEApi.instance().storage().createAEStackList();
     private IGrid network;
@@ -240,7 +241,7 @@ public class ContainerCraftingCPU extends AEBaseContainer implements IMEMonitorH
     }
 
     @Override
-    public void postChange(final IBaseMonitor monitor, final Iterable<IAEStack<?>> change,
+    public void postChange(final IBaseMonitor<IAEStack<?>> monitor, final Iterable<IAEStack<?>> change,
             final BaseActionSource actionSource) {
         for (IAEStack<?> is : change) {
             is = is.copy();

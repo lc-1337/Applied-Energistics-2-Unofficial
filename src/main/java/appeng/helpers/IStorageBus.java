@@ -6,6 +6,7 @@ import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.storage.ICellContainer;
 import appeng.api.storage.IMEMonitorHandlerReceiver;
 import appeng.api.storage.StorageChannel;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.integration.IntegrationType;
 import appeng.me.storage.MEInventoryHandler;
@@ -16,7 +17,7 @@ import buildcraft.api.transport.IPipeConnection;
 
 @Interface(iname = IntegrationType.BuildCraftTransport, iface = "buildcraft.api.transport.IPipeConnection")
 public interface IStorageBus
-        extends IGridTickable, ICellContainer, IMEMonitorHandlerReceiver, IPipeConnection, IPriorityHost,
+        extends IGridTickable, ICellContainer, IMEMonitorHandlerReceiver<IAEStack<?>>, IPipeConnection, IPriorityHost,
         IOreFilterable, IConfigManagerHost, IUpgradeableHost, IIAEStackInventory, IPrimaryGuiIconProvider {
 
     boolean needSyncGUI();

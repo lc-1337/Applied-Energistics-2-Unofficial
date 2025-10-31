@@ -330,7 +330,7 @@ public class PartStorageBus extends PartUpgradeable implements IStorageBus {
     }
 
     @Override
-    public void postChange(final IBaseMonitor monitor, final Iterable<IAEStack<?>> change,
+    public void postChange(final IBaseMonitor<IAEStack<?>> monitor, final Iterable<IAEStack<?>> change,
             final BaseActionSource source) {
         try {
             if (this.getProxy().isActive()) {

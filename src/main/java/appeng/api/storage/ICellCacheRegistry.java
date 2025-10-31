@@ -22,7 +22,9 @@ public interface ICellCacheRegistry {
 
     int getCellStatus();
 
-    StorageChannel getStorageChannel();
+    default StorageChannel getStorageChannel() {
+        return StorageChannel.ITEMS;
+    }
 
     TYPE getCellType();
 

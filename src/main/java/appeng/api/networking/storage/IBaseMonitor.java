@@ -14,8 +14,9 @@
 package appeng.api.networking.storage;
 
 import appeng.api.storage.IMEMonitorHandlerReceiver;
+import appeng.api.storage.data.IAEStack;
 
-public interface IBaseMonitor {
+public interface IBaseMonitor<T extends IAEStack> {
 
     /**
      * add a new Listener to the monitor, be sure to properly remove yourself when your done.

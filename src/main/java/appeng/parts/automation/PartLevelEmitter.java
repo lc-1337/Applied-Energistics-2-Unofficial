@@ -362,7 +362,7 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
     }
 
     @Override
-    public void postChange(final IBaseMonitor monitor, final Iterable<IAEStack<?>> change,
+    public void postChange(final IBaseMonitor<IAEStack<?>> monitor, final Iterable<IAEStack<?>> change,
             final BaseActionSource actionSource) {
         // todo use change
         if (canDoWork()) {
@@ -375,7 +375,7 @@ public class PartLevelEmitter extends PartUpgradeable implements ILevelEmitter {
                 }
             }
             lastWorkingTick = MinecraftServer.getServer().getTickCounter();
-            this.updateReportingValue((IMEMonitor<IAEItemStack>) monitor);
+            this.updateReportingValue((IMEMonitor<IAEStack<?>>) monitor);
         } else if (!delayedUpdatesQueued) {
             delayedUpdatesQueued = true;
             try {

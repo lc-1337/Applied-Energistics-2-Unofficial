@@ -15,6 +15,8 @@ import javax.annotation.Nonnull;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
@@ -67,6 +69,15 @@ public class ContainerCraftAmount extends ContainerSubGui {
 
     public BaseActionSource getActionSrc() {
         return new PlayerSource(this.getPlayerInv().player, (IActionHost) this.getTarget());
+    }
+
+    // addon
+    public Slot getCraftingItem() {
+        return new Slot(null, 0, 0, 0) {
+
+            @Override
+            public void putStack(ItemStack p_75215_1_) {}
+        };
     }
 
     public IAEStack<?> getItemToCraft() {

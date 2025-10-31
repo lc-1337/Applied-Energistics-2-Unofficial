@@ -9,11 +9,12 @@ import appeng.api.networking.energy.IEnergyWatcherHost;
 import appeng.api.networking.storage.IStackWatcherHost;
 import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.storage.IMEMonitorHandlerReceiver;
+import appeng.api.storage.data.IAEStack;
 import appeng.tile.inventory.IIAEStackInventory;
 
 @cpw.mods.fml.common.Optional.Interface(iface = "com.glodblock.github.api.registries.ILevelViewable", modid = "ae2fc")
 public interface ILevelEmitter
-        extends IEnergyWatcherHost, IStackWatcherHost, ICraftingWatcherHost, IMEMonitorHandlerReceiver,
+        extends IEnergyWatcherHost, IStackWatcherHost, ICraftingWatcherHost, IMEMonitorHandlerReceiver<IAEStack<?>>,
         ICraftingProvider, IGridTickable, IUpgradeableHost, IIAEStackInventory, ILevelViewable {
 
     void setReportingValue(final long v);
