@@ -33,7 +33,6 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
-import appeng.api.definitions.IDefinitions;
 import appeng.api.networking.security.MachineSource;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.ITerminalHost;
@@ -257,51 +256,32 @@ public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEA
 
         // first check the output slots, should either be null, or a pattern
         if (output != null) {
-            final boolean isPattern = isPattern(output);
-            final boolean isUltimatePattern = isUltraPattern(output);
-
-            if (!isPattern && !isUltimatePattern) return;
-
-            if (isCraftingMode()) {
-                if (isUltimatePattern) {
-                    this.patternSlotIN
-                            .putStack(AEApi.instance().definitions().items().encodedPattern().maybeStack(1).orNull());
-                }
-            } else {
-                if (isPattern) {
-                    this.patternSlotIN.putStack(
-                            AEApi.instance().definitions().items().encodedUltimatePattern().maybeStack(1).orNull());
-                }
+            if (!this.isEncodedPattern(output) && !this.isUltimatePattern(output)) {
+                return;
             }
-
         } // if nothing is there we should snag a new pattern.
         else {
-            output = this.patternSlotIN.getStack();
-            if (!this.isPattern(output)) {
-                return; // no blanks.
+            ItemStack blank = this.patternSlotIN.getStack();
+            if (!this.isBlankPattern(blank)) {
+                return;
             }
 
             // remove one, and clear the input slot.
-            output.stackSize--;
-            if (output.stackSize == 0) {
+            blank.stackSize--;
+            if (blank.stackSize == 0) {
                 this.patternSlotIN.putStack(null);
             }
 
+            refillBlankPatterns(patternSlotIN);
+
             // add a new encoded pattern.
             if (isCraftingMode()) {
-                for (final ItemStack encodedPatternStack : AEApi.instance().definitions().items().encodedPattern()
-                        .maybeStack(1).asSet()) {
-                    output = encodedPatternStack;
-                    this.patternSlotOUT.putStack(output);
-                }
+                output = AEApi.instance().definitions().items().encodedPattern().maybeStack(1).orNull();
+                this.patternSlotOUT.putStack(output);
             } else {
-                for (final ItemStack encodedPatternStack : AEApi.instance().definitions().items()
-                        .encodedUltimatePattern().maybeStack(1).asSet()) {
-                    output = encodedPatternStack;
-                    this.patternSlotOUT.putStack(output);
-                }
+                output = AEApi.instance().definitions().items().encodedUltimatePattern().maybeStack(1).orNull();
+                this.patternSlotOUT.putStack(output);
             }
-            refillBlankPatterns(patternSlotIN);
         }
 
         // encode the slot.
@@ -329,7 +309,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEA
     }
 
     private IAEStack<?>[] getInputs() {
-        final IAEStack<?>[] input = new IAEStack<?>[9];
+        final IAEStack<?>[] input = new IAEStack<?>[this.inputs.getSizeInventory()];
         boolean hasValue = false;
 
         for (int i = 0; i < this.inputs.getSizeInventory(); i++) {
@@ -374,30 +354,16 @@ public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEA
         return null;
     }
 
-    private boolean isPattern(final ItemStack output) {
-        if (output == null) {
-            return false;
-        }
-
-        final IDefinitions definitions = AEApi.instance().definitions();
-
-        boolean isPattern = definitions.items().encodedPattern().isSameAs(output);
-        isPattern |= definitions.materials().blankPattern().isSameAs(output);
-
-        return isPattern;
+    private boolean isBlankPattern(final ItemStack stack) {
+        return stack != null && AEApi.instance().definitions().materials().blankPattern().isSameAs(stack);
     }
 
-    private boolean isUltraPattern(final ItemStack output) {
-        if (output == null) {
-            return false;
-        }
+    private boolean isEncodedPattern(final ItemStack stack) {
+        return stack != null && AEApi.instance().definitions().items().encodedPattern().isSameAs(stack);
+    }
 
-        final IDefinitions definitions = AEApi.instance().definitions();
-
-        boolean isUltimatePattern = definitions.items().encodedUltimatePattern().isSameAs(output);
-        isUltimatePattern |= definitions.materials().blankPattern().isSameAs(output);
-
-        return isUltimatePattern;
+    private boolean isUltimatePattern(final ItemStack stack) {
+        return stack != null && AEApi.instance().definitions().items().encodedUltimatePattern().isSameAs(stack);
     }
 
     @Override
