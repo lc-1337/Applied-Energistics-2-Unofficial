@@ -26,6 +26,7 @@ import appeng.api.config.PatternBeSubstitution;
 import appeng.api.config.Settings;
 import appeng.api.storage.ITerminalHost;
 import appeng.client.StorageName;
+import appeng.client.gui.slots.VirtualMEPatternSlot;
 import appeng.client.gui.slots.VirtualMEPhantomSlot;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
@@ -60,8 +61,8 @@ public class GuiPatternTerm extends GuiMEMonitorable {
     protected GuiImgButton clearBtn;
     protected GuiImgButton doubleBtn;
 
-    protected VirtualMEPhantomSlot[] craftingSlots;
-    protected VirtualMEPhantomSlot[] outputSlots;
+    protected VirtualMEPatternSlot[] craftingSlots;
+    protected VirtualMEPatternSlot[] outputSlots;
     private boolean cragtingMode;
 
     public GuiPatternTerm(final InventoryPlayer inventoryPlayer, final ITerminalHost te,
@@ -225,17 +226,16 @@ public class GuiPatternTerm extends GuiMEMonitorable {
         final int inputSlotRow = container.getPatternInputsHeigh();
         final int inputSlotPerRow = container.getPatternInputsWidth();
         final int inputPage = container.getPatternInputPages();
-        this.craftingSlots = new VirtualMEPhantomSlot[inputSlotPerRow * inputSlotRow * inputPage];
+        this.craftingSlots = new VirtualMEPatternSlot[inputSlotPerRow * inputSlotRow * inputPage];
         final IAEStackInventory inputInv = container.getPatternTerminal()
                 .getAEInventoryByName(StorageName.CRAFTING_INPUT);
         for (int y = 0; y < inputSlotRow * inputPage; y++) {
             for (int x = 0; x < inputSlotPerRow; x++) {
-                VirtualMEPhantomSlot slot = new VirtualMEPhantomSlot(
+                VirtualMEPatternSlot slot = new VirtualMEPatternSlot(
                         getInputSlotOffsetX() + 18 * x,
                         this.rows * 18 + getInputSlotOffsetY() + 18 * (y % (inputSlotRow)),
                         inputInv,
                         x + y * inputSlotPerRow);
-                slot.setShowAmount(true);
                 this.craftingSlots[x + y * inputSlotPerRow] = slot;
                 this.registerVirtualSlots(slot);
             }
@@ -244,17 +244,16 @@ public class GuiPatternTerm extends GuiMEMonitorable {
         final int outputSlotRow = container.getPatternOutputsHeigh();
         final int outputSlotPerRow = container.getPatternOutputsWidth();
         final int outputPage = container.getPatternOutputPages();
-        this.outputSlots = new VirtualMEPhantomSlot[outputSlotPerRow * outputSlotRow * outputPage];
+        this.outputSlots = new VirtualMEPatternSlot[outputSlotPerRow * outputSlotRow * outputPage];
         final IAEStackInventory outputInv = container.getPatternTerminal()
                 .getAEInventoryByName(StorageName.CRAFTING_OUTPUT);
         for (int y = 0; y < outputSlotRow * outputPage; y++) {
             for (int x = 0; x < outputSlotPerRow; x++) {
-                VirtualMEPhantomSlot slot = new VirtualMEPhantomSlot(
+                VirtualMEPatternSlot slot = new VirtualMEPatternSlot(
                         getOutputSlotOffsetX(),
                         this.rows * 18 + getOutputSlotOffsetY() + 18 * (y % outputSlotRow),
                         outputInv,
                         x + y * outputSlotPerRow);
-                slot.setShowAmount(true);
                 this.outputSlots[x + y * outputSlotPerRow] = slot;
                 this.registerVirtualSlots(slot);
             }

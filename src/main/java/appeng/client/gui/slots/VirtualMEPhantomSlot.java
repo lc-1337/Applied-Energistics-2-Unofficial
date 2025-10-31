@@ -7,9 +7,7 @@ import net.minecraft.item.ItemStack;
 
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
-import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
-import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.integration.IntegrationRegistry;
 import appeng.integration.IntegrationType;
@@ -72,18 +70,11 @@ public class VirtualMEPhantomSlot extends VirtualMESlot {
                     if (currentStack.getStackSize() <= 0) currentStack = null;
                 }
             }
-            case 2 -> { // middle click
-                if (currentStack != null) {
-                    if (isExtraAction)
-                        NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_ITEM_RENAMER));
-                    else if (showAmount)
-                        NetworkHandler.instance.sendToServer(new PacketSwitchGuis(GuiBridge.GUI_PATTERN_VALUE_AMOUNT));
-                }
-            }
         }
 
-        // inventory.putAEStackInSlot(this.getSlotIndex(), currentStack); // seems useless, server will send update
-        // packet anyway
+        // Set on the client to avoid lag on slow networks
+        inventory.putAEStackInSlot(this.getSlotIndex(), currentStack);
+
         NetworkHandler.instance
                 .sendToServer(new PacketVirtualSlot(this.getStorageName(), this.getSlotIndex(), currentStack));
     }
