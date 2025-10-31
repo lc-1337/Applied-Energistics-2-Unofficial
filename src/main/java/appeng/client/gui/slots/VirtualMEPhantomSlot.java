@@ -5,6 +5,8 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 
+import com.glodblock.github.util.Util;
+
 import appeng.api.storage.data.IAEStack;
 import appeng.client.StorageName;
 import appeng.core.sync.network.NetworkHandler;
@@ -16,6 +18,7 @@ import appeng.util.FluidUtils;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import codechicken.nei.ItemPanels;
+import codechicken.nei.recipe.StackInfo;
 
 public class VirtualMEPhantomSlot extends VirtualMESlot {
 
@@ -44,6 +47,16 @@ public class VirtualMEPhantomSlot extends VirtualMESlot {
     public void handleMouseClicked(boolean acceptItem, boolean acceptFluid, boolean isExtraAction, int mouseButton) {
         IAEStack<?> currentStack = this.getAEStack();
         final ItemStack newStack = getTargetStack();
+
+        if (newStack != null && !this.showAmount) {
+            newStack.stackSize = 1;
+        }
+
+        // need always convert display fluid stack from nei or nothing.
+        if (newStack != null && StackInfo.getFluid(Util.copyStackWithSize(newStack, 1)) != null) {
+            isExtraAction = true;
+            acceptItem = false;
+        }
 
         switch (mouseButton) {
             case 0 -> { // left click

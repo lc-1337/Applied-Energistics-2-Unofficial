@@ -8,6 +8,9 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
 
+import com.glodblock.github.util.Util;
+
+import codechicken.nei.recipe.StackInfo;
 import it.unimi.dsi.fastutil.objects.ObjectIntMutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 
@@ -71,8 +74,10 @@ public class FluidUtils {
 
         if (itemStack.getItem() instanceof IFluidContainerItem container) {
             return container.getFluid(itemStack);
-        } else {
+        } else if (FluidContainerRegistry.isContainer(itemStack)) {
             return FluidContainerRegistry.getFluidForFilledItem(itemStack);
+        } else {
+            return StackInfo.getFluid(Util.copyStackWithSize(itemStack, 1));
         }
     }
 
