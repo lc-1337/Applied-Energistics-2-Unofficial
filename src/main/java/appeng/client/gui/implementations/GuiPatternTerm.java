@@ -234,8 +234,8 @@ public class GuiPatternTerm extends GuiMEMonitorable {
                         getInputSlotOffsetX() + 18 * x,
                         this.rows * 18 + getInputSlotOffsetY() + 18 * (y % (inputSlotRow)),
                         inputInv,
-                        x + y * inputSlotPerRow,
-                        true);
+                        x + y * inputSlotPerRow);
+                slot.setShowAmount(true);
                 this.craftingSlots[x + y * inputSlotPerRow] = slot;
                 this.registerVirtualSlots(slot);
             }
@@ -253,8 +253,8 @@ public class GuiPatternTerm extends GuiMEMonitorable {
                         getOutputSlotOffsetX(),
                         this.rows * 18 + getOutputSlotOffsetY() + 18 * (y % outputSlotRow),
                         outputInv,
-                        x + y * outputSlotPerRow,
-                        true);
+                        x + y * outputSlotPerRow);
+                slot.setShowAmount(true);
                 this.outputSlots[x + y * outputSlotPerRow] = slot;
                 this.registerVirtualSlots(slot);
             }

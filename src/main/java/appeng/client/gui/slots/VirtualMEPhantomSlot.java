@@ -24,14 +24,8 @@ public class VirtualMEPhantomSlot extends VirtualMESlot {
     private final IAEStackInventory inventory;
 
     public VirtualMEPhantomSlot(int x, int y, IAEStackInventory inventory, int slotIndex) {
-        this(x, y, inventory, slotIndex, false);
-    }
-
-    public VirtualMEPhantomSlot(int x, int y, IAEStackInventory inventory, int slotIndex, boolean showAmount) {
         super(x, y, slotIndex);
         this.inventory = inventory;
-
-        this.showAmount = showAmount;
     }
 
     @Nullable

@@ -126,4 +126,20 @@ public abstract class VirtualMESlot {
     public void setHidden(boolean hidden) {
         this.isHidden = hidden;
     }
+
+    public void setShowAmount(boolean showAmount) {
+        this.showAmount = showAmount;
+    }
+
+    public void setShowAmountAlways(boolean showAmountAlways) {
+        this.showAmountAlways = showAmountAlways;
+    }
+
+    public void setShowCraftableText(boolean showCraftableText) {
+        this.showCraftableText = showCraftableText;
+    }
+
+    public void setShowCraftableIcon(boolean showCraftableIcon) {
+        this.showCraftableIcon = showCraftableIcon;
+    }
 }
