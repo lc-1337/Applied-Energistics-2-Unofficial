@@ -283,10 +283,11 @@ public class GuiCraftingStatus extends GuiCraftingCPU implements ICraftingCPUTab
     public void initPrimaryGuiButton() {
         this.buttonList.add(
                 this.originalGuiBtn = new GuiTabButton(
-                        this.guiLeft + this.xSize - 22,
-                        this.guiTop,
+                        this.guiLeft + this.xSize - 25,
+                        this.guiTop - 4,
                         status.getPrimaryGuiIcon(),
                         status.getPrimaryGuiIcon().getDisplayName(),
                         itemRender));
+        this.originalGuiBtn.setHideEdge(13);
     }
 }
