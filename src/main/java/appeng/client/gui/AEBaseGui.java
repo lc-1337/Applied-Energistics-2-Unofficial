@@ -370,11 +370,11 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
 
     @Override
     protected void mouseClicked(final int xCoord, final int yCoord, final int btn) {
-        final VirtualMESlot slot = getVirtualMESlotUnderMouse();
-        if (slot != null && this.handleVirtualSlotClick(slot, btn)) return;
-
         this.drag_click.clear();
         this.draggedSlots.clear();
+
+        final VirtualMESlot slot = getVirtualMESlotUnderMouse();
+        if (slot != null && this.handleVirtualSlotClick(slot, btn)) return;
 
         if (btn == 1) {
             for (final Object o : this.buttonList) {
@@ -396,6 +396,12 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
     protected boolean handleVirtualSlotClick(final VirtualMESlot slot, final int mouseButton) {
         if (slot instanceof VirtualMEPhantomSlot vSlot) {
             this.handlePhantomSlotInteraction(vSlot, mouseButton);
+
+            // Prevent double dragging
+            if (this.mc.thePlayer.inventory.getItemStack() != null
+                    && !this.draggedSlots.contains(this.hoveredVirtualSlot)) {
+                this.draggedSlots.add(this.hoveredVirtualSlot);
+            }
         }
 
         return false;
@@ -413,15 +419,17 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
 
     @Override
     protected void mouseClickMove(final int x, final int y, final int c, final long d) {
+        // Hold left or right mouse button
         if (c == 0 || c == 1) {
+            // Update hovered slot
             for (VirtualMESlot slot : virtualSlots) {
                 if (slot.isHovered(x - this.guiLeft + 1, y - this.guiTop + 1)) {
                     this.hoveredVirtualSlot = slot;
                     break;
                 }
             }
-            if (((this.mc.thePlayer.inventory.getItemStack() != null && this.hoveredVirtualSlot != null)
-                    || this.hoveredVirtualSlot instanceof VirtualMEPhantomSlot)
+
+            if (this.mc.thePlayer.inventory.getItemStack() != null && this.hoveredVirtualSlot != null
                     && !this.draggedSlots.contains(this.hoveredVirtualSlot)) {
                 this.draggedSlots.add(this.hoveredVirtualSlot);
                 this.handleDragVirtualSlot(this.hoveredVirtualSlot, c);
