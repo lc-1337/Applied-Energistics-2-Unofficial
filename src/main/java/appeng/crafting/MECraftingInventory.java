@@ -15,7 +15,6 @@ import static appeng.api.storage.data.IItemList.LIST_ITEM;
 import static appeng.api.storage.data.IItemList.LIST_MIXED;
 import static appeng.util.Platform.convertStack;
 import static appeng.util.Platform.isAE2FCLoaded;
-import static appeng.util.Platform.stackConvert;
 import static appeng.util.Platform.writeAEStackListNBT;
 
 import java.text.NumberFormat;
@@ -118,44 +117,6 @@ public class MECraftingInventory implements IMEInventory<IAEStack> {
     public MECraftingInventory(final MECraftingInventory target, final boolean logExtracted,
             final boolean logInjections, final boolean logMissing) {
         this(target.target, logExtracted, logInjections, logMissing);
-    }
-
-    public MECraftingInventory(final IStorageMonitorable target, final BaseActionSource src, final boolean logExtracted,
-            final boolean logInjections, final boolean logMissing) {
-        this.target = target;
-        this.logExtracted = logExtracted;
-        this.logInjections = logInjections;
-        this.logMissing = logMissing;
-
-        if (logMissing) {
-            this.missingCache = AEApi.instance().storage().createAEStackList();
-        } else {
-            this.missingCache = null;
-        }
-
-        if (logExtracted) {
-            this.extractedCache = AEApi.instance().storage().createAEStackList();
-        } else {
-            this.extractedCache = null;
-        }
-
-        if (logInjections) {
-            this.injectedCache = AEApi.instance().storage().createAEStackList();
-        } else {
-            this.injectedCache = null;
-        }
-
-        this.localItemCache = AEApi.instance().storage().createItemList();
-        this.localFluidCache = AEApi.instance().storage().createFluidList();
-
-        for (final IAEItemStack is : target.getItemInventory().getStorageList()) {
-            this.localItemCache.add(target.getItemInventory().extractItems(is, Actionable.SIMULATE, src));
-        }
-        for (final IAEFluidStack is : target.getFluidInventory().getStorageList()) {
-            this.localFluidCache.add(target.getFluidInventory().extractItems(is, Actionable.SIMULATE, src));
-        }
-
-        this.par = null;
     }
 
     public MECraftingInventory(final IStorageMonitorable target, final boolean logExtracted,
@@ -322,11 +283,7 @@ public class MECraftingInventory implements IMEInventory<IAEStack> {
         if (is == null) return null;
 
         if (is instanceof IAEItemStack ais) {
-            if (isAE2FCLoaded && ais.getItem() instanceof ItemFluidDrop) {
-                return (StackType) stackConvert(localFluidCache.findPrecise((IAEFluidStack) convertStack(ais)));
-            } else {
-                return (StackType) localItemCache.findPrecise((IAEItemStack) is);
-            }
+            return (StackType) localItemCache.findPrecise((IAEItemStack) is);
         } else {
             return (StackType) localFluidCache.findPrecise((IAEFluidStack) is);
         }
