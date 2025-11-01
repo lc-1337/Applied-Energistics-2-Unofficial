@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 import appeng.api.config.Upgrades;
 import appeng.api.storage.StorageChannel;
-import appeng.client.StorageName;
+import appeng.api.storage.StorageName;
 import appeng.client.gui.slots.VirtualMEPhantomSlot;
 import appeng.container.implementations.ContainerBusIO;
 import appeng.parts.automation.PartSharedItemBus;

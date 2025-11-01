@@ -1,4 +1,4 @@
-package appeng.helpers;
+package appeng.items.contents;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -7,7 +7,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
 import appeng.api.features.IWirelessTermHandler;
+import appeng.api.parts.ICraftingTerminal;
 import appeng.api.util.IConfigManager;
+import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.InvOperation;
 

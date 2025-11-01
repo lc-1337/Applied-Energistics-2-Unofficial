@@ -5,6 +5,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import appeng.client.gui.IGuiSub;
+import appeng.container.interfaces.IContainerSubGui;
 import appeng.container.slot.SlotInaccessible;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.Platform;

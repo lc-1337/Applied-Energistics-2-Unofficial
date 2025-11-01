@@ -1,6 +1,6 @@
 package appeng.tile.inventory;
 
-import appeng.client.StorageName;
+import appeng.api.storage.StorageName;
 
 public interface IIAEStackInventory {
 

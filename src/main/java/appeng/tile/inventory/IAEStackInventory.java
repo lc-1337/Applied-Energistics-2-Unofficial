@@ -5,8 +5,8 @@ import static appeng.util.Platform.writeStackNBT;
 
 import net.minecraft.nbt.NBTTagCompound;
 
+import appeng.api.storage.StorageName;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.StorageName;
 import appeng.core.AELog;
 import appeng.util.Platform;
 

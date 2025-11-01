@@ -1,4 +1,4 @@
-package appeng.helpers;
+package appeng.api.parts;
 
 import appeng.api.networking.security.IActionHost;
 import appeng.core.localization.GuiText;

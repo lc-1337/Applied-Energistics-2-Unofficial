@@ -1,4 +1,4 @@
-package appeng.helpers;
+package appeng.api.parts;
 
 import com.glodblock.github.api.registries.ILevelViewable;
 

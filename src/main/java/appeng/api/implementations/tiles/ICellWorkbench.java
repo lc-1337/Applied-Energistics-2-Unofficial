@@ -1,10 +1,12 @@
-package appeng.helpers;
+package appeng.api.implementations.tiles;
 
 import net.minecraft.inventory.IInventory;
 
 import appeng.api.implementations.IUpgradeableHost;
 import appeng.api.storage.ICellWorkbenchItem;
 import appeng.api.storage.StorageChannel;
+import appeng.helpers.ICellRestriction;
+import appeng.helpers.IOreFilterable;
 import appeng.tile.inventory.IAEAppEngInventory;
 import appeng.tile.inventory.IIAEStackInventory;
 import appeng.util.IConfigManagerHost;

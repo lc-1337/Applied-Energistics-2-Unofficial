@@ -16,9 +16,9 @@ import net.minecraft.util.Vec3;
 
 import appeng.api.networking.events.MENetworkBootingStatusChange;
 import appeng.api.networking.events.MENetworkEventSubscribe;
+import appeng.api.parts.IInterfaceTerminal;
 import appeng.client.texture.CableBusTextures;
 import appeng.core.sync.GuiBridge;
-import appeng.helpers.IInterfaceTerminal;
 import appeng.util.Platform;
 
 public class PartInterfaceTerminal extends AbstractPartDisplay implements IInterfaceTerminal {

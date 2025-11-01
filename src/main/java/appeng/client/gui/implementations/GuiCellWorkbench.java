@@ -25,6 +25,7 @@ import appeng.api.config.FuzzyMode;
 import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.items.IUpgradeModule;
+import appeng.api.implementations.tiles.ICellWorkbench;
 import appeng.api.storage.StorageChannel;
 import appeng.client.gui.slots.VirtualMEPhantomSlot;
 import appeng.client.gui.widgets.GuiImgButton;
@@ -35,7 +36,6 @@ import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
-import appeng.helpers.ICellWorkbench;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.Platform;
 

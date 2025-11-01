@@ -1,4 +1,4 @@
-package appeng.helpers;
+package appeng.api.parts;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -12,6 +12,8 @@ import appeng.api.networking.security.IActionHost;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.ITerminalPins;
 import appeng.api.storage.data.IAEStack;
+import appeng.helpers.PatternHelper;
+import appeng.helpers.UltimatePatternHelper;
 import appeng.items.misc.ItemEncodedPattern;
 import appeng.tile.inventory.IAEAppEngInventory;
 import appeng.tile.inventory.IAEStackInventory;

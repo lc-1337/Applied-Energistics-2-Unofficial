@@ -5,11 +5,11 @@ import java.io.IOException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 
+import appeng.api.storage.StorageName;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.StorageName;
+import appeng.container.interfaces.IVirtualSlotHolder;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.network.INetworkInfo;
-import appeng.helpers.IVirtualSlotHolder;
 import appeng.util.Platform;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

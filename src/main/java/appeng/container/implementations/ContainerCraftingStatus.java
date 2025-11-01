@@ -18,9 +18,9 @@ import net.minecraft.item.ItemStack;
 
 import appeng.api.storage.ITerminalHost;
 import appeng.client.gui.IGuiSub;
-import appeng.container.IContainerSubGui;
 import appeng.container.PrimaryGui;
 import appeng.container.guisync.GuiSync;
+import appeng.container.interfaces.IContainerSubGui;
 import appeng.container.interfaces.ICraftingCPUSelectorContainer;
 import appeng.container.slot.SlotInaccessible;
 import appeng.tile.inventory.AppEngInternalInventory;

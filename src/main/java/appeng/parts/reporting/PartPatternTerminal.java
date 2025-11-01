@@ -18,11 +18,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import appeng.api.AEApi;
+import appeng.api.parts.IPatternTerminal;
+import appeng.api.storage.StorageName;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.StorageName;
 import appeng.client.texture.CableBusTextures;
 import appeng.core.sync.GuiBridge;
-import appeng.helpers.IPatternTerminal;
 import appeng.helpers.Reflected;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.IAEStackInventory;

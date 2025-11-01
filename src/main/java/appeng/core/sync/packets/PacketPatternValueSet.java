@@ -5,12 +5,12 @@ import static appeng.util.Platform.writeStackByte;
 
 import net.minecraft.entity.player.EntityPlayer;
 
+import appeng.api.storage.StorageName;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.StorageName;
 import appeng.container.AEBaseContainer;
+import appeng.container.interfaces.IVirtualSlotSource;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.network.INetworkInfo;
-import appeng.helpers.IVirtualSlotSource;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 

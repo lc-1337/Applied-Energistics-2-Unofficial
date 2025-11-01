@@ -1,8 +1,9 @@
-package appeng.container;
+package appeng.container.interfaces;
 
 import net.minecraft.item.ItemStack;
 
 import appeng.client.gui.IGuiSub;
+import appeng.container.PrimaryGui;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

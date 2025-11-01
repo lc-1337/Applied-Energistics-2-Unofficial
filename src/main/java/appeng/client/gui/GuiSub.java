@@ -4,7 +4,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 
 import appeng.client.gui.widgets.GuiTabButton;
-import appeng.container.IContainerSubGui;
+import appeng.container.interfaces.IContainerSubGui;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketSwitchGuis;
 

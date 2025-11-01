@@ -1,4 +1,4 @@
-package appeng.helpers;
+package appeng.api.parts;
 
 import appeng.api.AEApi;
 import appeng.api.implementations.IUpgradeableHost;
@@ -8,6 +8,9 @@ import appeng.api.storage.IMEMonitorHandlerReceiver;
 import appeng.api.storage.StorageChannel;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
+import appeng.helpers.IOreFilterable;
+import appeng.helpers.IPrimaryGuiIconProvider;
+import appeng.helpers.IPriorityHost;
 import appeng.integration.IntegrationType;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.tile.inventory.IIAEStackInventory;

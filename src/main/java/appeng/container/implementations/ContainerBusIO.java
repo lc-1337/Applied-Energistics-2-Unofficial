@@ -4,9 +4,9 @@ import static appeng.util.Platform.isServer;
 
 import net.minecraft.entity.player.InventoryPlayer;
 
+import appeng.api.storage.StorageName;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.StorageName;
-import appeng.helpers.IVirtualSlotHolder;
+import appeng.container.interfaces.IVirtualSlotHolder;
 import appeng.parts.automation.PartSharedItemBus;
 import appeng.tile.inventory.IAEStackInventory;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;

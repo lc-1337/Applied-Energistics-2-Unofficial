@@ -7,8 +7,8 @@ import net.minecraft.item.ItemStack;
 
 import com.glodblock.github.util.Util;
 
+import appeng.api.storage.StorageName;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.StorageName;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.integration.IntegrationRegistry;

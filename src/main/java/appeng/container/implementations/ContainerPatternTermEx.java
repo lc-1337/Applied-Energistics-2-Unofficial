@@ -4,9 +4,9 @@ import static appeng.parts.reporting.PartPatternTerminalEx.*;
 
 import net.minecraft.entity.player.InventoryPlayer;
 
+import appeng.api.parts.IPatternTerminalEx;
 import appeng.api.storage.ITerminalHost;
 import appeng.container.guisync.GuiSync;
-import appeng.helpers.IPatternTerminalEx;
 import appeng.util.Platform;
 
 public class ContainerPatternTermEx extends ContainerPatternTerm {

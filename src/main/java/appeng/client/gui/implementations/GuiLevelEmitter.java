@@ -24,7 +24,8 @@ import appeng.api.config.RedstoneMode;
 import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
 import appeng.api.config.YesNo;
-import appeng.client.StorageName;
+import appeng.api.parts.ILevelEmitter;
+import appeng.api.storage.StorageName;
 import appeng.client.gui.slots.VirtualMEPhantomSlot;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.MEGuiTextField;
@@ -35,7 +36,6 @@ import appeng.core.localization.GuiText;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketConfigButton;
 import appeng.core.sync.packets.PacketValueConfig;
-import appeng.helpers.ILevelEmitter;
 import appeng.util.calculators.ArithHelper;
 import appeng.util.calculators.Calculator;
 

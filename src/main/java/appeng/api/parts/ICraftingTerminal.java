@@ -1,4 +1,4 @@
-package appeng.helpers;
+package appeng.api.parts;
 
 import appeng.api.implementations.tiles.ISegmentedInventory;
 import appeng.api.implementations.tiles.IViewCellStorage;

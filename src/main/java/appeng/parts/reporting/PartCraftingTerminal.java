@@ -18,9 +18,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import appeng.api.AEApi;
+import appeng.api.parts.ICraftingTerminal;
 import appeng.client.texture.CableBusTextures;
 import appeng.core.sync.GuiBridge;
-import appeng.helpers.ICraftingTerminal;
 import appeng.helpers.Reflected;
 import appeng.tile.inventory.AppEngInternalInventory;
 

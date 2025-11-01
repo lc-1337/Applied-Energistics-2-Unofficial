@@ -1,4 +1,4 @@
-package appeng.helpers;
+package appeng.api.parts;
 
 public interface IPatternTerminalEx extends IPatternTerminal {
 

@@ -4,9 +4,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import appeng.api.AEApi;
+import appeng.api.parts.IPatternTerminalEx;
 import appeng.api.storage.data.IAEStack;
 import appeng.core.sync.GuiBridge;
-import appeng.helpers.IPatternTerminalEx;
 import appeng.helpers.Reflected;
 
 public class PartPatternTerminalEx extends PartPatternTerminal implements IPatternTerminalEx {

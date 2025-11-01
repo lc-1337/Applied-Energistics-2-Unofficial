@@ -1,4 +1,4 @@
-package appeng.client;
+package appeng.api.storage;
 
 public enum StorageName {
 

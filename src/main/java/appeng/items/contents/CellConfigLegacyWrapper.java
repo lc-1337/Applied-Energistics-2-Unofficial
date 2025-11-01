@@ -4,9 +4,9 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import appeng.api.storage.StorageName;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.StorageName;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.item.AEItemStack;
 

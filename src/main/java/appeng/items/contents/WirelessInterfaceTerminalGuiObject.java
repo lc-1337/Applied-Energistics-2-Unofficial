@@ -1,4 +1,4 @@
-package appeng.helpers;
+package appeng.items.contents;
 
 import java.util.List;
 
@@ -14,7 +14,11 @@ import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.events.MENetworkBootingStatusChange;
 import appeng.api.networking.events.MENetworkEventSubscribe;
+import appeng.api.parts.IInterfaceTerminal;
 import appeng.api.util.AECableType;
+import appeng.helpers.ICustomButtonDataObject;
+import appeng.helpers.ICustomButtonProvider;
+import appeng.helpers.ICustomButtonSource;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

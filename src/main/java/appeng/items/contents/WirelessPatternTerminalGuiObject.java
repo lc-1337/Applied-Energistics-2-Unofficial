@@ -1,6 +1,4 @@
-package appeng.helpers;
-
-import static appeng.parts.reporting.PartPatternTerminal.*;
+package appeng.items.contents;
 
 import java.util.Objects;
 
@@ -11,9 +9,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
 import appeng.api.features.IWirelessTermHandler;
+import appeng.api.parts.IPatternTerminalEx;
+import appeng.api.storage.StorageName;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.IConfigManager;
-import appeng.client.StorageName;
+import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.tile.inventory.IIAEStackInventory;

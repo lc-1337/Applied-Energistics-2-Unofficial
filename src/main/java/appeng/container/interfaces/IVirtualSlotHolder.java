@@ -1,7 +1,7 @@
-package appeng.helpers;
+package appeng.container.interfaces;
 
+import appeng.api.storage.StorageName;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.StorageName;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 
 public interface IVirtualSlotHolder {
