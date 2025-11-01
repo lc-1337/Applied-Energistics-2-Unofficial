@@ -53,7 +53,8 @@ public class VirtualMEPhantomSlot extends VirtualMESlot {
         }
 
         // need always convert display fluid stack from nei or nothing.
-        if (newStack != null && StackInfo.getFluid(Util.copyStackWithSize(newStack, 1)) != null) {
+        if (newStack != null && !FluidUtils.isFluidContainer(newStack)
+                && StackInfo.getFluid(Util.copyStackWithSize(newStack, 1)) != null) {
             isExtraAction = true;
             acceptItem = false;
         }
