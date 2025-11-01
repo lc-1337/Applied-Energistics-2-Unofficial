@@ -99,7 +99,7 @@ public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEA
 
     public ContainerPatternTerm(final InventoryPlayer ip, final ITerminalHost monitorable,
             boolean craftingModeSupport) {
-        super(ip, monitorable);
+        super(ip, monitorable, false);
         this.patternTerminal = (IPatternTerminal) monitorable;
 
         if (monitorable instanceof WirelessPatternTerminalGuiObject wptgo) {
@@ -161,6 +161,9 @@ public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEA
         this.updateOrderOfOutputSlots();
         refillBlankPatterns(patternSlotIN);
 
+        // need because InventoryBogoSorter looking for specific slot number for bind buttons
+        // bindPlayerInventory in MEMonitorable break it
+        this.bindPlayerInventory(ip, 0, 0);
     }
 
     private void updateOrderOfOutputSlots() {

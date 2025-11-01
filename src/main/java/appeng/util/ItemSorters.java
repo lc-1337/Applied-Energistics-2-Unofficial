@@ -13,7 +13,6 @@ package appeng.util;
 import java.util.Comparator;
 
 import appeng.api.config.SortDir;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 
 public class ItemSorters {
@@ -30,15 +29,16 @@ public class ItemSorters {
     public static final Comparator<IAEStack<?>> CONFIG_BASED_SORT_BY_SIZE = Comparator
             .comparing(IAEStack::getStackSize, (a, b) -> Long.compare(b, a) * direction.sortHint);
 
-    public static final Comparator<IAEItemStack> CONFIG_BASED_SORT_BY_INV_TWEAKS = new Comparator<>() {
+    public static final Comparator<IAEStack<?>> CONFIG_BASED_SORT_BY_INV_TWEAKS = new Comparator<>() {
 
         @Override
-        public int compare(final IAEItemStack o1, final IAEItemStack o2) {
+        public int compare(final IAEStack<?> o1, final IAEStack<?> o2) {
             if (!InvTweakSortingModule.isLoaded()) {
                 return CONFIG_BASED_SORT_BY_NAME.compare(o1, o2);
             }
 
-            return InvTweakSortingModule.compareItems(o1.getItemStack(), o2.getItemStack()) * direction.sortHint;
+            return InvTweakSortingModule.compareItems(o1.getItemStackForNEI(), o2.getItemStackForNEI())
+                    * direction.sortHint;
         }
     };
 

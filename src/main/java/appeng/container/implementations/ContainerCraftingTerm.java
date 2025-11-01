@@ -35,7 +35,7 @@ public class ContainerCraftingTerm extends ContainerMEMonitorable
     private final SlotCraftingTerm outputSlot;
 
     public ContainerCraftingTerm(final InventoryPlayer ip, final ITerminalHost monitorable) {
-        super(ip, monitorable);
+        super(ip, monitorable, false);
         this.ct = (ICraftingTerminal) monitorable;
 
         final IInventory crafting = this.ct.getInventoryByName("crafting");
@@ -66,6 +66,10 @@ public class ContainerCraftingTerm extends ContainerMEMonitorable
                         this));
 
         this.onCraftMatrixChanged(crafting);
+
+        // need because InventoryBogoSorter looking for specific slot number for bind buttons
+        // bindPlayerInventory in MEMonitorable break it
+        this.bindPlayerInventory(ip, 0, 0);
     }
 
     /**

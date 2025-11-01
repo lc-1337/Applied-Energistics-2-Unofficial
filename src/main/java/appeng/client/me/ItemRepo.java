@@ -213,8 +213,8 @@ public class ItemRepo implements IDisplayRepo {
                 this.view.sort(ItemSorters.CONFIG_BASED_SORT_BY_MOD);
             } else if (SortBy == SortOrder.AMOUNT) {
                 this.view.sort(ItemSorters.CONFIG_BASED_SORT_BY_SIZE);
-                // } else if (SortBy == SortOrder.INVTWEAKS) {
-                // this.view.sort(ItemSorters.CONFIG_BASED_SORT_BY_INV_TWEAKS);
+            } else if (SortBy == SortOrder.INVTWEAKS) {
+                this.view.sort(ItemSorters.CONFIG_BASED_SORT_BY_INV_TWEAKS);
             } else {
                 this.view.sort(ItemSorters.CONFIG_BASED_SORT_BY_NAME);
             }
