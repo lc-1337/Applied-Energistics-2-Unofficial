@@ -169,33 +169,29 @@ public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, II
     }
 
     public boolean rangeCheck() {
-        if (infinityRange) return true;
+        if (this.targetGrid == null) return false;
+
         this.sqRange = this.myRange = Double.MAX_VALUE;
 
-        if (this.targetGrid != null) {
-            if (this.myWap != null) {
-                if (this.myWap.getGrid() == this.targetGrid) {
-                    if (this.testWap(this.myWap)) {
-                        return true;
-                    }
-                }
-                return false;
+        if (this.myWap != null) {
+            if (this.myWap.getGrid() == this.targetGrid) {
+                return infinityRange || this.testWap(this.myWap);
             }
-
-            final IMachineSet tw = this.targetGrid.getMachines(TileWireless.class);
-
-            this.myWap = null;
-
-            for (final IGridNode n : tw) {
-                final IWirelessAccessPoint wap = (IWirelessAccessPoint) n.getMachine();
-                if (this.testWap(wap)) {
-                    this.myWap = wap;
-                }
-            }
-
-            return this.myWap != null;
         }
-        return false;
+
+        final IMachineSet tw = this.targetGrid.getMachines(TileWireless.class);
+
+        this.myWap = null;
+
+        for (final IGridNode n : tw) {
+            final IWirelessAccessPoint wap = (IWirelessAccessPoint) n.getMachine();
+            if (infinityRange || this.testWap(wap)) {
+                this.myWap = wap;
+                break;
+            }
+        }
+
+        return this.myWap != null;
     }
 
     private boolean testWap(final IWirelessAccessPoint wap) {
