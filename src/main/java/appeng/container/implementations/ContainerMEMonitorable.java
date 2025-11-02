@@ -163,18 +163,18 @@ public class ContainerMEMonitorable extends AEBaseContainer
                 return;
             }
 
+            if (monitorable instanceof IGridHost igh) {
+                this.networkNode = igh.getGridNode(ForgeDirection.UNKNOWN);
+            }
+
             if (monitorable instanceof IPortableCell pc) {
                 this.setPowerSource(pc);
             } else if (monitorable instanceof IMEChest imc) {
                 this.setPowerSource(imc);
-            } else if (monitorable instanceof IGridHost igh) {
-                final IGridNode node = igh.getGridNode(ForgeDirection.UNKNOWN);
-                if (node != null) {
-                    this.networkNode = node;
-                    final IGrid g = node.getGrid();
-                    if (g != null) {
-                        this.setPowerSource(new ChannelPowerSrc(this.networkNode, g.getCache(IEnergyGrid.class)));
-                    }
+            } else if (this.networkNode != null) {
+                final IGrid g = this.networkNode.getGrid();
+                if (g != null) {
+                    this.setPowerSource(new ChannelPowerSrc(this.networkNode, g.getCache(IEnergyGrid.class)));
                 }
             }
         } else {
