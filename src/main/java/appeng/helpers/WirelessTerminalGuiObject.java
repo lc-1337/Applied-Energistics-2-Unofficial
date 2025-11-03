@@ -105,7 +105,7 @@ public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, II
     }
 
     public double getRange() {
-        return this.myRange;
+        return this.infinityRange ? 16 : this.myRange;
     }
 
     @Override
