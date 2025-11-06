@@ -13,7 +13,6 @@ package appeng.core.sync.packets;
 import java.util.concurrent.Future;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -76,7 +75,6 @@ public class PacketCraftRequest extends AppEngPacket {
     public void serverPacketData(final INetworkInfo manager, final AppEngPacket packet, final EntityPlayer player) {
         if (player.openContainer instanceof ContainerCraftAmount cca) {
             final PrimaryGui pg = cca.getPrimaryGui();
-            final ItemStack pgIcon = cca.getPrimaryGuiIcon();
             final Object target = cca.getTarget();
             if (target instanceof IGridHost gh) {
                 final IGridNode gn = gh.getGridNode(ForgeDirection.UNKNOWN);
