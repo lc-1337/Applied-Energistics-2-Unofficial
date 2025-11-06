@@ -180,9 +180,14 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
         }
 
         if (CellInventory.isStorageCell(input)) {
-            final IMEInventory<?> meInventory = getCell(((IAEItemStack) input).getItemStack(), null, getChannel());
+            final ItemStack cellStack = ((IAEItemStack) input).getItemStack();
+            final CellInventoryHandler<?> cellInventory = (CellInventoryHandler<?>) getCell(
+                    cellStack,
+                    null,
+                    ((IStorageCell) cellStack.getItem()).getStorageChannel());
 
-            if (meInventory != null && !this.isEmpty(meInventory)) {
+            // same as isEmpty but less effort
+            if (cellInventory != null && cellInventory.getUsedBytes() > 0) {
                 return input;
             }
         }
