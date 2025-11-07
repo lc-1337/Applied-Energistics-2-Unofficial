@@ -10,7 +10,8 @@
 
 package appeng.core.sync;
 
-import static appeng.util.Platform.isBaublesLoaded;
+import static appeng.util.Platform.getItemFromPlayerInventoryBySlotIndex;
+import static appeng.util.Platform.itemGuiSlotOffset;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -122,7 +123,6 @@ import appeng.tile.storage.TileDrive;
 import appeng.tile.storage.TileIOPort;
 import appeng.tile.storage.TileSkyChest;
 import appeng.util.Platform;
-import baubles.api.BaublesApi;
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 
@@ -281,20 +281,23 @@ public enum GuiBridge implements IGuiHandler {
         final ForgeDirection side = ForgeDirection.getOrientation(ordinal & 0x07);
         final GuiBridge ID = values()[ordinal >> 5];
         final boolean stem = ((ordinal >> 3) & 1) == 1;
-        final boolean xIsSlotIndex = ((ordinal >> 4) & 1) == 1;
-        if (ID.type.isItem()) {
-            ItemStack it = null;
-            if (stem) {
-                it = player.inventory.getCurrentItem();
-            } else if (xIsSlotIndex && x >= 0 && x < player.inventory.mainInventory.length) {
-                it = player.inventory.getStackInSlot(x);
-            } else if (isBaublesLoaded && x >= 1_000_000) {
-                it = BaublesApi.getBaubles(player).getStackInSlot(x - 1_000_000);
-            }
+        final boolean pastXLimit = x >= itemGuiSlotOffset;
+        final int slotIndex = x - itemGuiSlotOffset;
 
-            final Object myItem = this.getGuiObject(it, player, w, x, y, z);
+        if (ID.type.isItem() && pastXLimit) {
+            final ItemStack it = stem ? player.inventory.getCurrentItem()
+                    : getItemFromPlayerInventoryBySlotIndex(player, slotIndex);
+
+            final Object myItem = this.getGuiObject(it, player, w, slotIndex, y, z);
             if (myItem != null && ID.CorrectTileOrPart(myItem)) {
-                return this.updateGui(ID.ConstructContainer(player.inventory, side, myItem), w, x, y, z, side, myItem);
+                return this.updateGui(
+                        ID.ConstructContainer(player.inventory, side, myItem),
+                        w,
+                        slotIndex,
+                        y,
+                        z,
+                        side,
+                        myItem);
             }
         }
         if (ID.type.isTile()) {
@@ -433,23 +436,19 @@ public enum GuiBridge implements IGuiHandler {
         final ForgeDirection side = ForgeDirection.getOrientation(ordinal & 0x07);
         final GuiBridge ID = values()[ordinal >> 5];
         final boolean stem = ((ordinal >> 3) & 1) == 1;
-        final boolean xIsSlotIndex = ((ordinal >> 4) & 1) == 1;
-        if (ID.type.isItem()) {
-            ItemStack it = null;
-            if (stem) {
-                it = player.inventory.getCurrentItem();
-            } else if (xIsSlotIndex && x >= 0 && x < player.inventory.mainInventory.length) {
-                it = player.inventory.getStackInSlot(x);
-            } else if (isBaublesLoaded && x >= 1_000_000) {
-                it = BaublesApi.getBaubles(player).getStackInSlot(x - 1_000_000);
-            }
+        final boolean pastXLimit = x >= itemGuiSlotOffset;
+        final int slotIndex = x - itemGuiSlotOffset;
 
-            final Object myItem = this.getGuiObject(it, player, w, x, y, z);
+        if (ID.type.isItem() && pastXLimit) {
+            final ItemStack it = stem ? player.inventory.getCurrentItem()
+                    : getItemFromPlayerInventoryBySlotIndex(player, slotIndex);
+
+            final Object myItem = this.getGuiObject(it, player, w, slotIndex, y, z);
             if (myItem != null && ID.CorrectTileOrPart(myItem)) {
                 return ID.ConstructGui(player.inventory, side, myItem);
             }
         }
-        if (ID.type.isTile()) {
+        if (ID.type.isTile() && !pastXLimit) {
             final TileEntity TE = w.getTileEntity(x, y, z);
             if (TE instanceof IPartHost) {
                 ((IPartHost) TE).getPart(side);
@@ -490,6 +489,8 @@ public enum GuiBridge implements IGuiHandler {
     public boolean hasPermissions(final TileEntity te, final int x, final int y, final int z, final ForgeDirection side,
             final EntityPlayer player) {
         final World w = player.getEntityWorld();
+        final boolean pastXLimit = x >= itemGuiSlotOffset;
+        final int slotIndex = x - itemGuiSlotOffset;
 
         if (Platform.hasPermissions(
                 te != null ? new DimensionalCoord(te) : new DimensionalCoord(player.worldObj, x, y, z),
@@ -506,19 +507,10 @@ public enum GuiBridge implements IGuiHandler {
                         return this.securityCheck(te, player);
                     }
                 }
-            } else if (this.type.isItem()) {
-                ItemStack it = null;
-                if (x < player.inventory.mainInventory.length) {
-                    it = player.inventory.getStackInSlot(x);
-                } else if (isBaublesLoaded && x >= 1_000_000) {
-                    it = BaublesApi.getBaubles(player).getStackInSlot(x - 1_000_000);
-                }
-
+            } else if (this.type.isItem() && pastXLimit) {
+                final ItemStack it = getItemFromPlayerInventoryBySlotIndex(player, slotIndex);
                 if (it != null && it.getItem() instanceof IGuiItem guiItem) {
-                    final Object myItem = guiItem.getGuiObject(it, w, player, x, y, z);
-                    if (this.CorrectTileOrPart(myItem)) {
-                        return true;
-                    }
+                    return this.CorrectTileOrPart(guiItem.getGuiObject(it, w, player, slotIndex, y, z));
                 }
             }
         }

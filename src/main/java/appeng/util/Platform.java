@@ -134,6 +134,7 @@ import appeng.util.item.AEStack;
 import appeng.util.item.OreHelper;
 import appeng.util.item.OreReference;
 import appeng.util.prioitylist.IPartitionList;
+import baubles.api.BaublesApi;
 import buildcraft.api.tools.IToolWrench;
 import cofh.api.item.IToolHammer;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -339,9 +340,12 @@ public class Platform {
         return e == SearchBoxMode.NEI_MANUAL_SEARCH && !IntegrationRegistry.INSTANCE.isEnabled(IntegrationType.NEI);
     }
 
+    // xCord game limit
+    public final static int itemGuiSlotOffset = 30_000_001;
+
     public static void openGUI(@Nonnull final EntityPlayer p, @Nullable final TileEntity tile,
             @Nullable final ForgeDirection side, @Nonnull final GuiBridge type) {
-        openGUI(p, tile, side, type, -1);
+        openGUI(p, tile, side, type, Integer.MIN_VALUE);
     }
 
     public static void openGUI(@Nonnull final EntityPlayer p, @Nullable final TileEntity tile,
@@ -365,8 +369,8 @@ public class Platform {
                         AppEng.instance(),
                         type.ordinal() << 5 | (1 << 4),
                         p.getEntityWorld(),
-                        slotIndex == -1 ? p.inventory.currentItem : slotIndex,
-                        p.openContainer instanceof AEBaseContainer abc ? abc.getSwitchAbleGuiNext() : -1,
+                        itemGuiSlotOffset + (slotIndex == Integer.MIN_VALUE ? p.inventory.currentItem : slotIndex),
+                        p.openContainer instanceof AEBaseContainer abc ? abc.getSwitchAbleGuiNext() : Integer.MIN_VALUE,
                         0);
             } else if (tile == null || type.getType() == GuiHostType.ITEM) {
                 p.openGui(AppEng.instance(), type.ordinal() << 5 | (1 << 3), p.getEntityWorld(), x, y, z);
@@ -2100,5 +2104,25 @@ public class Platform {
         if (a == null || b == null) return false;
         if (a.equals(b)) return a.getStackSize() == b.getStackSize();
         return false;
+    }
+
+    public final static int baublesSlotsOffset = 100_012;
+
+    public static ItemStack getItemFromPlayerInventoryBySlotIndex(final EntityPlayer p, final int slotIndex) {
+        if (slotIndex < 0) {
+            return p.inventory.getCurrentItem();
+        } else if (isBaublesLoaded && slotIndex >= baublesSlotsOffset) {
+            return BaublesApi.getBaubles(p).getStackInSlot(slotIndex - baublesSlotsOffset);
+        } else if (slotIndex < p.inventory.getSizeInventory()) {
+            return p.inventory.getStackInSlot(slotIndex);
+        }
+
+        return null;
+    }
+
+    public static void setPlayerInventorySlotByIndex(final EntityPlayer p, final int slotIndex, final ItemStack is) {
+        if (isBaublesLoaded && slotIndex >= baublesSlotsOffset) {
+            BaublesApi.getBaubles(p).setInventorySlotContents(slotIndex, is);
+        } else p.inventory.setInventorySlotContents(slotIndex, is);
     }
 }
