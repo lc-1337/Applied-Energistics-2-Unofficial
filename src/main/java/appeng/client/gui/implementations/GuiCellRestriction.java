@@ -28,7 +28,7 @@ public class GuiCellRestriction extends GuiSub {
 
     public GuiCellRestriction(InventoryPlayer ip, ICellRestriction obj) {
         super(new ContainerCellRestriction(ip, obj));
-        this.xSize = 256;
+        this.xSize = 204;
 
         this.amountField = new MEGuiTextField(85, 12);
         this.typesField = new MEGuiTextField(30, 12);
