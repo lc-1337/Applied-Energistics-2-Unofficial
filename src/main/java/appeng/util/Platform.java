@@ -124,6 +124,7 @@ import appeng.core.sync.GuiHostType;
 import appeng.hooks.TickHandler;
 import appeng.integration.IntegrationRegistry;
 import appeng.integration.IntegrationType;
+import appeng.integration.abstraction.IGT;
 import appeng.me.GridAccessException;
 import appeng.me.GridNode;
 import appeng.me.helpers.AENetworkProxy;
@@ -1418,7 +1419,11 @@ public class Platform {
 
         int hash = target.hashCode();
 
-        if (target instanceof ITileStorageMonitorable) {
+        final IGT gt = IntegrationRegistry.INSTANCE.getInstanceIfEnabled(IntegrationType.GT);
+
+        if (gt != null && gt.isGTMachine(target)) {
+            return gt.getGTMachineHash(target);
+        } else if (target instanceof ITileStorageMonitorable) {
             return 0;
         } else if (target instanceof TileEntityChest chest) {
             chest.checkForAdjacentChests();
@@ -2124,5 +2129,9 @@ public class Platform {
         if (isBaublesLoaded && slotIndex >= baublesSlotsOffset) {
             BaublesApi.getBaubles(p).setInventorySlotContents(slotIndex, is);
         } else p.inventory.setInventorySlotContents(slotIndex, is);
+    }
+
+    public static int longToInt(long number) {
+        return (int) Math.min(Integer.MAX_VALUE, number);
     }
 }
