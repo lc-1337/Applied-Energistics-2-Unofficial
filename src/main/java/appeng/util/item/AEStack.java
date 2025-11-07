@@ -233,7 +233,8 @@ public abstract class AEStack<StackType extends IAEStack<StackType>> implements 
             }
         }
 
-        if (showAmount && (this.stackSize > 1 || (showAmountAlways && (!showCraftableText || !this.isCraftable)))) {
+        if (showAmount && (this.stackSize > 1
+                || (showAmountAlways && (this.stackSize > 0 || !showCraftableText || !this.isCraftable)))) {
             GL11.glPushMatrix();
             StackSizeRenderer.drawStackSize(x, y, this.stackSize, mc.fontRenderer, fontSize);
             GL11.glPopMatrix();
