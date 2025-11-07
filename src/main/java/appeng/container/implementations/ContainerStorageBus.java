@@ -16,9 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 
 import appeng.api.config.AccessRestriction;
@@ -37,8 +35,6 @@ import appeng.api.storage.data.IItemList;
 import appeng.container.guisync.GuiSync;
 import appeng.container.interfaces.IVirtualSlotHolder;
 import appeng.container.slot.SlotRestrictedInput;
-import appeng.core.sync.network.NetworkHandler;
-import appeng.core.sync.packets.PacketVirtualSlot;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.IterationCounter;
@@ -132,32 +128,6 @@ public class ContainerStorageBus extends ContainerUpgradeable implements IVirtua
         return 5;
     }
 
-    private int rowToUpdate = 0;
-
-    /**
-     * @param row      the specific row to send, -1 indicates sending all.
-     * @param upgrades number of installed capacity cards
-     */
-    private void sendRow(int row, int upgrades) {
-        IAEStackInventory inv = this.storageBus.getAEInventoryByName(StorageName.NONE);
-        // start at first filter slot or at specific row
-        int from = row <= -1 ? 18 : 9 + (9 * row);
-        // end at last filter slot or at end of specific row
-        int to = row <= -1 ? inv.getSizeInventory() : 18 + (9 * row);
-
-        for (; from < to; from++) {
-            if (upgrades <= (from / 9 - 2)) break;
-
-            IAEStack<?> stack = inv.getAEStackInSlot(from);
-            if (stack == null) continue;
-
-            for (ICrafting crafter : this.crafters) {
-                final EntityPlayerMP emp = (EntityPlayerMP) crafter;
-                NetworkHandler.instance.sendTo(new PacketVirtualSlot(StorageName.NONE, from, stack), emp);
-            }
-        }
-    }
-
     @Override
     public void detectAndSendChanges() {
         this.verifyPermissions(SecurityPermissions.BUILD, false);
@@ -169,20 +139,9 @@ public class ContainerStorageBus extends ContainerUpgradeable implements IVirtua
             this.setStorageFilter(
                     (StorageFilter) this.getUpgradeable().getConfigManager().getSetting(Settings.STORAGE_FILTER));
             this.setStickyMode((YesNo) this.getUpgradeable().getConfigManager().getSetting(Settings.STICKY_MODE));
-        }
-        final int upgrades = this.getUpgradeable().getInstalledUpgrades(Upgrades.CAPACITY);
 
-        if (upgrades > 0) { // sync filter slots
-            boolean needSync = this.storageBus.needSyncGUI();
-            int row;
-            if (needSync) {
-                row = -1; // send all rows
-                rowToUpdate = upgrades; // force update of last row at next call
-                this.storageBus.setNeedSyncGUI(false);
-            } else row = rowToUpdate++;
-
-            if (row >= upgrades) rowToUpdate = 0;
-            sendRow(row, upgrades);
+            final IAEStackInventory config = this.storageBus.getAEInventoryByName(StorageName.NONE);
+            this.updateVirtualSlots(StorageName.NONE, config, this.configClientSlot);
         }
 
         this.standardDetectAndSendChanges();

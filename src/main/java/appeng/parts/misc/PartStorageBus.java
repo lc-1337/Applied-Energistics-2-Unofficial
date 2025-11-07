@@ -102,8 +102,9 @@ public class PartStorageBus extends PartUpgradeable implements IStorageBus {
         public void putAEStackInSlot(int n, IAEStack<?> aes) {
             super.putAEStackInSlot(n, aes);
 
-            if (aes != null && n >= 18 && (n < (18 + getInstalledUpgrades(Upgrades.CAPACITY) * 9)))
+            if (n >= 18 && (n < (18 + getInstalledUpgrades(Upgrades.CAPACITY) * 9))) {
                 filterCache[n - 18] = aes;
+            }
 
             resetCache(true);
         }
