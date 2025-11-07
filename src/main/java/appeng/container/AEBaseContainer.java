@@ -10,6 +10,7 @@
 
 package appeng.container;
 
+import static appeng.util.Platform.isBaublesLoaded;
 import static appeng.util.Platform.isStacksIdentical;
 
 import java.io.ByteArrayInputStream;
@@ -100,6 +101,7 @@ import appeng.tile.storage.TileDrive;
 import appeng.util.IterationCounter;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+import baubles.api.BaublesApi;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 public abstract class AEBaseContainer extends Container {
@@ -1099,13 +1101,18 @@ public abstract class AEBaseContainer extends Container {
         }
 
         if (obj instanceof IPortableCell ipc) {
-            final ItemStack currentItem = ipc.getInventorySlot() < 0 ? this.getPlayerInv().getCurrentItem()
-                    : this.getPlayerInv().getStackInSlot(ipc.getInventorySlot());
+            final int slotIndex = ipc.getInventorySlot();
+            final ItemStack currentItem = slotIndex < 0 ? this.getPlayerInv().getCurrentItem()
+                    : isBaublesLoaded && slotIndex >= 1_000_000
+                            ? BaublesApi.getBaubles(this.getPlayerInv().player).getStackInSlot(slotIndex - 1_000_000)
+                            : this.getPlayerInv().getStackInSlot(slotIndex);
             final ItemStack is = ipc.getItemStack();
             if (currentItem != is) {
                 if (currentItem != null) {
                     if (Platform.isSameItem(is, currentItem)) {
-                        this.getPlayerInv().setInventorySlotContents(this.getPlayerInv().currentItem, is);
+                        if (isBaublesLoaded && slotIndex >= 1_000_000) {
+                            BaublesApi.getBaubles(this.getPlayerInv().player).setInventorySlotContents(slotIndex, is);
+                        } else this.getPlayerInv().setInventorySlotContents(slotIndex, is);
                     } else {
                         this.setValidContainer(false);
                     }

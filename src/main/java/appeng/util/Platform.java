@@ -175,6 +175,7 @@ public class Platform {
     private static final DecimalFormat df = new DecimalFormat("#.##");
     public static final boolean isAE2FCLoaded = Loader.isModLoaded("ae2fc");
     public static final boolean isEIOLoaded = Loader.isModLoaded("EnderIO");
+    public static boolean isBaublesLoaded = Loader.isModLoaded("Baubles");
 
     static {
         BYTE_LIMIT = new double[10];
@@ -340,6 +341,11 @@ public class Platform {
 
     public static void openGUI(@Nonnull final EntityPlayer p, @Nullable final TileEntity tile,
             @Nullable final ForgeDirection side, @Nonnull final GuiBridge type) {
+        openGUI(p, tile, side, type, -1);
+    }
+
+    public static void openGUI(@Nonnull final EntityPlayer p, @Nullable final TileEntity tile,
+            @Nullable final ForgeDirection side, @Nonnull final GuiBridge type, final int slotIndex) {
         if (isClient()) {
             return;
         }
@@ -359,7 +365,7 @@ public class Platform {
                         AppEng.instance(),
                         type.ordinal() << 5 | (1 << 4),
                         p.getEntityWorld(),
-                        p.inventory.currentItem,
+                        slotIndex == -1 ? p.inventory.currentItem : slotIndex,
                         p.openContainer instanceof AEBaseContainer abc ? abc.getSwitchAbleGuiNext() : -1,
                         0);
             } else if (tile == null || type.getType() == GuiHostType.ITEM) {
