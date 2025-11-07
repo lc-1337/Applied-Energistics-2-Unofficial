@@ -27,6 +27,7 @@ public class VirtualMEPhantomSlot extends VirtualMESlot {
     public VirtualMEPhantomSlot(int x, int y, IAEStackInventory inventory, int slotIndex) {
         super(x, y, slotIndex);
         this.inventory = inventory;
+        this.showAmount = false;
     }
 
     @Nullable

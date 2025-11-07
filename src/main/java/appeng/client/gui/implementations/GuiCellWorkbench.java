@@ -183,7 +183,6 @@ public class GuiCellWorkbench extends GuiUpgradeable {
                         inputInv,
                         x + y * 9);
                 this.configSlots[x + y * 9] = slot;
-                slot.setShowAmount(false);
                 this.registerVirtualSlots(slot);
             }
         }

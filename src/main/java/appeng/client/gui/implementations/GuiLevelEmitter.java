@@ -80,7 +80,6 @@ public class GuiLevelEmitter extends GuiUpgradeable {
                 42,
                 ((ContainerLevelEmitter) inventorySlots).getLvlEmitter().getAEInventoryByName(StorageName.NONE),
                 0);
-        this.config.setShowAmount(false);
         this.registerVirtualSlots(this.config);
     }
 
