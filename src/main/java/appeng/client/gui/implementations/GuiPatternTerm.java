@@ -336,4 +336,9 @@ public class GuiPatternTerm extends GuiMEMonitorable {
             s.yDisplayPosition = s.getY() + this.ySize - 78 - 3;
         }
     }
+
+    @Override
+    protected void handlePhantomSlotInteraction(VirtualMEPhantomSlot slot, int mouseButton) {
+        slot.handleMouseClicked(true, !cragtingMode, isCtrlKeyDown());
+    }
 }

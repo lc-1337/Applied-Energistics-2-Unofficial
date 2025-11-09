@@ -51,6 +51,7 @@ import appeng.api.config.TerminalStyle;
 import appeng.api.config.YesNo;
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.parts.IInterfaceTerminal;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.util.NamedDimensionalCoord;
 import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.IGuiTooltipHandler;
@@ -952,10 +953,10 @@ public class GuiInterfaceTerminal extends AEBaseGui
 
         for (int i = 0; i < tags.tagCount(); i++) {
             final NBTTagCompound tag = tags.getCompoundTagAt(i);
-            final ItemStack parsedItemStack = ItemStack.loadItemStackFromNBT(tag);
+            final IAEStack<?> aes = Platform.readStackNBT(tag, true);
 
-            if (parsedItemStack != null) {
-                if (itemFilter.test(parsedItemStack)) {
+            if (aes != null) {
+                if (itemFilter.test(aes.getItemStackForNEI())) {
                     return true;
                 }
             } else if (containsInvalidDisplayName && !tag.hasNoTags()) {
