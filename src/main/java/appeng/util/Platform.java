@@ -2134,4 +2134,14 @@ public class Platform {
     public static int longToInt(long number) {
         return (int) Math.min(Integer.MAX_VALUE, number);
     }
+
+    public static ItemStack copyStackWithSize(ItemStack itemStack, int size) {
+        if (size != 0 && itemStack != null) {
+            ItemStack copy = itemStack.copy();
+            copy.stackSize = size;
+            return copy;
+        } else {
+            return null;
+        }
+    }
 }

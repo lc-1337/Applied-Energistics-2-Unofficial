@@ -5,8 +5,6 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 
-import com.glodblock.github.util.Util;
-
 import appeng.api.storage.StorageName;
 import appeng.api.storage.data.IAEStack;
 import appeng.core.sync.network.NetworkHandler;
@@ -15,6 +13,7 @@ import appeng.integration.IntegrationRegistry;
 import appeng.integration.IntegrationType;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.FluidUtils;
+import appeng.util.Platform;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEItemStack;
 import codechicken.nei.ItemPanels;
@@ -55,7 +54,7 @@ public class VirtualMEPhantomSlot extends VirtualMESlot {
 
         // need always convert display fluid stack from nei or nothing.
         if (newStack != null && !FluidUtils.isFluidContainer(newStack)
-                && StackInfo.getFluid(Util.copyStackWithSize(newStack, 1)) != null) {
+                && StackInfo.getFluid(Platform.copyStackWithSize(newStack, 1)) != null) {
             isExtraAction = true;
             acceptItem = false;
         }
