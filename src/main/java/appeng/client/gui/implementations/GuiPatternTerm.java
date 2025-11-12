@@ -341,4 +341,8 @@ public class GuiPatternTerm extends GuiMEMonitorable {
     protected void handlePhantomSlotInteraction(VirtualMEPhantomSlot slot, int mouseButton) {
         slot.handleMouseClicked(true, !cragtingMode, isCtrlKeyDown());
     }
+
+    public VirtualMEPatternSlot[] getCraftingSlots() {
+        return craftingSlots;
+    }
 }
