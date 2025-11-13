@@ -339,7 +339,7 @@ public class GuiPatternTerm extends GuiMEMonitorable {
 
     @Override
     protected void handlePhantomSlotInteraction(VirtualMEPhantomSlot slot, int mouseButton) {
-        slot.handleMouseClicked(true, !cragtingMode, isCtrlKeyDown());
+        slot.handleMouseClicked(true, !cragtingMode, isCtrlKeyDown(), mouseButton);
     }
 
     public VirtualMEPatternSlot[] getCraftingSlots() {
