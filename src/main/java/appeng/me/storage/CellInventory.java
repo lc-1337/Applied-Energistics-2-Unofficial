@@ -59,6 +59,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
     private byte restrictionTypes = 0;
     private long restrictionLong = 0;
     private int typeWeight = 8;
+    private final int distTypesCount;
 
     protected CellInventory(final ItemStack o, final ISaveProvider container) throws AppEngException {
         slots = new String[this.maxTypes];
@@ -117,6 +118,17 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
         this.restrictionTypes = this.tagCompound.getByte("cellRestrictionTypes");
         this.restrictionLong = this.tagCompound.getLong("cellRestrictionAmount");
         this.cellStacks = null;
+
+        if (this.restrictionTypes > 0) this.distTypesCount = this.restrictionTypes;
+        else {
+            int types = 0;
+            final IAEStackInventory config = this.getConfigAEInventory();
+            for (int i = 0; i < config.getSizeInventory(); i++) {
+                if (config.getAEStackInSlot(i) != null) types++;
+            }
+
+            this.distTypesCount = types == 0 ? this.maxTypes : types;
+        }
     }
 
     private static boolean isStorageCell(final IAEStack<?> itemStack) {
@@ -550,26 +562,24 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
     @Override
     public long getRemainingItemsCountDist(StackType l) {
         long remaining;
-        long types = 0;
-        for (int i = 0; i < this.getTotalItemTypes(); i++) {
-            if (this.getConfigAEInventory().getAEStackInSlot(i) != null) {
-                types++;
-            }
-        }
-        if (types == 0) types = restrictionTypes > 0 ? restrictionTypes : this.getTotalItemTypes();
+
         if (l != null) {
             if (restrictionLong > 0) {
-                remaining = Math.min((restrictionLong / types) - l.getStackSize(), getRemainingItemCount());
+                remaining = Math
+                        .min((restrictionLong / this.distTypesCount) - l.getStackSize(), getRemainingItemCount());
             } else {
-                remaining = (((getTotalBytes() / types) - getBytesPerType()) * this.typeWeight) - l.getStackSize();
+                remaining = (((getTotalBytes() / this.distTypesCount) - getBytesPerType()) * this.typeWeight)
+                        - l.getStackSize();
             }
         } else {
             if (restrictionLong > 0) {
                 remaining = Math.min(
-                        restrictionLong / types,
-                        ((this.getTotalBytes() / types) - this.getBytesPerType()) * (long) this.typeWeight);
+                        restrictionLong / this.distTypesCount,
+                        ((this.getTotalBytes() / this.distTypesCount) - this.getBytesPerType())
+                                * (long) this.typeWeight);
             } else {
-                remaining = ((this.getTotalBytes() / types) - this.getBytesPerType()) * (long) this.typeWeight;
+                remaining = ((this.getTotalBytes() / this.distTypesCount) - this.getBytesPerType())
+                        * (long) this.typeWeight;
             }
         }
         return remaining > 0 ? remaining : 0;
