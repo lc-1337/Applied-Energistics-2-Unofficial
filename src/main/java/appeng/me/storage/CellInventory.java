@@ -127,7 +127,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
                 if (config.getAEStackInSlot(i) != null) types++;
             }
 
-            this.distTypesCount = types == 0 ? this.maxTypes : types;
+            this.distTypesCount = types == 0 ? this.maxTypes : Math.min(types, this.maxTypes);
         }
     }
 
