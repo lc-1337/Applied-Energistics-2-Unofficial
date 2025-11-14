@@ -1737,13 +1737,13 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
     }
 
     @SuppressWarnings("unchecked")
-    public List<NamedDimensionalCoord> getProviders(IAEItemStack is) {
-        return this.providers.getOrDefault(convertStack(is), Collections.EMPTY_LIST);
+    public List<NamedDimensionalCoord> getProviders(IAEStack<?> is) {
+        return this.providers.getOrDefault(is, Collections.EMPTY_LIST);
     }
 
-    public ScheduledReason getScheduledReason(IAEItemStack is) {
+    public ScheduledReason getScheduledReason(IAEStack<?> is) {
         for (final Entry<ICraftingPatternDetails, TaskProgress> t : this.tasks.entrySet()) {
-            for (final IAEItemStack ais : t.getKey().getCondensedOutputs()) {
+            for (final IAEStack<?> ais : t.getKey().getCondensedAEOutputs()) {
                 if (Objects.equals(ais, is)) {
                     return reasonProvider.getOrDefault(t.getKey(), ScheduledReason.UNDEFINED);
                 }
