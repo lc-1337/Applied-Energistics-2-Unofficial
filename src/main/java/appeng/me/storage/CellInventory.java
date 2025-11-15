@@ -254,7 +254,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
                 remainingItemCount = this.getRemainingItemsCountDist(null);
             } else {
                 if (restrictionLong > 0) {
-                    remainingItemCount = restrictionLong;
+                    remainingItemCount = this.getRemainingItemCount();
                 } else {
                     remainingItemCount = this.getRemainingItemCount() - this.getBytesPerType() * (long) this.typeWeight;
                 }
@@ -511,6 +511,7 @@ public abstract class CellInventory<StackType extends IAEStack<StackType>> imple
 
         return (bytesFree > this.getBytesPerType()
                 || (bytesFree == this.getBytesPerType() && this.getUnusedItemCount() > 0))
+                && (restrictionLong <= 0 || restrictionLong > getStoredItemCount())
                 && this.getRemainingItemTypes() > 0;
     }
 
