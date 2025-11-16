@@ -1130,7 +1130,7 @@ public abstract class AEBaseContainer extends Container {
     }
 
     // need for universal terminal, because getMode(ItemStack terminal) always have outdated mode
-    private int switchAbleGuiItemNext = -1;
+    private int switchAbleGuiItemNext = Integer.MIN_VALUE;
 
     public int getSwitchAbleGuiNext() {
         return this.switchAbleGuiItemNext;
