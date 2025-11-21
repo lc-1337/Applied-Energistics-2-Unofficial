@@ -112,7 +112,7 @@ public class PartImportBus extends PartBaseImportBus<IAEItemStack> implements II
     @Override
     protected boolean importStuff(final Object myTarget, final IAEItemStack whatToImport,
             final IMEMonitor<IAEItemStack> inv, final IEnergySource energy, final FuzzyMode fzMode) {
-        if (!(myTarget instanceof InventoryAdaptor myAdaptor)) return false;
+        if (!(myTarget instanceof InventoryAdaptor myAdaptor)) return true;
         final int toSend = this.calculateMaximumAmountToImport(myAdaptor, whatToImport, inv, fzMode);
         final ItemStack newItems;
 
