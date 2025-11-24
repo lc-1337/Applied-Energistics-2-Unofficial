@@ -14,6 +14,7 @@ public class PrimaryGui {
     final protected ItemStack guiIcon;
     final protected TileEntity te;
     final protected ForgeDirection side;
+    protected int slotIndex = Integer.MIN_VALUE;
 
     public PrimaryGui(Object gui, ItemStack guiIcon, TileEntity te, ForgeDirection side) {
         this.gui = gui;
@@ -24,11 +25,15 @@ public class PrimaryGui {
 
     public void open(EntityPlayer p) {
         if (gui instanceof GuiBridge gb) {
-            Platform.openGUI(p, te, side, gb);
+            Platform.openGUI(p, te, side, gb, slotIndex);
         }
     }
 
     public ItemStack getIcon() {
         return guiIcon;
+    }
+
+    public void setSlotIndex(int slotIndex) {
+        this.slotIndex = slotIndex;
     }
 }

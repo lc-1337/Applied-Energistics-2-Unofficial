@@ -16,20 +16,25 @@ import appeng.api.networking.events.MENetworkBootingStatusChange;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.parts.IInterfaceTerminal;
 import appeng.api.util.AECableType;
+import appeng.container.interfaces.IInventorySlotAware;
 import appeng.helpers.ICustomButtonDataObject;
 import appeng.helpers.ICustomButtonProvider;
 import appeng.helpers.ICustomButtonSource;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class WirelessInterfaceTerminalGuiObject implements IInterfaceTerminal, IGuiItemObject, ICustomButtonProvider {
+public class WirelessInterfaceTerminalGuiObject
+        implements IInterfaceTerminal, IGuiItemObject, ICustomButtonProvider, IInventorySlotAware {
 
     private boolean needsUpdate;
     private final IGridNode node;
     private final ItemStack is;
+    private final int slotIndex;
 
-    public WirelessInterfaceTerminalGuiObject(final IWirelessTermHandler wh, final ItemStack is) {
+    public WirelessInterfaceTerminalGuiObject(final IWirelessTermHandler wh, final ItemStack is, final int slotIndex) {
         this.is = is;
+        this.slotIndex = slotIndex;
+
         String encryptionKey = wh.getEncryptionKey(is);
         ILocatable obj = null;
 
@@ -123,5 +128,10 @@ public class WirelessInterfaceTerminalGuiObject implements IInterfaceTerminal, I
     @Override
     public void setDataObject(ICustomButtonDataObject dataObject) {
         customButtonDataObject = dataObject;
+    }
+
+    @Override
+    public int getInventorySlot() {
+        return this.slotIndex;
     }
 }
