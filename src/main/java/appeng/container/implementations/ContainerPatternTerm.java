@@ -486,7 +486,6 @@ public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEA
         if (isServer()) {
             if (this.isCraftingMode() != this.getPatternTerminal().isCraftingRecipe()) {
                 this.setCraftingMode(this.getPatternTerminal().isCraftingRecipe());
-                this.updateOrderOfOutputSlots();
             }
 
             this.substitute = this.patternTerminal.isSubstitution();
@@ -588,9 +587,11 @@ public class ContainerPatternTerm extends ContainerMEMonitorable implements IAEA
         return this.craftingMode;
     }
 
-    private void setCraftingMode(final boolean craftingMode) {
+    public void setCraftingMode(final boolean craftingMode) {
         this.craftingMode = craftingMode;
+        this.patternTerminal.setCraftingRecipe(craftingMode);
         if (craftingMode && craftingModeSupport) copyToMatrix();
+        this.updateOrderOfOutputSlots();
     }
 
     public IPatternTerminal getPatternTerminal() {
