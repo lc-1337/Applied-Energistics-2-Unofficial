@@ -10,6 +10,7 @@
 
 package appeng.parts.misc;
 
+import static appeng.util.Platform.isAE2FCLoaded;
 import static appeng.util.Platform.readStackNBT;
 import static appeng.util.Platform.writeStackNBT;
 
@@ -31,7 +32,6 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.glodblock.github.inventory.MEMonitorIFluidHandler;
-import com.glodblock.github.util.BlockPos;
 
 import appeng.api.AEApi;
 import appeng.api.config.AccessRestriction;
@@ -579,7 +579,9 @@ public class PartStorageBus extends PartUpgradeable implements IStorageBus {
 
         this.cached = true;
         final TileEntity self = this.getHost().getTile();
-        final TileEntity target = new BlockPos(self).getOffSet(this.getSide()).getTileEntity();
+
+        ForgeDirection side = this.getSide();
+        final TileEntity target = self.getWorldObj().getTileEntity(self.xCoord + side.offsetX, self.yCoord + side.offsetY, self.zCoord +  side.offsetZ);
 
         final int newHandlerHash = Platform.generateTileHash(target);
 
@@ -638,9 +640,13 @@ public class PartStorageBus extends PartUpgradeable implements IStorageBus {
                         final int slotsToUse = 18 + this.getInstalledUpgrades(Upgrades.CAPACITY) * 9;
                         for (int x = 0; x < this.Config.getSizeInventory() && x < slotsToUse; x++) {
                             IAEStack<?> is = this.Config.getAEStackInSlot(x);
-                            if (getStorageChannel() == StorageChannel.FLUIDS &&
-                            is instanceof IAEItemStack ais && ais.getItem() instanceof ItemFluidPacket) is = ItemFluidPacket.getFluidAEStack(ais);
-                            if (is != null) priorityList.add(is);
+
+                            if (getStorageChannel() == StorageChannel.FLUIDS && isAE2FCLoaded && is instanceof IAEItemStack ais && ais.getItem() instanceof ItemFluidPacket) {
+                                is = ItemFluidPacket.getFluidAEStack(ais);
+                            }
+                            if (is != null) {
+                                priorityList.add(is);
+                            }
                         }
 
                         if (getStorageChannel() == StorageChannel.ITEMS
