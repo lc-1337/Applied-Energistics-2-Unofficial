@@ -47,9 +47,13 @@ public interface IWirelessTermHandler extends INetworkEncodable {
      */
     boolean hasPower(EntityPlayer player, double amount, ItemStack is);
 
-    boolean hasInfinityPower(ItemStack is);
+    default boolean hasInfinityPower(ItemStack is) {
+        return false;
+    }
 
-    boolean hasInfinityRange(ItemStack is);
+    default boolean hasInfinityRange(ItemStack is) {
+        return false;
+    }
 
     /**
      * Return the config manager for the wireless terminal.

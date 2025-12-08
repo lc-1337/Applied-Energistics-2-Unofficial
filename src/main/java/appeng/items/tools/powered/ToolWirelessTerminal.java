@@ -21,7 +21,6 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
 
-import com.glodblock.github.common.item.ItemBaseWirelessTerminal;
 import com.google.common.base.Optional;
 
 import appeng.api.AEApi;
@@ -109,25 +108,6 @@ public class ToolWirelessTerminal extends AEBasePoweredItem implements IWireless
     @Override
     public boolean hasPower(final EntityPlayer player, final double amt, final ItemStack is) {
         return this.getAECurrentPower(is) >= amt;
-    }
-
-    @Override
-    public boolean hasInfinityPower(ItemStack is) {
-        if (is.getItem() instanceof ItemBaseWirelessTerminal) {
-            NBTTagCompound data = Platform.openNbtData(is);
-            return (data.hasKey(infinityEnergyCard) && data.getBoolean(infinityEnergyCard));
-        }
-        return false;
-    }
-
-    @Override
-    public boolean hasInfinityRange(ItemStack is) {
-        if (is.getItem() instanceof ItemBaseWirelessTerminal) {
-            NBTTagCompound data = Platform.openNbtData(is);
-            return data.hasKey(infinityBoosterCard) && data.getBoolean(infinityBoosterCard);
-        }
-
-        return false;
     }
 
     @Override
