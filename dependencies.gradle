@@ -33,7 +33,7 @@ dependencies {
     }
 
     compileOnly('com.github.GTNewHorizons:Baubles-Expanded:2.2.6-GTNH:dev')
-    
+
     compileOnly("org.jetbrains:annotations:26.0.2")
 
     //Uncomment to add thermal expansion + foundation for testing
