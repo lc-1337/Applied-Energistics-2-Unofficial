@@ -5,7 +5,7 @@ dependencies {
     implementation("com.github.GTNewHorizons:GTNHLib:0.9.23:dev")
     implementation('curse.maven:cofh-core-69162:2388751')
 
-	compileOnlyApi('com.github.GTNewHorizons:Angelica:2.0.0-alpha21:dev')
+	compileOnlyApi('com.github.GTNewHorizons:Angelica:2.0.0-alpha17:dev')
     compileOnlyApi('com.github.GTNewHorizons:EnderCore:0.5.5:dev') {transitive = false}
     compileOnly('com.github.GTNewHorizons:ThaumicTinkerer:2.12.9:dev') {transitive = false}
     compileOnly('com.github.GTNewHorizons:BuildCraft:7.1.55:dev') {transitive = false}
