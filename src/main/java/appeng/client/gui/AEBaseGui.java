@@ -10,6 +10,7 @@
 
 package appeng.client.gui;
 
+import static appeng.client.gui.implementations.GuiMEMonitorable.keyBindPickBlockAction;
 import static appeng.server.ServerHelper.CONTAINER_INTERACTION_KEY;
 
 import java.awt.Rectangle;
@@ -399,7 +400,7 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
         final VirtualMESlot virtualSlot = getVirtualMESlotUnderMouse();
         if (virtualSlot != null && this.handleVirtualSlotClick(
                 virtualSlot,
-                btn == this.mc.gameSettings.keyBindPickBlock.getKeyCode() + 100 ? 3 : btn))
+                btn == this.mc.gameSettings.keyBindPickBlock.getKeyCode() + 100 ? keyBindPickBlockAction : btn))
             return;
 
         if (btn == 1) {
@@ -422,7 +423,7 @@ public abstract class AEBaseGui extends GuiContainer implements IGuiTooltipHandl
     protected void keyTyped(char typedChar, int keyCode) {
         if (keyCode == this.mc.gameSettings.keyBindPickBlock.getKeyCode()) {
             final VirtualMESlot virtualSlot = getVirtualMESlotUnderMouse();
-            if (virtualSlot != null && this.handleVirtualSlotClick(virtualSlot, 3)) return;
+            if (virtualSlot != null && this.handleVirtualSlotClick(virtualSlot, keyBindPickBlockAction)) return;
         }
 
         super.keyTyped(typedChar, keyCode);

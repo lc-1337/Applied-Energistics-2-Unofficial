@@ -106,6 +106,10 @@ public class GuiMEMonitorable extends AEBaseGui
     public static int craftingGridOffsetX;
     public static int craftingGridOffsetY;
 
+    // Keybind use can be keyboard or mouse, both redirect to this.handleVirtualSlotClick
+    // if key/mouseButton == this.mc.gameSettings.keyBindPickBlock.getKeyCode()
+    public static final int keyBindPickBlockAction = 3;
+
     private static String memoryText = "";
     private final IDisplayRepo repo;
     protected int offsetRepoX = 9;
@@ -683,7 +687,7 @@ public class GuiMEMonitorable extends AEBaseGui
                 this.sendAction(MonitorableAction.SPLIT_OR_PLACE_SINGLE, slotStack, -1);
                 return true;
             }
-            case 3 -> { // keyBindPickBlock
+            case keyBindPickBlockAction -> {
                 if (slot.getAEStack() != null && slot.getAEStack().isCraftable()) {
                     this.sendAction(MonitorableAction.AUTO_CRAFT, slot.getAEStack(), -1);
                     return true;
