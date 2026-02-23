@@ -108,7 +108,7 @@ public class GuiMEMonitorable extends AEBaseGui
 
     // Keybind use can be keyboard or mouse, both redirect to this.handleVirtualSlotClick
     // if key/mouseButton == this.mc.gameSettings.keyBindPickBlock.getKeyCode()
-    public static final int keyBindPickBlockAction = 3;
+    public static final int keyBindPickBlockAction = 1_000_101;
 
     private static String memoryText = "";
     private final IDisplayRepo repo;
