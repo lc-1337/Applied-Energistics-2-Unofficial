@@ -27,8 +27,7 @@ public class NotificationManager {
     }
 
     public static GuiNotification getGuiNotification() {
-        final Minecraft mc = Minecraft.getMinecraft();
-        if (guiNotification == null) guiNotification = new GuiNotification(mc);
+        if (guiNotification == null) guiNotification = new GuiNotification(Minecraft.getMinecraft());
         return guiNotification;
     }
 }
