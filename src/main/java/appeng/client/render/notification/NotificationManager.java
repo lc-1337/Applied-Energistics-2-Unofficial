@@ -14,7 +14,7 @@ import cpw.mods.fml.common.gameevent.TickEvent;
  */
 public class NotificationManager {
 
-    public static GuiNotification guiNotification;
+    private static GuiNotification guiNotification;
 
     @SubscribeEvent
     public void renderTick(TickEvent.RenderTickEvent event) {
@@ -24,5 +24,11 @@ public class NotificationManager {
             if (guiNotification == null) guiNotification = new GuiNotification(mc);
             guiNotification.updateNotificationWindow();
         }
+    }
+
+    public static GuiNotification getGuiNotification() {
+        final Minecraft mc = Minecraft.getMinecraft();
+        if (guiNotification == null) guiNotification = new GuiNotification(mc);
+        return guiNotification;
     }
 }
