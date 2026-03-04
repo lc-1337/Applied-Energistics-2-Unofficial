@@ -21,6 +21,10 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import appeng.api.config.FuzzyMode;
@@ -305,6 +309,18 @@ public interface IAEStack<StackType extends IAEStack> {
     String getUnlocalizedName();
 
     String getDisplayName();
+
+    default IChatComponent getChatComponent() {
+        final String unlocalizedName = this.getUnlocalizedName();
+        if (unlocalizedName != null && !unlocalizedName.isEmpty()) {
+            final String translationKey = this.isItem() ? unlocalizedName + ".name" : unlocalizedName;
+            if (StatCollector.canTranslate(translationKey)) {
+                return new ChatComponentTranslation(translationKey);
+            }
+        }
+
+        return new ChatComponentText(this.getDisplayName());
+    }
 
     String getModId();
 
