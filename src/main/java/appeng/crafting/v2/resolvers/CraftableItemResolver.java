@@ -181,9 +181,9 @@ public class CraftableItemResolver implements CraftingRequestResolver {
             // While this is a O(n*m) algorithm, no allocations are needed except for the actual output.
             for (IAEStack<?> output : pOutputs) {
                 for (IAEStack<?> input : pInputs) {
-                    if (!input.equals(output)) {
-                        continue;
-                    }
+                    /*
+                     * if (!input.equals(output)) { continue; }
+                     */
 
                     final long netProduced = output.getStackSize() - input.getStackSize();
 
@@ -322,13 +322,11 @@ public class CraftableItemResolver implements CraftingRequestResolver {
             if (requestedInputs) {
                 // Calculate how many full recipes we could fulfill
                 long maxCraftable = toCraft;
-                for (CraftingRequest recInputChild : childRecursionRequests.values()) {
-                    if (recInputChild.remainingToProcess > 0) {
-                        // If we can't resolve an input to the recursive process, we can't craft anything at all
-                        maxCraftable = 0;
-                        break;
-                    }
-                }
+                /*
+                 * for (CraftingRequest recInputChild : childRecursionRequests.values()) { if
+                 * (recInputChild.remainingToProcess > 0) { // If we can't resolve an input to the recursive process, we
+                 * can't craft anything at all maxCraftable = 0; break; } }
+                 */
                 for (RequestAndPerCraftAmount inputChildPair : childRequests) {
                     final CraftingRequest inputChild = inputChildPair.request;
                     final long costPerRecipe = inputChild.stack.getStackSize() / toCraft;
