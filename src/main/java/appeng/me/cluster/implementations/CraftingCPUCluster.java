@@ -356,7 +356,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
         {
             if (is != null && is.getStackSize() > 0) {
                 if (is.getStackSize() >= what.getStackSize()) {
-                    if (Objects.equals(this.finalOutput, what)) {
+                    if (this.finalOutput.isFinalOutput(what)) {
                         if (this.myLastLink != null) {
                             return ((CraftingLink) this.myLastLink).injectItems(what.copy(), type);
                         }
@@ -373,7 +373,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
                 final IAEStack<?> used = what.copy();
                 used.setStackSize(is.getStackSize());
 
-                if (Objects.equals(finalOutput, what)) {
+                if (this.finalOutput.isFinalOutput(what)) {
                     if (this.myLastLink != null) {
                         leftOver.add(((CraftingLink) this.myLastLink).injectItems(used.copy(), type));
                         return leftOver;
@@ -1136,19 +1136,8 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
 
         try {
             long missingCount = missingStack.getStackSize();
-            IChatComponent missingItem;
-            if (missingStack instanceof IAEItemStack ais) {
-                missingItem = ais.getItemStack().func_151000_E();
-                missingItem.getChatStyle().setColor(EnumChatFormatting.GOLD);
-            } else {
-                String missingName = missingStack.getUnlocalizedName();
-                if (StatCollector.canTranslate(missingName + ".name") && StatCollector
-                        .translateToLocal(missingName + ".name").equals(missingStack.getDisplayName())) {
-                    missingItem = new ChatComponentTranslation(missingName + ".name");
-                } else {
-                    missingItem = new ChatComponentText(missingStack.getDisplayName());
-                }
-            }
+            IChatComponent missingItem = missingStack.getChatComponent();
+            missingItem.getChatStyle().setColor(EnumChatFormatting.GOLD);
 
             String missingCountText = EnumChatFormatting.RED
                     + NumberFormat.getNumberInstance(Locale.getDefault()).format(missingCount)
@@ -1911,10 +1900,11 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
             final String elapsedTimeText = DurationFormatUtils.formatDuration(
                     TimeUnit.MILLISECONDS.convert(this.elapsedTime, TimeUnit.NANOSECONDS),
                     GuiText.ETAFormat.getLocal());
-            return PlayerMessages.FinishCraftingRemind.toChat(
-                    new ChatComponentText(EnumChatFormatting.GREEN + String.valueOf(this.outputsCount)),
-                    this.finalOutput.getDisplayName(),
-                    new ChatComponentText(EnumChatFormatting.GREEN + elapsedTimeText));
+            IChatComponent countComponent = new ChatComponentText(
+                    EnumChatFormatting.GREEN + String.valueOf(this.outputsCount));
+            final IChatComponent itemComponent = this.finalOutput.getChatComponent();
+            IChatComponent timeComponent = new ChatComponentText(EnumChatFormatting.GREEN + elapsedTimeText);
+            return PlayerMessages.FinishCraftingRemind.toChat(countComponent, itemComponent, timeComponent);
         }
 
         public void readFromNBT(NBTTagCompound tag) {
